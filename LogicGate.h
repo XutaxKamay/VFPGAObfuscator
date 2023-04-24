@@ -1,26 +1,24 @@
-#ifndef LOGIC_GATE_H
-#define LOGIC_GATE_H
+#ifndef FPGA_OBFUSCATION_LOGIC_GATE_H
+#define FPGA_OBFUSCATION_LOGIC_GATE_H
 
-#include "StandardHeaders.h"
+#include "Connection.h"
 
-template <std::size_t N>
-using Bits = std::bitset<N>;
-
-template <std::size_t INPUT_NUMBER_OF_BITS,
-          std::size_t OUTPUT_NUMBER_OF_BITS>
 class LogicGate
 {
+    using logic_function_t = std::function<
+      void(Port* inputPort1, Port* inputPort2, Port* outputPort)>;
+
+  protected:
+    Connection* _input_connection_1;
+    Connection* _input_connection_2;
+    Connection* _output_connection;
+
   public:
-    using InputBits  = Bits<INPUT_NUMBER_OF_BITS>;
-    using OutputBits = Bits<OUTPUT_NUMBER_OF_BITS>;
+    LogicGate(Connection* inputConnection1,
+              Connection* inputConnection2,
+              Connection* outputConnection);
 
-    virtual ~LogicGate()                         = 0;
-    virtual void compute()                       = 0;
-    virtual void setInputBits(OutputBits&& bits) = 0;
-    virtual InputBits outputBits()               = 0;
-
-    InputBits _input_bits;
-    OutputBits _output_bits;
+    void Simulate(logic_function_t logicFunction);
 };
 
 #endif

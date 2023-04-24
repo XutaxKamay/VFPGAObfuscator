@@ -3,6 +3,9 @@
 
 #include <bit>
 #include <bitset>
+#include <functional>
 #include <iostream>
+#include <memory>
+#include <vector>
 
 #endif
