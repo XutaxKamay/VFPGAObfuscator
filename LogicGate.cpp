@@ -1,20 +1,15 @@
 #include "LogicGate.h"
 
-LogicGate::LogicGate(std::array<Connection*, 2> inputConnection,
-                     Connection* outputConnection,
+LogicGate::LogicGate(std::array<Port*, 2> inputPort,
+                     Port* outputPort,
                      logic_function_t logicFunction)
- : _input_connection { inputConnection },
-   _output_connection { outputConnection },
+ : _input_port { inputPort },
+   _output_port { outputPort },
    _logic_function(logicFunction)
 {
 }
 
 void LogicGate::Simulate()
 {
-    _input_connection[0]->Synchronize();
-    _input_connection[1]->Synchronize();
-
-    _logic_function({ _input_connection[0]->GetOutputPort(),
-                      _input_connection[1]->GetOutputPort() },
-                    _output_connection->GetInputPort());
+    _logic_function({ _input_port[0], _input_port[1] }, _output_port);
 }

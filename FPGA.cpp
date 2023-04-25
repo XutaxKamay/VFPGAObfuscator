@@ -1,12 +1,12 @@
 #include "FPGA.h"
 
 LogicGate FPGA::LogicGateRecord::ToLogicGate(
-  std::array<Connection*, 2> inputConnection,
-  Connection* outputConnection)
+  std::array<Port*, 2> inputPort,
+  Port* outputPort)
 {
     LogicGate logicGate(
-      inputConnection,
-      outputConnection,
+      inputPort,
+      outputPort,
       [&](std::array<Port*, 2> inputPort, Port* outputPort)
       {
           std::array<std::array<Bit, 3>, 4> realTruthTable;

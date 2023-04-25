@@ -59,7 +59,7 @@
      in each stages can be processed seperately
      and are independent of each others.
      The stages can be generated automatically by looking
-     at the connections,
+     at the ports,
      The more there is ouputs, the more parallelism we can get.
      Since our machine is virtual and there's no physical limitation,
      we can get a very high parallelism depending on the architecture.
@@ -75,7 +75,6 @@ class FPGA
             INPUT_PIN,
             OUTPUT_PIN,
             PORT,
-            CONNECTION,
             LOGIC_GATE
         };
 
@@ -93,16 +92,10 @@ class FPGA
         std::size_t index;
     };
 
-    struct ConnectionRecord : Record
+    struct LogicGateRecord : Record
     {
         std::array<std::size_t, 2> input_port_index;
         std::size_t output_port_index;
-    };
-
-    struct LogicGateRecord : Record
-    {
-        std::array<std::size_t, 2> input_connection_index;
-        std::size_t output_connection_index;
 
         ////////////////////////////////////////////////////
         ///                                              ///
@@ -113,15 +106,14 @@ class FPGA
         std::array<std::uint8_t, 3> truth_table_ports_column;
         std::array<std::array<bool, 3>, 4> truth_table;
 
-        LogicGate ToLogicGate(std::array<Connection*, 2> inputConnection,
-                              Connection* outputConnection);
+        LogicGate ToLogicGate(std::array<Port*, 2> inputPort,
+                              Port* outputPort);
     };
 
   private:
     std::vector<Port*> _input_pins;
     std::vector<Port*> _output_pins;
     std::vector<Port*> _ports;
-    std::vector<Connection*> _connections;
 
     ///////////////////////////////////////////////////////////////
     ///                                                         ///
