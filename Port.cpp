@@ -5,17 +5,22 @@ Port::Port(Bit&& state)
 {
 }
 
-void Port::setHigh()
+void Port::SetHigh()
 {
     _state = HIGH;
 }
 
-void Port::setLow()
+void Port::SetLow()
 {
     _state = LOW;
 }
 
-Bit& Port::state()
+Bit Port::GetState()
 {
     return _state;
+}
+
+void Port::SetState(Bit state)
+{
+    _state = state;
 }

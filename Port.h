@@ -17,10 +17,11 @@ class Port
   public:
     Port(Bit&& state);
 
-    void setHigh();
-    void setLow();
 
-    Bit& state();
+    Bit GetState();
+    void SetLow();
+    void SetHigh();
+    void SetState(Bit state);
 };
 
 #endif

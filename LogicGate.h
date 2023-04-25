@@ -6,19 +6,19 @@
 class LogicGate
 {
     using logic_function_t = std::function<
-      void(Port* inputPort1, Port* inputPort2, Port* outputPort)>;
+      void(std::array<Port*, 2> inputPort, Port* outputPort)>;
 
   protected:
-    Connection* _input_connection_1;
-    Connection* _input_connection_2;
+    std::array<Connection*, 2> _input_connection;
     Connection* _output_connection;
+    logic_function_t _logic_function;
 
   public:
-    LogicGate(Connection* inputConnection1,
-              Connection* inputConnection2,
-              Connection* outputConnection);
+    LogicGate(std::array<Connection*, 2> inputConnection,
+              Connection* outputConnection,
+              logic_function_t logicFunction);
 
-    void Simulate(logic_function_t logicFunction);
+    void Simulate();
 };
 
 #endif

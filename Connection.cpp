@@ -18,5 +18,5 @@ Port* Connection::GetOutputPort()
 
 void Connection::Synchronize()
 {
-    _output_port->state() = _input_port->state();
+    _output_port->SetState(_input_port->GetState());
 }
