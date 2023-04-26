@@ -1,5 +1,5 @@
-#ifndef FPGA_OBFUSCATION_WIRE_H
-#define FPGA_OBFUSCATION_WIRE_H
+#ifndef FPGA_SIMULATOR_WIRE_H
+#define FPGA_SIMULATOR_WIRE_H
 
 class LogicGate
 {

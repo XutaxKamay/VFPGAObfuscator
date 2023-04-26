@@ -1,5 +1,5 @@
-#ifndef FPGA_OBFUSCATION_PORT_H
-#define FPGA_OBFUSCATION_PORT_H
+#ifndef FPGA_SIMULATOR_PORT_H
+#define FPGA_SIMULATOR_PORT_H
 
 #include "StandardHeaders.h"
 
@@ -16,7 +16,6 @@ class Port
 
   public:
     Port(Bit&& state);
-
 
     Bit GetState();
     void SetLow();

@@ -1,22 +1,29 @@
-#ifndef FPGA_OBFUSCATION_LOGIC_GATE_H
-#define FPGA_OBFUSCATION_LOGIC_GATE_H
+#ifndef FPGA_SIMULATOR_LOGIC_GATE_H
+#define FPGA_SIMULATOR_LOGIC_GATE_H
 
 #include "Port.h"
 
 class LogicGate
 {
-    using logic_function_t = std::function<
-      void(std::array<Port*, 2> inputPort, Port* outputPort)>;
+  public:
+    struct Decoder
+    {
+        void RunLogicFunction(const std::vector<const Port*>& allPorts,
+                              const std::vector<const Port*>& inputPorts,
+                              const std::vector<Port*>& outputPorts);
+    };
 
   protected:
-    std::array<Port*, 2> _input_port;
-    Port* _output_port;
-    logic_function_t _logic_function;
+    std::vector<const Port*> _all_ports;
+    std::vector<const Port*> _input_ports;
+    std::vector<Port*> _output_ports;
+    Decoder _decoder;
 
   public:
-    LogicGate(std::array<Port*, 2> inputPort,
-              Port* outputPort,
-              logic_function_t logicFunction);
+    LogicGate(const std::vector<const Port*>& allPorts,
+              const std::vector<const Port*>& inputPorts,
+              const std::vector<Port*>& outputPorts,
+              const Decoder& decoder);
 
     void Simulate();
 };
