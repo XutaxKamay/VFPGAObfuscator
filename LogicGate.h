@@ -8,20 +8,22 @@ class LogicGate
   public:
     struct Decoder
     {
-        void RunLogicFunction(const std::vector<const Port*>& allPorts,
-                              const std::vector<const Port*>& inputPorts,
+        void RunLogicFunction(const std::vector<Port*>& inputPorts,
                               const std::vector<Port*>& outputPorts);
+
+        std::vector<std::vector<std::variant<Port*, Bit>>>
+          input_truth_table;
+        std::vector<std::vector<std::variant<Port*, Bit>>>
+          output_truth_table;
     };
 
   protected:
-    std::vector<const Port*> _all_ports;
-    std::vector<const Port*> _input_ports;
+    std::vector<Port*> _input_ports;
     std::vector<Port*> _output_ports;
     Decoder _decoder;
 
   public:
-    LogicGate(const std::vector<const Port*>& allPorts,
-              const std::vector<const Port*>& inputPorts,
+    LogicGate(const std::vector<Port*>& inputPorts,
               const std::vector<Port*>& outputPorts,
               const Decoder& decoder);
 

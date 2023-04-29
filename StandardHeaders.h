@@ -3,9 +3,11 @@
 
 #include <bit>
 #include <bitset>
+#include <cstdint>
 #include <functional>
 #include <iostream>
 #include <memory>
+#include <variant>
 #include <vector>
 
 #endif
