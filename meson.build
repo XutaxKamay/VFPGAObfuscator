@@ -1,7 +1,6 @@
 project('scanner', 'cpp', default_options : ['cpp_std=c++20', 'warning_level=3', 'werror=true'])
 
 src_common = [
-  'Cryptography.cpp',
   'FPGA.cpp',
   'Port.cpp',
   'LogicGate.cpp'

@@ -75,26 +75,13 @@ class FPGA
     /// A pin is also a port, just a pin is exposed, ///
     /// a port may be not exposed                    ///
     ////////////////////////////////////////////////////
-    using Pin     = Port;
-    using index_t = std::uint64_t;
+    using Pin = Port;
 
-    struct Record
+    struct AllPinsAndPortsEncoded
     {
-        enum class type_t : std::uint8_t
-        {
-            ALL_PINS_AND_PORTS,
-            LOGIC_GATE
-        };
-
-        type_t type;
-        index_t size;
-    };
-
-    struct AllPinsAndPortsRecord : Record
-    {
-        index_t number_of_input_pins;
-        index_t number_of_output_pins;
-        index_t number_of_ports;
+        encoded_index_t number_of_input_pins;
+        encoded_index_t number_of_output_pins;
+        encoded_index_t number_of_others_ports;
 
         /////////////////////////////////////////////
         /// Input pins, outout pins, others ports ///
@@ -106,117 +93,31 @@ class FPGA
         return_t Generate();
     };
 
-    struct PortsIndexesRecord : Record
+    struct Header
     {
-        index_t number_of_ports_indexes;
-        index_t first_port_index;
-
-        std::vector<index_t> Read();
-    };
-
-    struct LogicGateRecord : Record
-    {
-        /*--------------------------------------------------
-         |                                                 |
-         |  The possible outputs for a port:               |
-         |                                                 |
-         |  An example would be like so:                   |
-         |                                                 |
-         |  INPUTS      OUTPUTS                            |
-         |                                                 |
-         |   A  B        O  Q                              |
-         |  |----|      |----|                             |
-         |  |0||0|      |0||1|                             |
-         |  ------      ------                             |
-         |  |0||1|      |0||0|                             |
-         |  ------      ------                             |
-         |  |1||0|      |1||0|                             |
-         |  ------      ------                             |
-         |  |1||1|      |1||1|                             |
-         |  |----|      |----|                             |
-         |                                                 |
-         |  But it is also possible to make this           |
-         |  and it would be also valid:                    |
-         |                                                 |
-         |                                                 |
-         |  INPUTS      OUTPUTS                            |
-         |                                                 |
-         |   A  B        O  Q                              |
-         |  |----|      |----|                             |
-         |  |0||0|      |O||Q|                             |
-         |  ------      ------                             |
-         |  |0||1|      |Q||Q|                             |
-         |  ------      ------                             |
-         |  |1||0|      |0||1|                             |
-         |  ------      ------                             |
-         |  |1||1|      |1||0|                             |
-         |  |----|      |-||-|                             |
-         |                                                 |
-         |  This is mostly useful for RAM,                 |
-         |  like flip-flops or latchs.                     |
-         |  Now the thing that is interesting              |
-         |  and wouldn't be possible in                    |
-         |  others circuits in physical world would be:    |
-         |                                                 |
-         |  INPUTS      OUTPUTS                            |
-         |                                                 |
-         |   A  B        O  Q                              |
-         |  ------      ------                             |
-         |  |0||1|      |Q||1|                             |
-         |  ------      ------                             |
-         |  |X||Y|      |0||1|                             |
-         |  ------      ------                             |
-         |  |1||1|      |1||0|                             |
-         |  |-||-|      |-||-|                             |
-         |                                                 |
-         |  Where X and Y would be some unrelated ports    |
-         |  that are not inside the inputs and outputs.    |
-         |  Of course, a lot of combinations are missing   |
-         |  here, but this is exactly the purpose.         |
-         |  Those are not REAL logic gates.                |
-         |  If combination is missing,                     |
-         |  then it just skips without setting the output, |
-         |  which makes it even more obfuscated            |
-         |  and interesting.                               |
-         |                                                 |
-         --------------------------------------------------*/
-
-        struct TruthTableElement
-        {
-            enum class type_t : std::uint8_t
-            {
-                PORT,
-                BOOL,
-            } type;
-        };
-
-        struct BoolInTruthTable : TruthTableElement
-        {
-            std::uint8_t value;
-        };
-
-        struct PortInTruthTable : TruthTableElement
-        {
-            index_t port_index;
-        };
-
-        index_t number_of_lines_in_truth_table;
-        index_t number_of_input_ports;
-        index_t number_of_output_ports;
-        std::uint64_t offset_to_truth_table;
-        std::uint64_t offset_to_first_input_port;
-        std::uint64_t offset_to_first_output_port;
-
-        std::vector<Port*> GetInputPorts(
-          const std::vector<Port*>& allPorts);
-        std::vector<Port*> GetOutputPorts(
-          const std::vector<Port*>& allPorts);
-        LogicGate::Decoder DecodeLogicFunction(
-          const std::vector<Port*>& allPorts);
-        LogicGate ToLogicGate(const std::vector<Port*>& allPorts);
+        AllPinsAndPortsEncoded all_pins_and_ports_record;
+        encoded_index_t number_of_logic_gates;
+        encoded_index_t offset_to_first_logic_gate;
     };
 
   private:
+    ////////////////////////////////////////////////////////////////////
+    /// Oh no! Xutax, you're using raw pointers, this is really bad. ///
+    /// I know, but there's precise reasons, mostly performance.     ///
+    /// Technically we should use std::atomic<std::shared_ptr<>>.    ///
+    /// Because yes, this will be done multithreaded,                ///
+    /// but the lock might make loose our performance                ///
+    /// quite a bit since there can be, quite a LOT, of logic gates. ///
+    /// std::shared_ptr is mostly behind the scene a counter         ///
+    /// that keeps track of the number of references of the pointer, ///
+    /// if that keeps decreasing and increasing for nothing          ///
+    /// with locks, even though they're fast between lock            ///
+    /// and unlocking, it will make even loose some seconds          ///
+    /// depending on the amount of logic gates.                      ///
+    /// And I don't want that.                                       ///
+    /// Fortunately, it's relatively easy to do so with constructors ///
+    /// and destructors to keep it safe.                             ///
+    ////////////////////////////////////////////////////////////////////
     std::vector<Pin*> _input_pins;
     std::vector<Pin*> _output_pins;
     std::vector<Port*> _ports;
@@ -234,7 +135,11 @@ class FPGA
     std::vector<std::vector<LogicGate*>> _logic_gates;
 
   public:
-    FPGA(const std::vector<std::byte>& encodedBitStream);
+    /////////////////////////////////////////////////////////////
+    /// TODO: pass size parameter, to check for out of bounds ///
+    /////////////////////////////////////////////////////////////
+    FPGA(Header* encodedData);
+    ~FPGA();
 };
 
 #endif

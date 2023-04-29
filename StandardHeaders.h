@@ -10,4 +10,6 @@
 #include <variant>
 #include <vector>
 
+using encoded_index_t = std::uint64_t;
+
 #endif
