@@ -13,8 +13,7 @@ class LogicGate
 
         std::vector<std::vector<std::variant<Port*, Bit>>>
           input_truth_table;
-        std::vector<std::vector<std::variant<Port*, Bit>>>
-          output_truth_table;
+        std::vector<std::variant<Port*, Bit>> output_truth_table;
     };
 
   protected:

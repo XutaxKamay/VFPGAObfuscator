@@ -97,7 +97,7 @@ class FPGA
         index_t number_of_ports;
 
         /////////////////////////////////////////////
-        /// input pins, outout pins, others ports ///
+        /// Input pins, outout pins, others ports ///
         /////////////////////////////////////////////
         using return_t = std::tuple<std::vector<FPGA::Pin*>,
                                     std::vector<FPGA::Pin*>,

@@ -6,14 +6,14 @@ FPGA::AllPinsAndPortsRecord::return_t FPGA::AllPinsAndPortsRecord::Generate()
     std::vector<Pin*> outputPins(number_of_output_pins);
     std::vector<Port*> ports(number_of_ports);
 
-    static const auto generateFunc = [&]()
+    static const auto GenerateFunction = [&]()
     {
         return new Port { 0 };
     };
 
-    std::generate(inputPins.begin(), inputPins.end(), generateFunc);
-    std::generate(outputPins.begin(), outputPins.end(), generateFunc);
-    std::generate(ports.begin(), ports.end(), generateFunc);
+    std::generate(inputPins.begin(), inputPins.end(), GenerateFunction);
+    std::generate(outputPins.begin(), outputPins.end(), GenerateFunction);
+    std::generate(ports.begin(), ports.end(), GenerateFunction);
 
     return { inputPins, outputPins, ports };
 }
@@ -70,54 +70,64 @@ LogicGate::Decoder FPGA::LogicGateRecord::DecodeLogicFunction(
   const std::vector<Port*>& allPorts)
 {
     LogicGate::Decoder decoder;
+    std::vector<std::variant<Port*, Bit>> values;
 
     //////////////////////////////
     /// Decode the truth table ///
     //////////////////////////////
-
     auto truthTableElements = reinterpret_cast<TruthTableElement*>(
       reinterpret_cast<std::uintptr_t>(this) + offset_to_truth_table);
 
-    for (std::size_t i = 0; i < number_of_lines_in_truth_table; i++)
+    ////////////////////////////////////////////////////////////////
+    /// An element/value can be either a boolean value (0 or 1°) ///
+    /// or a Port encoded as an indexed port                     ///
+    ////////////////////////////////////////////////////////////////
+    static const auto DecodedElements =
+      [&](TruthTableElement& truthTableElement)
     {
-        std::vector<std::variant<Port*, Bit>> line;
-
-        static const auto decodedElements =
-          [&](TruthTableElement& truthTableElement)
+        switch (truthTableElement.type)
         {
-            switch (truthTableElement.type)
+            case TruthTableElement::type_t::BOOL:
             {
-                case TruthTableElement::type_t::BOOL:
-                {
-                    const auto boolElement = reinterpret_cast<
-                      BoolInTruthTable*>(&truthTableElement);
-                    line.push_back(boolElement->value);
-                    break;
-                }
-
-                case TruthTableElement::type_t::PORT:
-                {
-                    const auto portElement = reinterpret_cast<
-                      PortInTruthTable*>(&truthTableElement);
-                    line.push_back(allPorts.at(portElement->port_index));
-                    break;
-                }
+                const auto boolElement = reinterpret_cast<
+                  BoolInTruthTable*>(&truthTableElement);
+                values.push_back(boolElement->value);
+                break;
             }
-        };
 
-        std::for_each_n(truthTableElements,
+            case TruthTableElement::type_t::PORT:
+            {
+                const auto portElement = reinterpret_cast<
+                  PortInTruthTable*>(&truthTableElement);
+                values.push_back(allPorts.at(portElement->port_index));
+                break;
+            }
+        }
+    };
+
+    ///////////////////////////////////////////////////////////
+    /// First read the input ports that the logic gate uses ///
+    ///////////////////////////////////////////////////////////
+    std::size_t i = 0;
+    for (; i < number_of_lines_in_truth_table - 1; i++)
+    {
+        std::for_each_n(truthTableElements + (i * number_of_input_ports),
                         number_of_input_ports,
-                        decodedElements);
+                        DecodedElements);
 
-        decoder.input_truth_table.push_back(line);
-        line.clear();
-
-        std::for_each_n(truthTableElements + number_of_input_ports,
-                        number_of_output_ports,
-                        decodedElements);
-
-        decoder.output_truth_table.push_back(line);
+        decoder.input_truth_table.push_back(values);
+        values.clear();
     }
+
+    /////////////////////////////////////////////////////////////
+    /// Then, read the output ports that the logic gate uses  ///
+    /// It's the last elements inside the truth table encoded ///
+    /////////////////////////////////////////////////////////////
+    std::for_each_n(truthTableElements + (i * number_of_input_ports),
+                    number_of_output_ports,
+                    DecodedElements);
+
+    decoder.output_truth_table = values;
 
     return decoder;
 }
@@ -128,6 +138,13 @@ LogicGate FPGA::LogicGateRecord::ToLogicGate(
     const auto inputPorts  = GetInputPorts(allPorts);
     const auto outputPorts = GetOutputPorts(allPorts);
     const auto decoder     = DecodeLogicFunction(allPorts);
+
+    if (outputPorts.size() != decoder.output_truth_table.size())
+    {
+        throw std::runtime_error("The output ports must be the same "
+                                 "amount in the outputs in the truth "
+                                 "table.");
+    }
 
     return { inputPorts, outputPorts, decoder };
 }
