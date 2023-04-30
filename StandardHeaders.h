@@ -1,12 +1,15 @@
 #ifndef StANDARD_HEADERS_H
 #define StANDARD_HEADERS_H
 
+#include <algorithm>
 #include <bit>
 #include <bitset>
 #include <cstdint>
+#include <execution>
 #include <functional>
 #include <iostream>
 #include <memory>
+#include <ranges>
 #include <variant>
 #include <vector>
 

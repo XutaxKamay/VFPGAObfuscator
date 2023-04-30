@@ -71,34 +71,12 @@
 
 class FPGA
 {
+  public:
     ////////////////////////////////////////////////////
     /// A pin is also a port, just a pin is exposed, ///
     /// a port may be not exposed                    ///
     ////////////////////////////////////////////////////
     using Pin = Port;
-
-    struct AllPinsAndPortsEncoded
-    {
-        encoded_index_t number_of_input_pins;
-        encoded_index_t number_of_output_pins;
-        encoded_index_t number_of_others_ports;
-
-        /////////////////////////////////////////////
-        /// Input pins, outout pins, others ports ///
-        /////////////////////////////////////////////
-        using return_t = std::tuple<std::vector<FPGA::Pin*>,
-                                    std::vector<FPGA::Pin*>,
-                                    std::vector<Port*>>;
-
-        return_t Generate();
-    };
-
-    struct Header
-    {
-        AllPinsAndPortsEncoded all_pins_and_ports_record;
-        encoded_index_t number_of_logic_gates;
-        encoded_index_t offset_to_first_logic_gate;
-    };
 
   private:
     ////////////////////////////////////////////////////////////////////
@@ -132,14 +110,27 @@ class FPGA
     /// that each logic gates are not dependent on each others  ///
     ///                                                         ///
     ///////////////////////////////////////////////////////////////
-    std::vector<std::vector<LogicGate*>> _logic_gates;
+    std::vector<LogicGate*> _logic_gates;
+    std::vector<std::vector<LogicGate*>> _stages;
 
   public:
-    /////////////////////////////////////////////////////////////
-    /// TODO: pass size parameter, to check for out of bounds ///
-    /////////////////////////////////////////////////////////////
-    FPGA(Header* encodedData);
+    FPGA(std::size_t numberOfInputPins,
+         std::size_t numberOfOutputPins,
+         std::size_t numberOfOthersPorts);
     ~FPGA();
+
+    decltype(_ports)& Ports();
+    decltype(_logic_gates)& LogicGates();
+
+    LogicGate* MakeLogicGate(const std::vector<Port*>& inputPorts,
+                             const std::vector<Port*>& outputPorts,
+			     const LogicGate::Decoded& decoder);
+
+    void PrepareStages();
+    void Simulate();
+
+  private:
+    void CheckDependencyAndCreateStages();
 };
 
 #endif

@@ -8,16 +8,6 @@ class LogicGate
   public:
     struct Decoded
     {
-        void RunLogicFunction(const std::vector<Port*>& inputPorts,
-                              const std::vector<Port*>& outputPorts);
-
-        std::vector<std::vector<std::variant<Port*, Bit>>>
-          input_truth_table;
-        std::vector<std::variant<Port*, Bit>> output_truth_table;
-    };
-
-    struct Encoded
-    {
         /*--------------------------------------------------
          |                                                 |
          |  The possible outputs for a port:               |
@@ -83,39 +73,12 @@ class LogicGate
          |                                                 |
          --------------------------------------------------*/
 
-        struct TruthTableElement
-        {
-            enum class type_t : std::uint8_t
-            {
-                PORT,
-                BOOL,
-            } type;
-        };
+        void RunLogicFunction(const std::vector<Port*>& inputPorts,
+                              const std::vector<Port*>& outputPorts);
 
-        struct BoolInTruthTable : TruthTableElement
-        {
-            std::uint8_t value;
-        };
-
-        struct PortInTruthTable : TruthTableElement
-        {
-            encoded_index_t port_index;
-        };
-
-        encoded_index_t number_of_lines_in_truth_table;
-        encoded_index_t number_of_input_ports;
-        encoded_index_t number_of_output_ports;
-        std::uint64_t offset_to_truth_table;
-        std::uint64_t offset_to_first_input_port;
-        std::uint64_t offset_to_first_output_port;
-
-        std::vector<Port*> GetInputPorts(
-          const std::vector<Port*>& allPorts);
-        std::vector<Port*> GetOutputPorts(
-          const std::vector<Port*>& allPorts);
-        LogicGate::Decoded DecodeLogicFunction(
-          const std::vector<Port*>& allPorts);
-        LogicGate ToLogicGate(const std::vector<Port*>& allPorts);
+        std::vector<std::vector<std::variant<Port*, Bit>>>
+          input_truth_table;
+        std::vector<std::variant<Port*, Bit>> output_truth_table;
     };
 
   protected:
@@ -124,11 +87,14 @@ class LogicGate
     Decoded _decoded;
 
   public:
+    LogicGate() = default;
     LogicGate(const std::vector<Port*>& inputPorts,
               const std::vector<Port*>& outputPorts,
               const Decoded& decoded);
 
     void Simulate();
+    decltype(_input_ports)& InputPorts();
+    decltype(_output_ports)& OutputPorts();
 };
 
 #endif

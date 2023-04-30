@@ -11,5 +11,6 @@ src_test = [
 ]
 src_test += src_common
 
-library('FPGAObfuscator', src_common)
-executable('Test', src_test)
+tbb = dependency('tbb')
+library('FPGASimulation', src_common, dependencies : tbb)
+executable('Test', src_test, dependencies : tbb)

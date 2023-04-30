@@ -15,6 +15,7 @@ class Port
     Bit _state;
 
   public:
+    Port() = default;
     Port(Bit&& state);
 
     Bit GetState();
