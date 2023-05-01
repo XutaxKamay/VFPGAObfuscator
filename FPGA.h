@@ -89,7 +89,7 @@ class FPGA
     /// std::shared_ptr is mostly behind the scene a counter         ///
     /// that keeps track of the number of references of the pointer, ///
     /// if that keeps decreasing and increasing for nothing          ///
-    /// with locks, even though they're fast between lock            ///
+    /// with locks, even though they're fast between locking         ///
     /// and unlocking, it will make even loose some seconds          ///
     /// depending on the amount of logic gates.                      ///
     /// And I don't want that.                                       ///
