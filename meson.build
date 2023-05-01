@@ -12,5 +12,5 @@ src_test = [
 src_test += src_common
 
 tbb = dependency('tbb')
-library('FPGASimulation', src_common, dependencies : tbb)
+library('FPGASimulator', src_common, dependencies : tbb)
 executable('Test', src_test, dependencies : tbb)
