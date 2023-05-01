@@ -60,13 +60,20 @@ void LogicGate::Decoded::RunLogicFunction(
         {
             const auto& element = elements_on_line[column_index];
 
-            auto state = GetBitState(element);
+            const auto state = GetBitState(element);
 
             if (inputPorts[column_index]->GetState() == state)
             {
-                verifiesTruthTable = true;
-                break;
+                if (not verifiesTruthTable)
+                {
+                    verifiesTruthTable = true;
+                }
+
+                continue;
             }
+
+            verifiesTruthTable = false;
+            break;
         }
 
         ///////////////////////////////////////////////////////////////
@@ -78,8 +85,8 @@ void LogicGate::Decoded::RunLogicFunction(
                  column_index < outputPorts.size();
                  column_index++)
             {
-                outputPorts[column_index]->SetState(
-                  GetBitState(output_truth_table[column_index]));
+                outputPorts[column_index]->SetState(GetBitState(
+                  output_truth_table[line_index][column_index]));
             }
 
             break;
@@ -96,7 +103,18 @@ LogicGate::LogicGate(const std::vector<Port*>& inputPorts,
 {
 }
 
+decltype(LogicGate::_input_ports)& LogicGate::InputPorts()
+{
+    return _input_ports;
+}
+
+decltype(LogicGate::_output_ports)& LogicGate::OutputPorts()
+{
+    return _output_ports;
+}
+
 void LogicGate::Simulate()
 {
     _decoded.RunLogicFunction(_input_ports, _output_ports);
 }
+
