@@ -12,7 +12,8 @@ void LogicGate::Decoded::RunLogicFunction(
     /// If it's a port,                                            ///
     /// then we get its state otherwise we just get the bit value  ///
     //////////////////////////////////////////////////////////////////
-    const auto GetBitState = [&](const std::variant<Port*, Bit>& element)
+    static const auto GetBitState =
+      [&](const std::variant<Port*, Bit>& element)
     {
         Bit state;
 
@@ -47,18 +48,18 @@ void LogicGate::Decoded::RunLogicFunction(
          line_index < input_truth_table.size();
          line_index++)
     {
-        const auto& elements_on_line = input_truth_table[line_index];
-        bool verifiesTruthTable      = false;
+        const auto& elementsOnLine = input_truth_table[line_index];
+        bool verifiesTruthTable    = false;
 
         //////////////////////////////////////////////////////////////////
         /// We are selecting the element/value in the truth table and  ///
         /// check if the input is the same as it is on the truth table ///
         //////////////////////////////////////////////////////////////////
         for (std::size_t column_index = 0;
-             column_index < elements_on_line.size();
+             column_index < elementsOnLine.size();
              column_index++)
         {
-            const auto& element = elements_on_line[column_index];
+            const auto& element = elementsOnLine[column_index];
 
             const auto state = GetBitState(element);
 
