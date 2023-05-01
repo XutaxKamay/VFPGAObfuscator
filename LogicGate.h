@@ -42,7 +42,7 @@ class LogicGate
          |  |1||0|      |0||1|                             |
          |  ------      ------                             |
          |  |1||1|      |1||0|                             |
-         |  |----|      |-||-|                             |
+         |  |----|      |----|                             |
          |                                                 |
          |  This is mostly useful for RAM,                 |
          |  like flip-flops or latchs.                     |
