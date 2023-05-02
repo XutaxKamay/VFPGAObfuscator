@@ -4,7 +4,8 @@ FPGA::FPGA(std::size_t numberOfInputPins,
            std::size_t numberOfOutputPins,
            std::size_t numberOfOthersPorts)
  : _input_pins { numberOfInputPins },
-   _output_pins { numberOfOutputPins }
+   _output_pins { numberOfOutputPins },
+   _ports { numberOfInputPins + numberOfOutputPins + numberOfOthersPorts }
 {
     std::ranges::generate(_input_pins,
                           []
@@ -18,11 +19,13 @@ FPGA::FPGA(std::size_t numberOfInputPins,
                               return new Pin;
                           });
 
-    _ports.insert(_ports.end(), _input_pins.begin(), _input_pins.end());
-    _ports.insert(_ports.end(), _output_pins.begin(), _output_pins.end());
+    std::copy(_input_pins.begin(), _input_pins.end(), _ports.begin());
+    std::copy(_output_pins.begin(),
+              _output_pins.end(),
+              _ports.begin() + numberOfInputPins);
 
     std::ranges::generate_n(_ports.begin() + numberOfInputPins
-                              + numberOfOthersPorts,
+                              + numberOfOutputPins,
                             numberOfOthersPorts,
                             []
                             {
@@ -134,15 +137,10 @@ void FPGA::CheckDependencyAndCreateStages()
                 {
                     //////////////////////////////////
                     /// Check if there's any links ///
-                    //////////////////////////////////
-                    const auto foundPort = std::ranges::find_if(
-                      currentOutputPorts,
-                      [&](Port* outputPort)
-                      {
-                          return inputPort == outputPort;
-                      });
-
-                    return foundPort != currentOutputPorts.end();
+                    //////////////////////////////////;
+                    return std::ranges::find(currentOutputPorts,
+                                             inputPort)
+                           != currentOutputPorts.end();
                 });
 
               /////////////////////////////////////////////////
@@ -174,22 +172,20 @@ void FPGA::CheckDependencyAndCreateStages()
         /// In order to get the logic gates left, we need to remove  ///
         /// the current one we pushed earlier                        ///
         ////////////////////////////////////////////////////////////////
-        logicGatesLeft.erase(std::remove_if(
-          logicGatesLeft.begin(),
-          logicGatesLeft.end(),
-          [&currentLogicGates](LogicGate* logicGate)
-          {
-              const auto foundLogicGate = std::ranges::find_if(
-                currentLogicGates,
-                [&](LogicGate* logicGate2)
-                {
-                    return logicGate == logicGate2;
-                });
-
-              return foundLogicGate != currentLogicGates.end();
-          }));
+        logicGatesLeft.erase(
+          std::remove_if(logicGatesLeft.begin(),
+                         logicGatesLeft.end(),
+                         [&currentLogicGates](LogicGate* logicGate)
+                         {
+                             return std::ranges::find(currentLogicGates,
+                                                      logicGate)
+                                    != currentLogicGates.end();
+                         }),
+          logicGatesLeft.end());
 
         currentLogicGates.clear();
         currentOutputPorts.clear();
     }
+
+    std::cout << "Number of stages: " << _stages.size() << '\n';
 }

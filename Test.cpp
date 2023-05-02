@@ -2,7 +2,7 @@
 
 int main()
 {
-    FPGA fpga(2, 1, 0);
+    FPGA fpga(2, 1, 6);
 
     auto logicGate = fpga.MakeLogicGate(
       {
@@ -18,10 +18,25 @@ int main()
         inputPort->SetHigh();
     }
 
+    fpga.MakeLogicGate(
+      {
+        fpga.Ports().at(2)
+    },
+      { fpga.Ports().at(2) },
+      { { { 0 }, { 1 } }, { { 1 }, { 0 } } });
+
+    fpga.MakeLogicGate(
+      {
+        fpga.Ports().at(3)
+    },
+      { fpga.Ports().at(4) },
+      { { { 0 }, { 1 } }, { { 1 }, { 0 } } });
+
     fpga.PrepareStages();
     fpga.Simulate();
 
-    std::cout << fpga.Ports().at(2)->GetState().to_string() << '\n';
+    std::cout << fpga.Ports().at(2)->GetState() << '\n';
+    std::cout << fpga.Ports().at(4)->GetState() << '\n';
 
     return 0;
 }
