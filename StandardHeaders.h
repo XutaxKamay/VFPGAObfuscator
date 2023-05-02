@@ -1,5 +1,5 @@
-#ifndef StANDARD_HEADERS_H
-#define StANDARD_HEADERS_H
+#ifndef FPGA_STANDARD_HEADERS_H
+#define FPGA_STANDARD_HEADERS_H
 
 #include <algorithm>
 #include <bit>
