@@ -78,6 +78,11 @@ class FPGA
     ////////////////////////////////////////////////////
     using Pin = Port;
 
+    struct Stage
+    {
+        std::vector<LogicGate*> logic_gates;
+    };
+
   private:
     ////////////////////////////////////////////////////////////////////
     /// Oh no! Xutax, you're using raw pointers, this is really bad. ///
@@ -111,7 +116,7 @@ class FPGA
     ///                                                         ///
     ///////////////////////////////////////////////////////////////
     std::vector<LogicGate*> _logic_gates;
-    std::vector<std::vector<LogicGate*>> _stages;
+    std::vector<Stage*> _stages;
 
   public:
     FPGA(std::size_t numberOfInputPins,
@@ -124,7 +129,7 @@ class FPGA
 
     LogicGate* MakeLogicGate(const std::vector<Port*>& inputPorts,
                              const std::vector<Port*>& outputPorts,
-			     const LogicGate::Decoded& decoder);
+                             const LogicGate::Decoded& decoder);
 
     void PrepareStages();
     void Simulate();

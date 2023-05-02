@@ -44,26 +44,24 @@ void LogicGate::Decoded::RunLogicFunction(
     /////////////////////////////////////////////////////////////
     /// Verifies for each line if the truth table is verified ///
     /////////////////////////////////////////////////////////////
-    for (std::size_t line_index = 0;
-         line_index < input_truth_table.size();
-         line_index++)
+    for (std::size_t lineIndex = 0; lineIndex < input_truth_table.size();
+         lineIndex++)
     {
-        const auto& elementsOnLine = input_truth_table[line_index];
+        const auto& elementsOnLine = input_truth_table[lineIndex];
         bool verifiesTruthTable    = false;
 
         //////////////////////////////////////////////////////////////////
         /// We are selecting the element/value in the truth table and  ///
         /// check if the input is the same as it is on the truth table ///
         //////////////////////////////////////////////////////////////////
-        for (std::size_t column_index = 0;
-             column_index < elementsOnLine.size();
-             column_index++)
+        for (std::size_t columnIndex = 0;
+             columnIndex < elementsOnLine.size();
+             columnIndex++)
         {
-            const auto& element = elementsOnLine[column_index];
+            const auto& element = elementsOnLine[columnIndex];
+            const auto state    = GetBitState(element);
 
-            const auto state = GetBitState(element);
-
-            if (inputPorts[column_index]->GetState() == state)
+            if (inputPorts[columnIndex]->GetState() == state)
             {
                 if (not verifiesTruthTable)
                 {
@@ -82,12 +80,12 @@ void LogicGate::Decoded::RunLogicFunction(
         ///////////////////////////////////////////////////////////////
         if (verifiesTruthTable)
         {
-            for (std::size_t column_index = 0;
-                 column_index < outputPorts.size();
-                 column_index++)
+            for (std::size_t columnIndex = 0;
+                 columnIndex < outputPorts.size();
+                 columnIndex++)
             {
-                outputPorts[column_index]->SetState(GetBitState(
-                  output_truth_table[line_index][column_index]));
+                outputPorts[columnIndex]->SetState(GetBitState(
+                  output_truth_table[lineIndex][columnIndex]));
             }
 
             break;

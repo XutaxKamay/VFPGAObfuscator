@@ -7,56 +7,86 @@ FPGA::FPGA(std::size_t numberOfInputPins,
    _output_pins { numberOfOutputPins },
    _ports { numberOfInputPins + numberOfOutputPins + numberOfOthersPorts }
 {
-    std::ranges::generate(_input_pins,
-                          []
-                          {
-                              return new Pin;
-                          });
+    std::generate(std::execution::par_unseq,
+                  _input_pins.begin(),
+                  _input_pins.end(),
+                  []
+                  {
+                      return new Pin;
+                  });
 
-    std::ranges::generate(_output_pins,
-                          []
-                          {
-                              return new Pin;
-                          });
+    std::generate(std::execution::par_unseq,
+                  _output_pins.begin(),
+                  _output_pins.end(),
+                  []
+                  {
+                      return new Pin;
+                  });
 
-    std::copy(_input_pins.begin(), _input_pins.end(), _ports.begin());
-    std::copy(_output_pins.begin(),
+    std::copy(std::execution::par_unseq,
+              _input_pins.begin(),
+              _input_pins.end(),
+              _ports.begin());
+    std::copy(std::execution::par_unseq,
+              _output_pins.begin(),
               _output_pins.end(),
               _ports.begin() + numberOfInputPins);
 
-    std::ranges::generate_n(_ports.begin() + numberOfInputPins
-                              + numberOfOutputPins,
-                            numberOfOthersPorts,
-                            []
-                            {
-                                return new Port;
-                            });
+    std::generate_n(std::execution::par_unseq,
+                    _ports.begin() + numberOfInputPins
+                      + numberOfOutputPins,
+                    numberOfOthersPorts,
+                    []
+                    {
+                        return new Port;
+                    });
 }
 
 FPGA::~FPGA()
 {
-    for (auto&& port : _ports)
-    {
-        delete port;
-    }
+    std::for_each(std::execution::par_unseq,
+                  _ports.begin(),
+                  _ports.end(),
+                  [](Port* port)
+                  {
+                      delete port;
+                  });
 
-    for (auto&& logicGate : _logic_gates)
-    {
-        delete logicGate;
-    }
+    std::for_each(std::execution::par_unseq,
+                  _logic_gates.begin(),
+                  _logic_gates.end(),
+                  [](LogicGate* logicGate)
+                  {
+                      delete logicGate;
+                  });
+
+    std::for_each(std::execution::par_unseq,
+                  _stages.begin(),
+                  _stages.end(),
+                  [](Stage* stage)
+                  {
+                      delete stage;
+                  });
 }
 
 void FPGA::Simulate()
 {
+    static const auto StageExecution =
+      [](const std::vector<LogicGate*>& logicGates)
+    {
+        std::for_each(std::execution::par_unseq,
+                      logicGates.begin(),
+                      logicGates.end(),
+                      [&](LogicGate* logicGate)
+                      {
+                          logicGate->Simulate();
+                      });
+    };
+
     std::ranges::for_each(_stages,
-                          [](std::vector<LogicGate*>& stage)
+                          [](Stage* stage)
                           {
-                              std::ranges::for_each(
-                                stage,
-                                [](LogicGate* logicGate)
-                                {
-                                    logicGate->Simulate();
-                                });
+                              StageExecution(stage->logic_gates);
                           });
 }
 
@@ -138,8 +168,10 @@ void FPGA::CheckDependencyAndCreateStages()
                     //////////////////////////////////
                     /// Check if there's any links ///
                     //////////////////////////////////;
-                    return std::ranges::find(currentOutputPorts,
-                                             inputPort)
+                    return std::find(std::execution::par_unseq,
+                                     currentOutputPorts.begin(),
+                                     currentOutputPorts.end(),
+                                     inputPort)
                            != currentOutputPorts.end();
                 });
 
@@ -166,7 +198,7 @@ void FPGA::CheckDependencyAndCreateStages()
         /// Push back the array inside a new stage,                  ///
         /// And process again all the ignored logic gates previously ///
         ////////////////////////////////////////////////////////////////
-        _stages.push_back(currentLogicGates);
+        _stages.push_back(new Stage { currentLogicGates });
 
         ////////////////////////////////////////////////////////////////
         /// In order to get the logic gates left, we need to remove  ///
@@ -177,8 +209,10 @@ void FPGA::CheckDependencyAndCreateStages()
                          logicGatesLeft.end(),
                          [&currentLogicGates](LogicGate* logicGate)
                          {
-                             return std::ranges::find(currentLogicGates,
-                                                      logicGate)
+                             return std::find(std::execution::par_unseq,
+                                              currentLogicGates.begin(),
+                                              currentLogicGates.end(),
+                                              logicGate)
                                     != currentLogicGates.end();
                          }),
           logicGatesLeft.end());
@@ -186,6 +220,4 @@ void FPGA::CheckDependencyAndCreateStages()
         currentLogicGates.clear();
         currentOutputPorts.clear();
     }
-
-    std::cout << "Number of stages: " << _stages.size() << '\n';
 }

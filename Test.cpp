@@ -33,10 +33,11 @@ int main()
       { { { 0 }, { 1 } }, { { 1 }, { 0 } } });
 
     fpga.PrepareStages();
-    fpga.Simulate();
 
-    std::cout << fpga.Ports().at(2)->GetState() << '\n';
-    std::cout << fpga.Ports().at(4)->GetState() << '\n';
+    while (true)
+    {
+        fpga.Simulate();
+    }
 
     return 0;
 }
