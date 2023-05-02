@@ -63,11 +63,7 @@ void LogicGate::Decoded::RunLogicFunction(
 
             if (inputPorts[columnIndex]->GetState() == state)
             {
-                if (not verifiesTruthTable)
-                {
-                    verifiesTruthTable = true;
-                }
-
+                verifiesTruthTable = true;
                 continue;
             }
 
