@@ -3,7 +3,8 @@ project('FPGASimulator', 'cpp', default_options : ['cpp_std=c++20', 'warning_lev
 src_common = [
   'FPGA.cpp',
   'Port.cpp',
-  'LogicGate.cpp'
+  'LogicGate.cpp',
+  'Timer.cpp'
 ]
 
 src_test = [

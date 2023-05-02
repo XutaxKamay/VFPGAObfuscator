@@ -135,6 +135,11 @@ class FPGA
     void Simulate();
 
   private:
+    ///////////////////////////////////////////////////////////////
+    /// This should be compiled before,                         ///
+    /// since this can be created before running the simulator. ///
+    /// With a lot of logic gates, it may take a while.         ///
+    ///////////////////////////////////////////////////////////////
     void CheckDependencyAndCreateStages();
 };
 
