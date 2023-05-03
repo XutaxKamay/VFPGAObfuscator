@@ -127,6 +127,12 @@ void FPGA::Simulate()
     /// running it on one thread.                   ///
     /// But this is compensated above.              ///
     ///                                             ///
+    /// If you want another reason, it's            ///
+    /// because the CPU frequency might be          ///
+    /// reducing depending on some computers        ///
+    /// when there's too much threads taking        ///
+    /// CPU.                                        ///
+    ///                                             ///
     ///////////////////////////////////////////////////
     std::ranges::for_each(_stages,
                           [](Stage* stage)
