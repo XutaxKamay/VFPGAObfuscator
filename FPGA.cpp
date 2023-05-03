@@ -74,15 +74,60 @@ void FPGA::Simulate()
     static const auto StageExecution =
       [](const std::vector<LogicGate*>& logicGates)
     {
-        std::for_each(std::execution::par_unseq,
-                      logicGates.begin(),
-                      logicGates.end(),
-                      [&](LogicGate* logicGate)
-                      {
-                          logicGate->Simulate();
-                      });
+        static const auto maxThreads = std::thread::hardware_concurrency();
+        static const auto SimulateFunction = [&](LogicGate* logicGate)
+        {
+            logicGate->Simulate();
+        };
+
+	//////////////////////////////////////////
+	/// Only run in parallel if necessary. ///
+	/// Check the comment bottom.          ///
+	//////////////////////////////////////////
+        if (logicGates.size() >= maxThreads)
+        {
+            std::for_each(std::execution::par_unseq,
+                          logicGates.begin(),
+                          logicGates.end(),
+                          SimulateFunction);
+        }
+        else
+        {
+            std::ranges::for_each(logicGates, SimulateFunction);
+        }
     };
 
+    ///////////////////////////////////////////////////
+    ///                                             ///
+    /// It may be not advantageous here to use      ///
+    /// parallelism for stages.                     ///
+    /// First reason is for debugging purpose,      ///
+    /// but the other reason is performance.        ///
+    ///                                             ///
+    /// This is because if we process stages        ///
+    /// in parallel, the locking and unlocking      ///
+    /// mechanisms will be expensive                ///
+    /// compared to a simple iteration              ///
+    /// due to the fact that we need to             ///
+    /// synchronize stages together.                ///
+    /// Never underestimate the power of CPU cache. ///
+    ///                                             ///
+    /// On top of that, the logic gates are         ///
+    /// already simulated in parallel,              ///
+    /// so if we create more threads                ///
+    /// we will be already processing               ///
+    /// logic gates, which will increase context    ///
+    /// switchs, which will make maybe the program  ///
+    /// more responsive to when processing another  ///
+    /// stage, but in the end it will be slower.    ///
+    /// Of course, this is only efficient           ///
+    /// if there's a large enough of logic gates.   ///
+    /// If each stages gets only one logic gate,    ///
+    /// the whole thing will be slower than just    ///
+    /// running it on one thread.                   ///
+    /// But this is compensated above.              ///
+    ///                                             ///
+    ///////////////////////////////////////////////////
     std::ranges::for_each(_stages,
                           [](Stage* stage)
                           {
@@ -153,10 +198,10 @@ void FPGA::CheckDependencyAndCreateStages()
     ////////////////////////////////////////////////////////////////////
     while (logicGatesLeft.size())
     {
-        ////////////////////////////////////////////////////////////
-        /// Check if any previous logic gates have outputs ports ///
-        /// linkedto the logic gates left in their inputs ports. ///
-        ////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////
+        /// Check if any previous logic gates have outputs ports  ///
+        /// linked to the logic gates left in their inputs ports. ///
+        /////////////////////////////////////////////////////////////
         std::ranges::for_each(
           logicGatesLeft,
           [&](LogicGate* logicGate)
@@ -167,7 +212,7 @@ void FPGA::CheckDependencyAndCreateStages()
                 {
                     //////////////////////////////////
                     /// Check if there's any links ///
-                    //////////////////////////////////;
+                    //////////////////////////////////
                     return std::find(std::execution::par_unseq,
                                      currentOutputPorts.begin(),
                                      currentOutputPorts.end(),
