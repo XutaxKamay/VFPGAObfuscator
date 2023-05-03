@@ -74,7 +74,7 @@ void FPGA::Simulate()
     static const auto StageExecution =
       [](const std::vector<LogicGate*>& logicGates)
     {
-        static const auto maxThreads = std::thread::hardware_concurrency();
+        static const auto minThreads = std::thread::hardware_concurrency();
         static const auto SimulateFunction = [&](LogicGate* logicGate)
         {
             logicGate->Simulate();
@@ -84,7 +84,7 @@ void FPGA::Simulate()
 	/// Only run in parallel if necessary. ///
 	/// Check the comment bottom.          ///
 	//////////////////////////////////////////
-        if (logicGates.size() >= maxThreads)
+        if (logicGates.size() >= minThreads)
         {
             std::for_each(std::execution::par_unseq,
                           logicGates.begin(),
