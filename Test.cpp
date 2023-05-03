@@ -5,34 +5,36 @@ int main()
 {
     FPGA fpga(2, 1, 1000000);
 
-    auto logicGate = fpga.MakeLogicGate(
+    auto logicGate = LogicGate(
       {
-        fpga.Ports().at(0),
-        fpga.Ports().at(1)
+        fpga.GetPort(0),
+        fpga.GetPort(1)
     },
-      { fpga.Ports().at(2) },
+      { fpga.GetPort(2) },
       { { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
         { { 0 }, { 0 }, { 0 }, { 1 } } });
 
-    for (auto&& inputPort : logicGate->InputPorts())
+    fpga.InsertLogicGate(logicGate);
+
+    for (auto inputPort : logicGate.InputPorts())
     {
         inputPort->SetHigh();
     }
 
-    fpga.MakeLogicGate(
+    fpga.InsertLogicGate(
       {
-        fpga.Ports().at(2)
+        fpga.GetPort(2)
     },
-      { fpga.Ports().at(2) },
+      { fpga.GetPort(2) },
       { { { 0 }, { 1 } }, { { 1 }, { 0 } } });
 
     for (int i = 3; i < 1000000 - 1;)
     {
-        fpga.MakeLogicGate(
+        fpga.InsertLogicGate(
           {
-            fpga.Ports().at(i)
+            fpga.GetPort(i)
         },
-          { fpga.Ports().at(i + 1) },
+          { fpga.GetPort(i + 1) },
           { { { 0 }, { 1 } }, { { 1 }, { 0 } } });
 
         i += 2;
@@ -45,8 +47,8 @@ int main()
         Timer timer;
 
         timer.Start();
-	fpga.Simulate();
-	timer.End();
+        fpga.Simulate();
+        timer.End();
 
         std::cout << timer.Difference() << '\n';
     }

@@ -80,30 +80,16 @@ class FPGA
 
     struct Stage
     {
-        std::vector<LogicGate*> logic_gates;
+        std::vector<LogicGate> logic_gates;
     };
 
   private:
-    ////////////////////////////////////////////////////////////////////
-    /// Oh no! Xutax, you're using raw pointers, this is really bad. ///
-    /// I know, but there's precise reasons, mostly performance.     ///
-    /// Technically we should use std::atomic<std::shared_ptr<>>.    ///
-    /// Because yes, this will be done multithreaded,                ///
-    /// but the lock might make loose our performance                ///
-    /// quite a bit since there can be, quite a LOT, of logic gates. ///
-    /// std::shared_ptr is mostly behind the scene a counter         ///
-    /// that keeps track of the number of references of the pointer, ///
-    /// if that keeps decreasing and increasing for nothing          ///
-    /// with locks, even though they're fast between locking         ///
-    /// and unlocking, it will make even loose some seconds          ///
-    /// depending on the amount of logic gates.                      ///
-    /// And I don't want that.                                       ///
-    /// Fortunately, it's relatively easy to do so with constructors ///
-    /// and destructors to keep it safe.                             ///
-    ////////////////////////////////////////////////////////////////////
-    std::vector<Pin*> _input_pins;
-    std::vector<Pin*> _output_pins;
-    std::vector<Port*> _ports;
+    ///////////////////////////////////////////////////////////
+    /// Number of pins and ports doesn't change,            ///
+    /// so we can get them by references as it is allocated ///
+    /// during only the constructor                         ///
+    ///////////////////////////////////////////////////////////
+    std::vector<Port> _ports;
 
     ///////////////////////////////////////////////////////////////
     ///                                                         ///
@@ -115,8 +101,8 @@ class FPGA
     /// that each logic gates are not dependent on each others  ///
     ///                                                         ///
     ///////////////////////////////////////////////////////////////
-    std::vector<LogicGate*> _logic_gates;
-    std::vector<Stage*> _stages;
+    std::vector<LogicGate> _logic_gates;
+    std::vector<Stage> _stages;
 
   public:
     FPGA(std::size_t numberOfInputPins,
@@ -124,12 +110,14 @@ class FPGA
          std::size_t numberOfOthersPorts);
     ~FPGA();
 
-    decltype(_ports)& Ports();
+    Port* GetPort(std::size_t index);
     decltype(_logic_gates)& LogicGates();
 
-    LogicGate* MakeLogicGate(const std::vector<Port*>& inputPorts,
-                             const std::vector<Port*>& outputPorts,
-                             const LogicGate::Decoded& decoder);
+    void InsertLogicGate(const LogicGate& logicGate);
+
+    void InsertLogicGate(const std::vector<Port*>& inputPorts,
+                         const std::vector<Port*>& outputPorts,
+                         const LogicGate::Decoded& decoder);
 
     void PrepareStages();
     void Simulate();
