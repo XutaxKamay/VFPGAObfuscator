@@ -36,6 +36,10 @@ void LogicGate::Decoded::RunLogicFunction(
                 state = std::get<1>(element);
                 break;
             }
+	    /////////////////////////////////
+	    /// TODO:                     ///
+	    /// default: ??? throw error. ///
+	    /////////////////////////////////
         }
 
         return state;

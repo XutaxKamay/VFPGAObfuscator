@@ -111,11 +111,7 @@ void FPGA::InsertLogicGate(const std::vector<Port*>& inputPorts,
                            const std::vector<Port*>& outputPorts,
                            const LogicGate::Decoded& decoder)
 {
-    ////////////////////////////////////////////////
-    /// TODO: Check if decoder is correct;       ///
-    /// truth table is written correctly etc ... ///
-    ////////////////////////////////////////////////
-    _logic_gates.push_back({ inputPorts, outputPorts, decoder });
+    InsertLogicGate({ inputPorts, outputPorts, decoder });
 }
 
 void FPGA::PrepareStages()
