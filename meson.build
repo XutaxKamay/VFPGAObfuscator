@@ -1,14 +1,14 @@
 project('FPGASimulator', 'cpp', default_options : ['cpp_std=c++20', 'warning_level=3', 'werror=true'])
 
 src_common = [
-  'FPGA.cpp',
-  'Port.cpp',
-  'LogicGate.cpp',
-  'Timer.cpp'
+  'src/simulator/FPGA.cpp',
+  'src/simulator/Port.cpp',
+  'src/simulator/LogicGate.cpp',
+  'src/simulator/Timer.cpp'
 ]
 
 src_test = [
-  'Test.cpp'
+  'src/simulator/Test.cpp'
 ]
 src_test += src_common
 
