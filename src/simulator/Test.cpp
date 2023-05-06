@@ -5,7 +5,7 @@ int main()
 {
     FPGA fpga(2, 1, 1000000);
 
-    auto logicGate = LogicGate(
+    LogicGate logicGate(
       {
         fpga.GetPort(0),
         fpga.GetPort(1)
@@ -53,5 +53,5 @@ int main()
         std::cout << timer.Difference() << '\n';
     }
 
-    return 0;
+    //   return 0;
 }

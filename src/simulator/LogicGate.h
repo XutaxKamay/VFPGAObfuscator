@@ -6,7 +6,7 @@
 class LogicGate
 {
   public:
-    struct Decoded
+    struct Decoder
     {
         /*--------------------------------------------------
          |                                                 |
@@ -98,10 +98,11 @@ class LogicGate
         /// which is eventually slower than doing it           ///
         /// [lines][column].                                   ///
         //////////////////////////////////////////////////////////
-        std::vector<std::vector<std::variant<Port*, Bit>>>
-          input_truth_table;
-        std::vector<std::vector<std::variant<Port*, Bit>>>
-          output_truth_table;
+
+        using ElementType = std::variant<Port*, Bit>;
+
+        std::vector<std::vector<ElementType>> input_truth_table;
+        std::vector<std::vector<ElementType>> output_truth_table;
     };
 
     /////////////
@@ -114,16 +115,17 @@ class LogicGate
   protected:
     std::vector<Port*> _input_ports;
     std::vector<Port*> _output_ports;
-    Decoded _decoded;
+    Decoder _decoder;
 
   public:
     LogicGate() = default;
     LogicGate(const std::vector<Port*>& inputPorts,
               const std::vector<Port*>& outputPorts,
-              const Decoded& decoded);
+              const Decoder& decoder);
 
-    decltype(_input_ports)& InputPorts();
-    decltype(_output_ports)& OutputPorts();
+    const decltype(_input_ports)& InputPorts() const;
+    const decltype(_output_ports)& OutputPorts() const;
+    const Decoder& Decoded() const;
     void Simulate();
 };
 

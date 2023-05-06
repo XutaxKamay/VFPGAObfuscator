@@ -111,13 +111,13 @@ class FPGA
     ~FPGA();
 
     Port* GetPort(std::size_t index);
-    decltype(_logic_gates)& LogicGates();
+    const decltype(_logic_gates)& LogicGates() const;
 
     void InsertLogicGate(const LogicGate& logicGate);
 
     void InsertLogicGate(const std::vector<Port*>& inputPorts,
                          const std::vector<Port*>& outputPorts,
-                         const LogicGate::Decoded& decoder);
+                         const LogicGate::Decoder& decoder);
 
     void PrepareStages();
     void Simulate();

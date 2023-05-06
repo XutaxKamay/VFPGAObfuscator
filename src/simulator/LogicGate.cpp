@@ -1,7 +1,7 @@
 #include "LogicGate.h"
 #include "Error.h"
 
-void LogicGate::Decoded::RunLogicFunction(
+void LogicGate::Decoder::RunLogicFunction(
   const std::vector<Port*>& inputPorts,
   const std::vector<Port*>& outputPorts)
 {
@@ -43,7 +43,7 @@ void LogicGate::Decoded::RunLogicFunction(
                 /// Should never happen ///
                 ///////////////////////////
                 Error::ExitWithMsg(
-                  Error::msg_t::UNKNOWN_ELEMENT_TYPE_IN_TRUTH_TABLE);
+                  Error::Msg::UNKNOWN_ELEMENT_TYPE_IN_TRUTH_TABLE);
             }
         }
 
@@ -100,25 +100,30 @@ void LogicGate::Decoded::RunLogicFunction(
 
 LogicGate::LogicGate(const std::vector<Port*>& inputPorts,
                      const std::vector<Port*>& outputPorts,
-                     const Decoded& decoded)
+                     const Decoder& decoder)
  : _input_ports { inputPorts },
    _output_ports { outputPorts },
-   _decoded { decoded }
+   _decoder { decoder }
 {
 }
 
-decltype(LogicGate::_input_ports)& LogicGate::InputPorts()
+const decltype(LogicGate::_input_ports)& LogicGate::InputPorts() const
 {
     return _input_ports;
 }
 
-decltype(LogicGate::_output_ports)& LogicGate::OutputPorts()
+const decltype(LogicGate::_output_ports)& LogicGate::OutputPorts() const
 {
     return _output_ports;
 }
 
+const LogicGate::Decoder& LogicGate::Decoded() const
+{
+    return _decoder;
+}
+
 void LogicGate::Simulate()
 {
-    _decoded.RunLogicFunction(_input_ports, _output_ports);
+    _decoder.RunLogicFunction(_input_ports, _output_ports);
 }
 
