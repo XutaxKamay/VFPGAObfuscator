@@ -1,6 +1,8 @@
-project('FPGASimulator', 'cpp', default_options : ['cpp_std=c++20', 'warning_level=3', 'werror=true'])
+project('FPGASimulator', 'cpp', default_options : ['cpp_std=c++20', 'warning_level=everything', 'werror=true'])
+add_project_arguments(['-DPARALLEL', '-Wno-effc++', '-Wno-c++98-compat'], language : 'cpp')
 
 src_simulator = [
+  'src/simulator/Error.cpp',
   'src/simulator/FPGA.cpp',
   'src/simulator/Port.cpp',
   'src/simulator/LogicGate.cpp',

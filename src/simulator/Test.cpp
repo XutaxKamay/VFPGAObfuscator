@@ -28,7 +28,7 @@ int main()
       { fpga.GetPort(2) },
       { { { 0 }, { 1 } }, { { 1 }, { 0 } } });
 
-    for (int i = 3; i < 1000000 - 1;)
+    for (std::size_t i = 3; i < 1000000 - 1;)
     {
         fpga.InsertLogicGate(
           {

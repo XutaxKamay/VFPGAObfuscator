@@ -10,7 +10,7 @@ class Timer
     std::uint16_t Micros() const;
     std::uint16_t Millis() const;
     std::uint64_t Seconds() const;
-    std::uint64_t Difference() const;
+    std::int64_t Difference() const;
 
   public:
     void Start();
@@ -19,7 +19,7 @@ class Timer
   private:
     std::chrono::high_resolution_clock::time_point _start;
     std::chrono::high_resolution_clock::time_point _end;
-    std::uint64_t _difference;
+    std::int64_t _difference;
 };
 
 #endif

@@ -1,8 +1,6 @@
 #ifndef FPGA_STANDARD_HEADERS_H
 #define FPGA_STANDARD_HEADERS_H
 
-#define PARALLEL
-
 #include <algorithm>
 #include <bit>
 #include <bitset>

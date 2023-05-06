@@ -100,10 +100,6 @@ decltype(FPGA::_logic_gates)& FPGA::LogicGates()
 
 void FPGA::InsertLogicGate(const LogicGate& logicGate)
 {
-    ////////////////////////////////////////////////
-    /// TODO: Check if decoder is correct;       ///
-    /// truth table is written correctly etc ... ///
-    ////////////////////////////////////////////////
     _logic_gates.push_back(logicGate);
 }
 

@@ -1,4 +1,5 @@
 #include "LogicGate.h"
+#include "Error.h"
 
 void LogicGate::Decoded::RunLogicFunction(
   const std::vector<Port*>& inputPorts,
@@ -36,10 +37,14 @@ void LogicGate::Decoded::RunLogicFunction(
                 state = std::get<1>(element);
                 break;
             }
-	    /////////////////////////////////
-	    /// TODO:                     ///
-	    /// default: ??? throw error. ///
-	    /////////////////////////////////
+            default:
+            {
+                ///////////////////////////
+                /// Should never happen ///
+                ///////////////////////////
+                Error::ExitWithMsg(
+                  Error::msg_t::UNKNOWN_ELEMENT_TYPE_IN_TRUTH_TABLE);
+            }
         }
 
         return state;
