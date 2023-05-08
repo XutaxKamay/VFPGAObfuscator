@@ -37,6 +37,7 @@ void LogicGate::Decoder::RunLogicFunction(
                 state = std::get<1>(element);
                 break;
             }
+
             default:
             {
                 ///////////////////////////

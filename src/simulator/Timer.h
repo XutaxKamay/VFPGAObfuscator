@@ -9,7 +9,7 @@ class Timer
     std::uint16_t Nanos() const;
     std::uint16_t Micros() const;
     std::uint16_t Millis() const;
-    std::uint64_t Seconds() const;
+    std::uint16_t Seconds() const;
     std::int64_t Difference() const;
 
   public:

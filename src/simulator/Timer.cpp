@@ -15,7 +15,7 @@ std::uint16_t Timer::Millis() const
     return static_cast<std::uint16_t>((_difference / 1000000) % 1000);
 }
 
-std::uint64_t Timer::Seconds() const
+std::uint16_t Timer::Seconds() const
 {
     return static_cast<std::uint16_t>((_difference / 1000000000));
 }
@@ -27,12 +27,12 @@ std::int64_t Timer::Difference() const
 
 auto Timer::Start() -> void
 {
-    _start = std::chrono::high_resolution_clock::now();
+    _start      = std::chrono::high_resolution_clock::now();
+    _difference = 0;
 }
 
 void Timer::End()
 {
-    _end = std::chrono::high_resolution_clock::now();
-
+    _end        = std::chrono::high_resolution_clock::now();
     _difference = (_end - _start).count();
 }
