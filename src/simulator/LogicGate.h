@@ -79,7 +79,7 @@ namespace FPGASimulator
         {
           public:
             LogicGate Deserialize(const std::vector<std::byte>& serialized,
-                                  FPGA* const fpga);
+                                  FPGA* const fpga) const;
         };
 
         class Serializer
@@ -94,7 +94,7 @@ namespace FPGASimulator
             TruthTable output_truth_table;
 
           public:
-            std::vector<std::byte> Serialize();
+            std::vector<std::byte> Serialize() const;
         };
 
       public:

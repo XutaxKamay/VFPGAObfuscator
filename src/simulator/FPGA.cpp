@@ -1,6 +1,51 @@
 #include "FPGA.h"
+#include "Deserializer.h"
+#include "Serializer.h"
 
 using namespace FPGASimulator;
+
+FPGA FPGA::Deserializer::Deserialize(
+  const std::vector<std::byte>& serialized)
+{
+    ::Deserializer deserializer { serialized };
+
+    const auto numberOfPorts = deserializer
+                                 .ReadAndCheckStatus<EncodedIndex>();
+
+    FPGA fpga { numberOfPorts };
+
+    const auto numberOfLogicGates = deserializer
+                                      .ReadAndCheckStatus<EncodedIndex>();
+
+    for (EncodedIndex index = 0; index < numberOfLogicGates; index++)
+    {
+        const auto logicGateSerialized = deserializer.ReadAndCheckStatus<
+          std::vector<std::byte>>();
+
+        LogicGate::Deserializer logicGateDeserializer;
+        fpga.InsertLogicGate(
+          logicGateDeserializer.Deserialize(logicGateSerialized, &fpga));
+    }
+
+    return fpga;
+}
+
+std::vector<std::byte> FPGA::Serializer::Serialize()
+{
+    ::Serializer serializer;
+
+    serializer.AddVar<EncodedIndex>(number_of_ports);
+    serializer.AddVar<EncodedIndex>(logic_gates_serializer.size());
+
+    std::ranges::for_each(
+      logic_gates_serializer,
+      [&](const LogicGate::Serializer& logicGateSerializer)
+      {
+          serializer.AddVar(logicGateSerializer.Serialize());
+      });
+
+    return serializer.data;
+}
 
 FPGA::FPGA(const std::size_t numberOfPorts)
  : _ports { numberOfPorts }
@@ -264,7 +309,7 @@ void FPGA::CheckDependencyAndCreateStages()
         /// /// the current one we pushed earlier ///
         ////////////////////////////////////////////////////////////////
         logicGatesLeft.erase(
-          std::remove_if(std::execution::par_unseq,
+          std::remove_if(std::execution::seq,
                          logicGatesLeft.begin(),
                          logicGatesLeft.end(),
                          [&currentLogicGates](LogicGate& logicGate)

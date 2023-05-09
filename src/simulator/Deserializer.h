@@ -1,6 +1,7 @@
 #ifndef FPGA_SIMULATOR_DESERIALIZER_H
 #define FPGA_SIMULATOR_DESERIALIZER_H
 
+#include "Error.h"
 #include "SharedSerializedTypes.h"
 
 namespace FPGASimulator
@@ -22,6 +23,21 @@ namespace FPGASimulator
         template <typename T>
         requires (GoodSerializedType<T>)
         T ReadVar(std::optional<ReadStatus> status = std::nullopt);
+
+        template <typename T>
+        auto ReadAndCheckStatus()
+        {
+            auto readStatus = ReadStatus::NO_ERROR;
+            auto var        = ReadVar<T>(readStatus);
+
+            if (readStatus != ReadStatus::NO_ERROR)
+            {
+                Error::ExitWithMsg(
+                  Error::Msg::LOGIC_GATE_DESERIALIZER_READ_FAILED);
+            }
+
+            return var;
+        }
 
       private:
         bool CanReadVar(std::size_t size);

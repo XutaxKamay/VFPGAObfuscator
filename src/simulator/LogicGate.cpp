@@ -8,34 +8,20 @@ using namespace FPGASimulator;
 
 LogicGate LogicGate::Deserializer::Deserialize(
   const std::vector<std::byte>& serialized,
-  FPGA* const fpga)
+  FPGA* const fpga) const
 {
     LogicGate logicGate;
     ::Deserializer deserializer { serialized };
 
-    static const auto ReadAndCheckStatus = [&]<typename T>
-    {
-        auto readStatus = ::Deserializer::ReadStatus::NO_ERROR;
-        T var           = deserializer.ReadVar<T>(readStatus);
-
-        if (readStatus != ::Deserializer::ReadStatus::NO_ERROR)
-        {
-            Error::ExitWithMsg(
-              Error::Msg::LOGIC_GATE_DESERIALIZER_READ_FAILED);
-        }
-
-        return var;
-    };
-
     static const auto ReadPorts = [&](std::vector<Port*>& ports)
     {
-        const auto numberOfPorts = ReadAndCheckStatus
-                                     .template operator()<EncodedIndex>();
+        const auto numberOfPorts = deserializer
+                                     .ReadAndCheckStatus<EncodedIndex>();
 
         for (EncodedIndex index = 0; index < numberOfPorts; index++)
         {
-            const auto portIndex = ReadAndCheckStatus
-                                     .template operator()<EncodedIndex>();
+            const auto portIndex = deserializer
+                                     .ReadAndCheckStatus<EncodedIndex>();
 
             if (portIndex >= fpga->NumberOfPorts())
             {
@@ -49,8 +35,8 @@ LogicGate LogicGate::Deserializer::Deserialize(
 
     static const auto ReadElement = [&]()
     {
-        const auto elementIndex = ReadAndCheckStatus
-                                    .template operator()<EncodedIndex>();
+        const auto elementIndex = deserializer
+                                    .ReadAndCheckStatus<EncodedIndex>();
 
         ElementType element;
 
@@ -61,8 +47,8 @@ LogicGate LogicGate::Deserializer::Deserialize(
                 ///////////////////
                 /// It's a port ///
                 ///////////////////
-                const auto portIndex = ReadAndCheckStatus.template
-                                       operator()<EncodedIndex>();
+                const auto portIndex = deserializer.ReadAndCheckStatus<
+                  EncodedIndex>();
 
                 if (portIndex >= fpga->NumberOfPorts())
                 {
@@ -79,8 +65,7 @@ LogicGate LogicGate::Deserializer::Deserialize(
                 //////////////////
                 /// It's a bit ///
                 //////////////////
-                element = ReadAndCheckStatus
-                            .template operator()<std::uint8_t>();
+                element = deserializer.ReadAndCheckStatus<EncodedIndex>();
                 break;
             }
 
@@ -101,8 +86,8 @@ LogicGate LogicGate::Deserializer::Deserialize(
     {
         std::vector<ElementType> elements;
 
-        const auto numberOfElements = ReadAndCheckStatus.template
-                                      operator()<EncodedIndex>();
+        const auto numberOfElements = deserializer.ReadAndCheckStatus<
+          EncodedIndex>();
 
         for (EncodedIndex index = 0; index < numberOfElements; index++)
         {
@@ -114,8 +99,8 @@ LogicGate LogicGate::Deserializer::Deserialize(
 
     static const auto ReadTruthTable = [&](TruthTable& truthTable)
     {
-        const auto elementsVectorCount = ReadAndCheckStatus.template
-                                         operator()<EncodedIndex>();
+        const auto elementsVectorCount = deserializer.ReadAndCheckStatus<
+          EncodedIndex>();
 
         for (EncodedIndex index = 0; index < elementsVectorCount; index++)
         {
@@ -132,7 +117,7 @@ LogicGate LogicGate::Deserializer::Deserialize(
     return logicGate;
 }
 
-std::vector<std::byte> LogicGate::Serializer::Serialize()
+std::vector<std::byte> LogicGate::Serializer::Serialize() const
 {
     ::Serializer serializer;
 

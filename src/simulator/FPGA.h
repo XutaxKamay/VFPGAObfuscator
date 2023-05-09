@@ -74,6 +74,20 @@ namespace FPGASimulator
 {
     class FPGA
     {
+      public:
+        struct Deserializer
+        {
+            FPGA Deserialize(const std::vector<std::byte>& serialized);
+        };
+
+        struct Serializer
+        {
+            EncodedIndex number_of_ports;
+            std::vector<LogicGate::Serializer> logic_gates_serializer;
+
+            std::vector<std::byte> Serialize();
+        };
+
       private:
         struct Stage
         {
