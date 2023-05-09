@@ -120,6 +120,8 @@ std::vector<std::byte> LogicGate::Serializer::Serialize()
     static const auto AddElementType =
       [&](const std::variant<EncodedIndex, Bit>& element)
     {
+        serializer.AddVar(static_cast<EncodedIndex>(element.index()));
+
         switch (element.index())
         {
             case 0:
