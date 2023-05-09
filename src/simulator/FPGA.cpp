@@ -90,7 +90,7 @@ void FPGA::InsertLogicGate(const LogicGate& logicGate)
     {
         Error::ExitWithMsg(
           Error::Msg::
-            FPGA_LOGIC_GATE_DESERIALIZED_INPUTS_IN_TURH_TABLE_NOT_CORRECT);
+            FPGA_LOGIC_GATE_DESERIALIZED_INPUTS_IN_TRUTH_TABLE_NOT_CORRECT);
     }
 
     //////////////////////////////////////////
@@ -110,7 +110,7 @@ void FPGA::InsertLogicGate(const LogicGate& logicGate)
     {
         Error::ExitWithMsg(
           Error::Msg::
-            FPGA_LOGIC_GATE_DESERIALIZED_OUTPUTS_IN_TURH_TABLE_NOT_CORRECT);
+            FPGA_LOGIC_GATE_DESERIALIZED_OUTPUTS_IN_TRUTH_TABLE_NOT_CORRECT);
     }
 
     /////////////////////////////////////////////////////////
