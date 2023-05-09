@@ -308,10 +308,10 @@ void FPGA::CheckDependencyAndCreateStages()
                                });
         _stages.push_back(stage);
 
-        ////////////////////////////////////////////////////////////////
-        /// In order to get the logic gates left, we need to remove
-        /// /// the current one we pushed earlier ///
-        ////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////
+        /// In order to get the logic gates left, we need to remove ///
+        /// the current one we pushed earlier                       ///
+        ///////////////////////////////////////////////////////////////
         logicGatesLeft.erase(
           std::remove_if(std::execution::seq,
                          logicGatesLeft.begin(),
