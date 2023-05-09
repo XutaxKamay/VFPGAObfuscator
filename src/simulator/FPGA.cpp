@@ -181,7 +181,7 @@ void FPGA::Simulate()
         //////////////////////////////////////////
         if (logicGates.size() >= minThreads)
         {
-            std::for_each(std::execution::seq,
+            std::for_each(std::execution::par_unseq,
                           logicGates.begin(),
                           logicGates.end(),
                           SimulateFunction);
