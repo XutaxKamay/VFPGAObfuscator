@@ -37,15 +37,15 @@ int main()
     FPGA fpga(100000);
 
     LogicGate logicGate {
-        {{ fpga.GetPort(0), fpga.GetPort(1) },
-         { fpga.GetPort(2) },
-         { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
-         { { 0 }, { 0 }, { 0 }, { 1 } }}
+        { fpga.GetPort(0), fpga.GetPort(1) },
+        { fpga.GetPort(2) },
+        { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
+        { { 0 }, { 0 }, { 0 }, { 1 } }
     };
 
     fpga.InsertLogicGate(logicGate);
 
-    for (auto inputPort : logicGate.deserialized.input_ports)
+    for (auto inputPort : logicGate.input_ports)
     {
         inputPort->SetHigh();
     }

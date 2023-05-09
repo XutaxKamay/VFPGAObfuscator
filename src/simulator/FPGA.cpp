@@ -12,6 +12,11 @@ Port* FPGA::GetPort(std::size_t index)
     return &_ports[index];
 }
 
+std::size_t FPGA::NumberOfPorts() const
+{
+    return _ports.size();
+}
+
 const std::vector<LogicGate>& FPGA::LogicGates() const
 {
     return _logic_gates;
@@ -19,10 +24,8 @@ const std::vector<LogicGate>& FPGA::LogicGates() const
 
 void FPGA::InsertLogicGate(const LogicGate& logicGate)
 {
-    const auto numberOfInputPorts = logicGate.deserialized.input_ports
-                                      .size();
-    const auto numberOfOutputPorts = logicGate.deserialized.output_ports
-                                       .size();
+    const auto numberOfInputPorts  = logicGate.input_ports.size();
+    const auto numberOfOutputPorts = logicGate.output_ports.size();
 
     ///////////////////////////////////////////////////////
     /// Check if the truth table got the same amount of ///
@@ -31,16 +34,14 @@ void FPGA::InsertLogicGate(const LogicGate& logicGate)
     ///////////////////////////////////////////////////////
     const auto differentNumberOfInputPorts = std::find_if(
       std::execution::par_unseq,
-      logicGate.deserialized.input_truth_table.begin(),
-      logicGate.deserialized.input_truth_table.end(),
-      [&](
-        const std::vector<LogicGate::Deserialized::ElementType>& elements)
+      logicGate.input_truth_table.begin(),
+      logicGate.input_truth_table.end(),
+      [&](const std::vector<LogicGate::ElementType>& elements)
       {
           return elements.size() != numberOfInputPorts;
       });
 
-    if (differentNumberOfInputPorts
-        != logicGate.deserialized.input_truth_table.end())
+    if (differentNumberOfInputPorts != logicGate.input_truth_table.end())
     {
         Error::ExitWithMsg(
           Error::Msg::
@@ -52,16 +53,15 @@ void FPGA::InsertLogicGate(const LogicGate& logicGate)
     //////////////////////////////////////////
     const auto differentNumberOfOutputPorts = std::find_if(
       std::execution::par_unseq,
-      logicGate.deserialized.output_truth_table.begin(),
-      logicGate.deserialized.output_truth_table.end(),
-      [&](
-        const std::vector<LogicGate::Deserialized::ElementType>& elements)
+      logicGate.output_truth_table.begin(),
+      logicGate.output_truth_table.end(),
+      [&](const std::vector<LogicGate::ElementType>& elements)
       {
           return elements.size() != numberOfOutputPorts;
       });
 
     if (differentNumberOfOutputPorts
-        != logicGate.deserialized.output_truth_table.end())
+        != logicGate.output_truth_table.end())
     {
         Error::ExitWithMsg(
           Error::Msg::
@@ -74,19 +74,14 @@ void FPGA::InsertLogicGate(const LogicGate& logicGate)
     /// We don't want some inputs condition               ///
     /// that has no outputs and vice versa ...            ///
     /////////////////////////////////////////////////////////
-    if (logicGate.deserialized.input_truth_table.size()
-        != logicGate.deserialized.output_truth_table.size())
+    if (logicGate.input_truth_table.size()
+        != logicGate.output_truth_table.size())
     {
         Error::ExitWithMsg(
           Error::Msg::FPGA_LOGIC_GATE_DESERIALIZED_TRUTH_TABLE_NOT_CORRECT);
     }
 
     _logic_gates.push_back(logicGate);
-}
-
-void FPGA::InsertLogicGate(const LogicGate::Deserialized& deserialized)
-{
-    InsertLogicGate(LogicGate { deserialized });
 }
 
 void FPGA::PrepareStages()
@@ -218,7 +213,7 @@ void FPGA::CheckDependencyAndCreateStages()
           [&](LogicGate& logicGate)
           {
               const auto foundPort = std::ranges::find_if(
-                logicGate.deserialized.input_ports,
+                logicGate.input_ports,
                 [&](Port* inputPort)
                 {
                     //////////////////////////////////
@@ -239,12 +234,11 @@ void FPGA::CheckDependencyAndCreateStages()
               /// If not found, we insert the current       ///
               /// logic gate inside the array.              ///
               /////////////////////////////////////////////////
-              if (foundPort == logicGate.deserialized.input_ports.end())
+              if (foundPort == logicGate.input_ports.end())
               {
-                  currentOutputPorts.insert(
-                    currentOutputPorts.begin(),
-                    logicGate.deserialized.output_ports.begin(),
-                    logicGate.deserialized.output_ports.end());
+                  currentOutputPorts.insert(currentOutputPorts.begin(),
+                                            logicGate.output_ports.begin(),
+                                            logicGate.output_ports.end());
 
                   currentLogicGates.push_back(&logicGate);
               }

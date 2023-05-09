@@ -115,10 +115,10 @@ namespace FPGASimulator
         FPGA(const std::size_t numberOfPorts);
 
         Port* GetPort(std::size_t index);
+        std::size_t NumberOfPorts() const;
         const std::vector<LogicGate>& LogicGates() const;
 
         void InsertLogicGate(const LogicGate& logicGate);
-        void InsertLogicGate(const LogicGate::Deserialized& deserialized);
 
         void PrepareStages();
         void Simulate();

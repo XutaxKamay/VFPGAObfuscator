@@ -46,15 +46,22 @@ namespace FPGASimulator
     {
         T value {};
 
-        if (not CanReadVar(sizeof(SharedSerializedType)
-                           + sizeof(std::uint64_t)))
+        static const auto SetStatusAndReturn =
+          [&]<ReadStatus READ_STATUS>()
         {
             if (status)
             {
-                status = ReadStatus::OUT_OF_BOUNDS;
+                status = READ_STATUS;
             }
 
             return value;
+        };
+
+        if (not CanReadVar(sizeof(SharedSerializedType)
+                           + sizeof(std::uint64_t)))
+        {
+            return SetStatusAndReturn
+              .template operator()<ReadStatus::OUT_OF_BOUNDS>();
         }
 
         const auto type       = ReadType<SharedSerializedType>();
@@ -62,34 +69,22 @@ namespace FPGASimulator
 
         if (not CanReadVar(sizeOfData))
         {
-            if (status)
-            {
-                status = ReadStatus::OUT_OF_BOUNDS;
-            }
-
-            return value;
+            return SetStatusAndReturn
+              .template operator()<ReadStatus::OUT_OF_BOUNDS>();
         }
 
         if constexpr (std::is_integral_v<T>)
         {
             if (type != SharedSerializedType::INTEGRAL)
             {
-                if (status)
-                {
-                    status = ReadStatus::NOT_SAME_TYPE;
-                }
-
-                return value;
+                return SetStatusAndReturn
+                  .template operator()<ReadStatus::NOT_SAME_TYPE>();
             }
 
             if (sizeOfData != sizeof(T))
             {
-                if (status)
-                {
-                    status = ReadStatus::SIZE_OF_INTEGRAL_NOT_CORRECT;
-                }
-
-                return value;
+                return SetStatusAndReturn.template
+                  operator()<ReadStatus::SIZE_OF_INTEGRAL_NOT_CORRECT>();
             }
 
             value = ReadType<T>();
@@ -98,12 +93,8 @@ namespace FPGASimulator
         {
             if (type != SharedSerializedType::DATA)
             {
-                if (status)
-                {
-                    status = ReadStatus::NOT_SAME_TYPE;
-                }
-
-                return value;
+                return SetStatusAndReturn
+                  .template operator()<ReadStatus::NOT_SAME_TYPE>();
             }
 
             value = T { &data[data_index],
@@ -112,12 +103,8 @@ namespace FPGASimulator
             data_index += sizeOfData;
         }
 
-        if (status)
-        {
-            status = ReadStatus::NO_ERROR;
-        }
-
-        return value;
+        return SetStatusAndReturn
+          .template operator()<ReadStatus::NO_ERROR>();
     }
 }
 

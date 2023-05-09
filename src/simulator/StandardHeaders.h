@@ -16,6 +16,6 @@
 #include <variant>
 #include <vector>
 
-using EncodedIndex = std::uint64_t;
+using EncodedIndex = std::uintmax_t;
 
 #endif

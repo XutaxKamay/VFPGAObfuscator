@@ -70,47 +70,16 @@
 
 namespace FPGASimulator
 {
+    class FPGA;
+
     class LogicGate
     {
       public:
-        class Deserialized
+        class Deserializer
         {
           public:
-            using ElementType = std::variant<Port*, Bit>;
-            using TruthTable  = std::vector<std::vector<ElementType>>;
-
-            std::vector<Port*> input_ports;
-            std::vector<Port*> output_ports;
-
-            //////////////////////////////////////////////////////////
-            /// Order is: [lines][column]                          ///
-            ///                                                    ///
-            /// The reason is for performance.                     ///
-            /// While it may seem more logical to represent        ///
-            /// the order in the other way, if you do it by first  ///
-            /// selecting the column you have two algorithms:      ///
-            ///                                                    ///
-            /// One is going by iterating lines first,             ///
-            /// but then you have CPU cache problems               ///
-            /// and performance costs because                      ///
-            /// you everytime you increase column index,           ///
-            /// you essentially move on a whole new part of memory ///
-            /// which isn't cache efficient (cache miss).          ///
-            ///                                                    ///
-            /// The second algorithm is more complicated,          ///
-            /// you can start looping first with columns           ///
-            /// and you won't have CPU cache problems              ///
-            /// but you will need to keep track of the             ///
-            /// line index and test again for all others columns   ///
-            /// which is eventually slower than doing it           ///
-            /// [lines][column].                                   ///
-            //////////////////////////////////////////////////////////
-            TruthTable input_truth_table;
-            TruthTable output_truth_table;
-
-            void Deserialize(const std::vector<std::byte>& serialized,
-                             const std::vector<Port*>& allPorts);
-            void RunLogicFunction();
+            LogicGate Deserialize(const std::vector<std::byte>& serialized,
+                                  FPGA* const fpga);
         };
 
         class Serializer
@@ -129,9 +98,38 @@ namespace FPGASimulator
         };
 
       public:
-        Deserialized deserialized;
+        using ElementType = std::variant<Port*, Bit>;
+        using TruthTable  = std::vector<std::vector<ElementType>>;
 
-      public:
+        std::vector<Port*> input_ports;
+        std::vector<Port*> output_ports;
+
+        //////////////////////////////////////////////////////////
+        /// Order is: [lines][column]                          ///
+        ///                                                    ///
+        /// The reason is for performance.                     ///
+        /// While it may seem more logical to represent        ///
+        /// the order in the other way, if you do it by first  ///
+        /// selecting the column you have two algorithms:      ///
+        ///                                                    ///
+        /// One is going by iterating lines first,             ///
+        /// but then you have CPU cache problems               ///
+        /// and performance costs because                      ///
+        /// you everytime you increase column index,           ///
+        /// you essentially move on a whole new part of memory ///
+        /// which isn't cache efficient (cache miss).          ///
+        ///                                                    ///
+        /// The second algorithm is more complicated,          ///
+        /// you can start looping first with columns           ///
+        /// and you won't have CPU cache problems              ///
+        /// but you will need to keep track of the             ///
+        /// line index and test again for all others columns   ///
+        /// which is eventually slower than doing it           ///
+        /// [lines][column].                                   ///
+        //////////////////////////////////////////////////////////
+        TruthTable input_truth_table;
+        TruthTable output_truth_table;
+
         void Simulate();
     };
 }

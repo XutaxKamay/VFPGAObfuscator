@@ -1,18 +1,212 @@
 #include "LogicGate.h"
 #include "Deserializer.h"
 #include "Error.h"
+#include "FPGA.h"
 #include "Serializer.h"
 
 using namespace FPGASimulator;
 
-void LogicGate::Deserialized::Deserialize(
+LogicGate LogicGate::Deserializer::Deserialize(
   const std::vector<std::byte>& serialized,
-  const std::vector<Port*>& allPorts)
+  FPGA* const fpga)
 {
-    Deserializer deserializer { serialized };
+    LogicGate logicGate;
+    ::Deserializer deserializer { serialized };
+
+    static const auto ReadAndCheckStatus = [&]<typename T>
+    {
+        auto readStatus = ::Deserializer::ReadStatus::NO_ERROR;
+        T var           = deserializer.ReadVar<T>(readStatus);
+
+        if (readStatus != ::Deserializer::ReadStatus::NO_ERROR)
+        {
+            Error::ExitWithMsg(
+              Error::Msg::LOGIC_GATE_DESERIALIZER_READ_FAILED);
+        }
+
+        return var;
+    };
+
+    static const auto ReadPorts = [&](std::vector<Port*>& ports)
+    {
+        const auto numberOfPorts = ReadAndCheckStatus
+                                     .template operator()<EncodedIndex>();
+
+        for (EncodedIndex index = 0; index < numberOfPorts; index++)
+        {
+            const auto portIndex = ReadAndCheckStatus
+                                     .template operator()<EncodedIndex>();
+
+            if (portIndex >= fpga->NumberOfPorts())
+            {
+                Error::ExitWithMsg(
+                  Error::Msg::LOGIC_GATE_DESERIALIZER_READ_FAILED);
+            }
+
+            ports.push_back(fpga->GetPort(portIndex));
+        }
+    };
+
+    static const auto ReadElement = [&]()
+    {
+        const auto elementIndex = ReadAndCheckStatus
+                                    .template operator()<EncodedIndex>();
+
+        ElementType element;
+
+        switch (elementIndex)
+        {
+            case 0:
+            {
+                ///////////////////
+                /// It's a port ///
+                ///////////////////
+                const auto portIndex = ReadAndCheckStatus.template
+                                       operator()<EncodedIndex>();
+
+                if (portIndex >= fpga->NumberOfPorts())
+                {
+                    Error::ExitWithMsg(
+                      Error::Msg::LOGIC_GATE_DESERIALIZER_READ_FAILED);
+                }
+
+                element = fpga->GetPort(portIndex);
+                break;
+            }
+
+            case 1:
+            {
+                //////////////////
+                /// It's a bit ///
+                //////////////////
+                element = ReadAndCheckStatus
+                            .template operator()<std::uint8_t>();
+                break;
+            }
+
+            default:
+            {
+                ///////////////////////////
+                /// Should never happen ///
+                ///////////////////////////
+                Error::ExitWithMsg(
+                  Error::Msg::LOGIC_GATE_DESERIALIZER_READ_FAILED);
+            }
+        }
+
+        return element;
+    };
+
+    static const auto ReadElements = [&]()
+    {
+        std::vector<ElementType> elements;
+
+        const auto numberOfElements = ReadAndCheckStatus.template
+                                      operator()<EncodedIndex>();
+
+        for (EncodedIndex index = 0; index < numberOfElements; index++)
+        {
+            elements.push_back(ReadElement());
+        }
+
+        return elements;
+    };
+
+    static const auto ReadTruthTable = [&](TruthTable& truthTable)
+    {
+        const auto elementsVectorCount = ReadAndCheckStatus.template
+                                         operator()<EncodedIndex>();
+
+        for (EncodedIndex index = 0; index < elementsVectorCount; index++)
+        {
+            truthTable.push_back(ReadElements());
+        }
+    };
+
+    ReadPorts(logicGate.input_ports);
+    ReadPorts(logicGate.output_ports);
+
+    ReadTruthTable(logicGate.input_truth_table);
+    ReadTruthTable(logicGate.output_truth_table);
+
+    return logicGate;
 }
 
-void LogicGate::Deserialized::RunLogicFunction()
+std::vector<std::byte> LogicGate::Serializer::Serialize()
+{
+    ::Serializer serializer;
+
+    static const auto AddPort = [&](const EncodedIndex& portIndex)
+    {
+        serializer.AddVar(portIndex);
+    };
+
+    static const auto AddElementType = [&](const ElementType& element)
+    {
+        serializer.AddVar(static_cast<EncodedIndex>(element.index()));
+
+        switch (element.index())
+        {
+            case 0:
+            {
+                ///////////////////
+                /// It's a port ///
+                ///////////////////
+                serializer.AddVar(std::get<0>(element));
+                break;
+            }
+
+            case 1:
+            {
+                //////////////////
+                /// It's a bit ///
+                //////////////////
+                serializer.AddVar(static_cast<std::uint8_t>(
+                  std::get<1>(element).to_ullong()));
+                break;
+            }
+
+            default:
+            {
+                ///////////////////////////
+                /// Should never happen ///
+                ///////////////////////////
+                Error::ExitWithMsg(
+                  Error::Msg::UNKNOWN_ELEMENT_TYPE_IN_TRUTH_TABLE);
+            }
+        }
+    };
+
+    static const auto AddPorts =
+      [&](const std::vector<EncodedIndex>& ports)
+    {
+        serializer.AddVar<EncodedIndex>(ports.size());
+        std::ranges::for_each(ports, AddPort);
+    };
+
+    static const auto AddElements =
+      [&](const std::vector<ElementType>& elements)
+    {
+        serializer.AddVar<EncodedIndex>(elements.size());
+        std::ranges::for_each(elements, AddElementType);
+    };
+
+    static const auto AddTruthTable = [&](const TruthTable& truthTable)
+    {
+        serializer.AddVar<EncodedIndex>(truthTable.size());
+        std::ranges::for_each(truthTable, AddElements);
+    };
+
+    AddPorts(input_ports);
+    AddPorts(output_ports);
+
+    AddTruthTable(input_truth_table);
+    AddTruthTable(output_truth_table);
+
+    return serializer.data;
+}
+
+void LogicGate::Simulate()
 {
     //////////////////////////////////////////////////////////////////
     /// Get the bit in the truth table,                            ///
@@ -22,8 +216,7 @@ void LogicGate::Deserialized::RunLogicFunction()
     /// If it's a port,                                            ///
     /// then we get its state otherwise we just get the bit value  ///
     //////////////////////////////////////////////////////////////////
-    static const auto GetBitState =
-      [&](const std::variant<Port*, Bit>& element)
+    static const auto GetBitState = [&](const ElementType& element)
     {
         Bit state;
 
@@ -106,76 +299,5 @@ void LogicGate::Deserialized::RunLogicFunction()
             break;
         }
     }
-}
-
-std::vector<std::byte> LogicGate::Serializer::Serialize()
-{
-    ::Serializer serializer;
-
-    static const auto AddPort = [&](const EncodedIndex& portIndex)
-    {
-        serializer.AddVar(portIndex);
-    };
-
-    static const auto AddElementType =
-      [&](const std::variant<EncodedIndex, Bit>& element)
-    {
-        serializer.AddVar(static_cast<EncodedIndex>(element.index()));
-
-        switch (element.index())
-        {
-            case 0:
-            {
-                serializer.AddVar(std::get<0>(element));
-                break;
-            }
-
-            case 1:
-            {
-                serializer.AddVar(static_cast<std::uint8_t>(
-                  std::get<1>(element).to_ullong()));
-                break;
-            }
-
-            default:
-            {
-                Error::ExitWithMsg(
-                  Error::Msg::UNKNOWN_ELEMENT_TYPE_IN_TRUTH_TABLE);
-            }
-        }
-    };
-
-    static const auto AddPorts =
-      [&](const std::vector<EncodedIndex>& vector)
-    {
-        serializer.AddVar<EncodedIndex>(vector.size());
-        std::ranges::for_each(vector, AddPort);
-    };
-
-    static const auto AddElements =
-      [&](const std::vector<ElementType>& elements)
-    {
-        serializer.AddVar<EncodedIndex>(elements.size());
-        std::ranges::for_each(elements, AddElementType);
-    };
-
-    static const auto AddTruthTable = [&](const TruthTable& truthTable)
-    {
-        serializer.AddVar<EncodedIndex>(truthTable.size());
-        std::ranges::for_each(truthTable, AddElements);
-    };
-
-    AddPorts(input_ports);
-    AddPorts(output_ports);
-
-    AddTruthTable(input_truth_table);
-    AddTruthTable(output_truth_table);
-
-    return serializer.data;
-}
-
-void LogicGate::Simulate()
-{
-    deserialized.RunLogicFunction();
 }
 
