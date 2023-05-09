@@ -19,10 +19,9 @@ namespace FPGASimulator
     requires (GoodSerializedType<T>)
     void Serializer::AddVar(const T& value)
     {
-        SharedSerializedType type;
-        std::uint64_t sizeOfData;
-
-        static const auto InsertData = [&](auto&& byteValues)
+        static const auto InsertData = [&](SharedSerializedType type,
+                                           std::uint64_t sizeOfData,
+                                           const auto byteValues)
         {
             ///////////////////
             /// Insert type ///
@@ -48,17 +47,13 @@ namespace FPGASimulator
 
         if constexpr (std::is_integral_v<T>)
         {
-            type       = SharedSerializedType::INTEGRAL;
-            sizeOfData = sizeof(T);
-
-            InsertData(&value);
+            InsertData(SharedSerializedType::INTEGRAL, sizeof(T), &value);
         }
         else
         {
-            type       = SharedSerializedType::DATA;
-            sizeOfData = value.size() * sizeof(std::byte);
-
-            InsertData(value.data());
+            InsertData(SharedSerializedType::DATA,
+                       value.size() * sizeof(std::byte),
+                       value.data());
         }
     }
 }

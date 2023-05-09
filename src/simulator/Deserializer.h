@@ -25,19 +25,7 @@ namespace FPGASimulator
         T ReadVar(std::optional<ReadStatus> status = std::nullopt);
 
         template <typename T>
-        auto ReadAndCheckStatus()
-        {
-            auto readStatus = ReadStatus::NO_ERROR;
-            auto var        = ReadVar<T>(readStatus);
-
-            if (readStatus != ReadStatus::NO_ERROR)
-            {
-                Error::ExitWithMsg(
-                  Error::Msg::LOGIC_GATE_DESERIALIZER_READ_FAILED);
-            }
-
-            return var;
-        }
+        auto ReadAndCheckStatus();
 
       private:
         bool CanReadVar(std::size_t size);
@@ -121,6 +109,20 @@ namespace FPGASimulator
 
         return SetStatusAndReturn
           .template operator()<ReadStatus::NO_ERROR>();
+    }
+
+    template <typename T>
+    auto Deserializer::ReadAndCheckStatus()
+    {
+        auto readStatus = ReadStatus::NO_ERROR;
+        auto var        = ReadVar<T>(readStatus);
+
+        if (readStatus != ReadStatus::NO_ERROR)
+        {
+            Error::ExitWithMsg(Error::Msg::DESERIALIZER_READ_FAILED);
+        }
+
+        return var;
     }
 }
 

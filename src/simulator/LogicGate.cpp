@@ -128,7 +128,7 @@ std::vector<std::byte> LogicGate::Serializer::Serialize() const
 
     static const auto AddElementType = [&](const ElementType& element)
     {
-        serializer.AddVar(static_cast<EncodedIndex>(element.index()));
+        serializer.AddVar<EncodedIndex>(element.index());
 
         switch (element.index())
         {
@@ -285,4 +285,3 @@ void LogicGate::Simulate()
         }
     }
 }
-
