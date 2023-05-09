@@ -49,10 +49,12 @@ int main()
     FPGA::Serializer fpgaSerializer { 600002, logicGatesSerializer };
 
     FPGA::Deserializer fpgaDeserializer;
-    auto fpga = fpgaDeserializer.Deserialize(fpgaSerializer.Serialize());
+    auto fpga = fpgaDeserializer.Deserialize(
+      fpgaSerializer.Serialize<true>());
 
     fpga.GetPort(0)->SetLow();
     std::cout << "FPGA test ... \n";
+    std::cout << "Number of stages: " << fpga.stages.size() << '\n';
 
     Timer timerFPGA;
     Timer timerPrint;

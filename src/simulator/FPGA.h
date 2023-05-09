@@ -1,8 +1,10 @@
 #ifndef FPGA_SIMULATOR_FPGA_H
 #define FPGA_SIMULATOR_FPGA_H
 
+#include "Deserializer.h"
 #include "Error.h"
 #include "LogicGate.h"
+#include "Serializer.h"
 
 /*-----------------------------------------------------------------------
  |                                                                      |
@@ -82,13 +84,19 @@ namespace FPGASimulator
 
         struct Serializer
         {
-            EncodedIndex number_of_ports;
-            std::vector<LogicGate::Serializer> logic_gates_serializer;
+            struct Stage
+            {
+                std::vector<LogicGate::Serializer> logic_gates;
+            };
 
+            EncodedIndex number_of_ports;
+            std::vector<LogicGate::Serializer> logic_gates;
+
+            template <bool PREPARE_STAGES>
             std::vector<std::byte> Serialize();
         };
 
-      private:
+      public:
         struct Stage
         {
             std::vector<LogicGate> logic_gates;
@@ -98,6 +106,16 @@ namespace FPGASimulator
             /// like for multi-threading    ///
             ///////////////////////////////////
         };
+
+        ///////////////////////////////////////////////////////////////
+        ///                                                         ///
+        /// The idea is here is to process logic gates in parallel, ///
+        /// hence why there is double vectors.                      ///
+        /// Ideally, they represent different stages where we know  ///
+        /// that each logic gates are not dependent on each others  ///
+        ///                                                         ///
+        ///////////////////////////////////////////////////////////////
+        std::vector<Stage> stages;
 
       private:
         /////////////////////////////////////////
@@ -115,16 +133,6 @@ namespace FPGASimulator
         /////////////////////////////////////////////////
         std::vector<LogicGate> _logic_gates;
 
-        ///////////////////////////////////////////////////////////////
-        ///                                                         ///
-        /// The idea is here is to process logic gates in parallel, ///
-        /// hence why there is double vectors.                      ///
-        /// Ideally, they represent different stages where we know  ///
-        /// that each logic gates are not dependent on each others  ///
-        ///                                                         ///
-        ///////////////////////////////////////////////////////////////
-        std::vector<Stage> _stages;
-
       public:
         FPGA(const std::size_t numberOfPorts);
 
@@ -132,7 +140,9 @@ namespace FPGASimulator
         std::size_t NumberOfPorts() const;
         const std::vector<LogicGate>& LogicGates() const;
 
+        void CheckLogicGateValidity(const LogicGate& logicGate);
         void InsertLogicGate(const LogicGate& logicGate);
+        void InsertLogicGates(const std::vector<LogicGate>& logicGates);
 
         void PrepareStages();
         void Simulate();
@@ -143,8 +153,176 @@ namespace FPGASimulator
         /// since this can be created before running the simulator. ///
         /// With a lot of logic gates, it may take a while.         ///
         ///////////////////////////////////////////////////////////////
-        void CheckDependencyAndCreateStages();
+        template <typename LOGIC_GATE_T, typename PORT_T, typename STAGE_T>
+        static std::vector<STAGE_T> CheckDependencyAndCreateStages(
+          const std::vector<LOGIC_GATE_T>& logicGates);
     };
+
+    template <bool PREPARE_STAGES>
+    std::vector<std::byte> FPGA::Serializer::Serialize()
+    {
+        FPGASimulator::Serializer serializer;
+
+        serializer.AddVar(PREPARE_STAGES);
+        serializer.AddVar<EncodedIndex>(number_of_ports);
+
+        const auto AddLogicGates =
+          [&](const decltype(logic_gates)& logicGatesSerializer)
+        {
+            std::ranges::for_each(
+              logicGatesSerializer,
+              [&](const LogicGate::Serializer& logicGateSerializer)
+              {
+                  serializer.AddVar(logicGateSerializer.Serialize());
+              });
+        };
+
+        if constexpr (PREPARE_STAGES)
+        {
+            auto preparedStages = CheckDependencyAndCreateStages<
+              LogicGate::Serializer,
+              EncodedIndex,
+              Stage>(logic_gates);
+
+            serializer.AddVar<EncodedIndex>(preparedStages.size());
+
+            std::ranges::for_each(preparedStages,
+                                  [&](const Stage& stage)
+                                  {
+                                      serializer.AddVar<EncodedIndex>(
+                                        stage.logic_gates.size());
+                                      AddLogicGates(stage.logic_gates);
+                                  });
+        }
+        else
+        {
+            serializer.AddVar<EncodedIndex>(logic_gates.size());
+            AddLogicGates(logic_gates);
+        }
+
+        return serializer.data;
+    }
+}
+
+template <typename LOGIC_GATE_T, typename PORT_T, typename STAGE_T>
+std::vector<STAGE_T> FPGASimulator::FPGA::CheckDependencyAndCreateStages(
+  const std::vector<LOGIC_GATE_T>& logicGates)
+{
+    ////////////////////////////////////////////
+    /// Each stages will be represented as a ///
+    /// vector of LOGIC_GATE_T               ///
+    ////////////////////////////////////////////
+    std::vector<STAGE_T> stages;
+    std::vector<LOGIC_GATE_T> logicGatesLeft = logicGates;
+
+    ///////////////////////////////////
+    /// We can get it by reference, ///
+    /// it's safe enough here       ///
+    ///////////////////////////////////
+    std::vector<LOGIC_GATE_T*> currentLogicGates;
+    std::vector<PORT_T> currentOutputPorts;
+
+    ////////////////////////////////////////////////////////////////////
+    /// Each stages will contain logic gates that are not depending  ///
+    /// on each others which is useful for parallelism.              ///
+    ///                                                              ///
+    /// In order to divide the logic gates in multiple stages,       ///
+    /// we need to check if the previous logic gates                 ///
+    /// has outputs has links/connections                            ///
+    /// to the next logic gates inputs.                              ///
+    ///                                                              ///
+    /// If any previous logic gates we registered in an array        ///
+    /// have links/connections to the next ones,                     ///
+    /// then we ignore the next logic gate                           ///
+    /// and we go on again on another logic gate                     ///
+    /// until we traversed all the possible logic gates.             ///
+    ///                                                              ///
+    /// If not, we keep track of that next logic gate                ///
+    /// inside an array and we keep searching for links/connections. ///
+    ///                                                              ///
+    /// This permits to simulate logic gates fully in parallel       ///
+    /// (without locks) and stages themselves (with locks).          ///
+    ////////////////////////////////////////////////////////////////////
+    while (logicGatesLeft.size())
+    {
+        /////////////////////////////////////////////////////////////
+        /// Check if any previous logic gates have outputs ports  ///
+        /// linked to the logic gates left in their inputs ports. ///
+        /////////////////////////////////////////////////////////////
+        std::ranges::for_each(
+          logicGatesLeft,
+          [&](LOGIC_GATE_T& logicGate)
+          {
+              const auto foundPort = std::ranges::find_if(
+                logicGate.input_ports,
+                [&](PORT_T inputPort)
+                {
+                    //////////////////////////////////
+                    /// Check if there's any links ///
+                    //////////////////////////////////
+                    return std::find(std::execution::par_unseq,
+                                     currentOutputPorts.begin(),
+                                     currentOutputPorts.end(),
+                                     inputPort)
+                           != currentOutputPorts.end();
+                });
+
+              /////////////////////////////////////////////////
+              /// If we found a previous                    ///
+              /// logic gates output port linked            ///
+              /// to an input port in the logic gates left, ///
+              /// We simply skip it for another stage.      ///
+              /// If not found, we insert the current       ///
+              /// logic gate inside the array.              ///
+              /////////////////////////////////////////////////
+              if (foundPort == logicGate.input_ports.end())
+              {
+                  currentOutputPorts.insert(currentOutputPorts.begin(),
+                                            logicGate.output_ports.begin(),
+                                            logicGate.output_ports.end());
+
+                  currentLogicGates.push_back(&logicGate);
+              }
+          });
+
+        ////////////////////////////////////////////////////////////////
+        /// Push back the array inside a new stage,                  ///
+        /// And process again all the ignored logic gates previously ///
+        ////////////////////////////////////////////////////////////////
+
+        STAGE_T stage;
+        std::ranges::transform(currentLogicGates.begin(),
+                               currentLogicGates.end(),
+                               std::back_inserter(stage.logic_gates),
+                               [](LOGIC_GATE_T* logicGate)
+                               {
+                                   return *logicGate;
+                               });
+        stages.push_back(stage);
+
+        ///////////////////////////////////////////////////////////////
+        /// In order to get the logic gates left, we need to remove ///
+        /// the current one we pushed earlier                       ///
+        ///////////////////////////////////////////////////////////////
+        logicGatesLeft.erase(
+          std::remove_if(std::execution::seq,
+                         logicGatesLeft.begin(),
+                         logicGatesLeft.end(),
+                         [&currentLogicGates](LOGIC_GATE_T& logicGate)
+                         {
+                             return std::find(std::execution::par_unseq,
+                                              currentLogicGates.begin(),
+                                              currentLogicGates.end(),
+                                              &logicGate)
+                                    != currentLogicGates.end();
+                         }),
+          logicGatesLeft.end());
+
+        currentLogicGates.clear();
+        currentOutputPorts.clear();
+    }
+
+    return stages;
 }
 
 #endif
