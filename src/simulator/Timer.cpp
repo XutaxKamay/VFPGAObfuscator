@@ -1,5 +1,7 @@
 #include "Timer.h"
 
+using namespace FPGASimulator;
+
 std::uint16_t Timer::Nanos() const
 {
     return static_cast<std::uint16_t>(_difference % 1000);

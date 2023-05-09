@@ -3,23 +3,26 @@
 
 #include "StandardHeaders.h"
 
-class Timer
+namespace FPGASimulator
 {
-  public:
-    std::uint16_t Nanos() const;
-    std::uint16_t Micros() const;
-    std::uint16_t Millis() const;
-    std::uint16_t Seconds() const;
-    std::int64_t Difference() const;
+    class Timer
+    {
+      public:
+        std::uint16_t Nanos() const;
+        std::uint16_t Micros() const;
+        std::uint16_t Millis() const;
+        std::uint16_t Seconds() const;
+        std::int64_t Difference() const;
 
-  public:
-    void Start();
-    void End();
+      public:
+        void Start();
+        void End();
 
-  private:
-    std::chrono::high_resolution_clock::time_point _start;
-    std::chrono::high_resolution_clock::time_point _end;
-    std::int64_t _difference;
-};
+      private:
+        std::chrono::high_resolution_clock::time_point _start;
+        std::chrono::high_resolution_clock::time_point _end;
+        std::int64_t _difference;
+    };
+}
 
 #endif

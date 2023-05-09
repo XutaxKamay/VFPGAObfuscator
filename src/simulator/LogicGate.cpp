@@ -1,9 +1,18 @@
 #include "LogicGate.h"
+#include "Deserializer.h"
 #include "Error.h"
+#include "Serializer.h"
 
-void LogicGate::Decoder::RunLogicFunction(
-  const std::vector<Port*>& inputPorts,
-  const std::vector<Port*>& outputPorts)
+using namespace FPGASimulator;
+
+void LogicGate::Deserialized::Deserialize(
+  const std::vector<std::byte>& serialized,
+  const std::vector<Port*>& allPorts)
+{
+    Deserializer deserializer { serialized };
+}
+
+void LogicGate::Deserialized::RunLogicFunction()
 {
     //////////////////////////////////////////////////////////////////
     /// Get the bit in the truth table,                            ///
@@ -25,7 +34,7 @@ void LogicGate::Decoder::RunLogicFunction(
                 ///////////////////
                 /// It's a port ///
                 ///////////////////
-                state = std::get<0>(element)->GetState();
+                state = std::get<0>(element)->state;
                 break;
             }
 
@@ -71,7 +80,7 @@ void LogicGate::Decoder::RunLogicFunction(
             const auto& element = elementsOnLine[columnIndex];
             const auto state    = GetBitState(element);
 
-            if (inputPorts[columnIndex]->GetState() == state)
+            if (input_ports[columnIndex]->state == state)
             {
                 verifiesTruthTable = true;
                 continue;
@@ -87,11 +96,11 @@ void LogicGate::Decoder::RunLogicFunction(
         if (verifiesTruthTable)
         {
             for (std::size_t columnIndex = 0;
-                 columnIndex < outputPorts.size();
+                 columnIndex < output_ports.size();
                  columnIndex++)
             {
-                outputPorts[columnIndex]->SetState(GetBitState(
-                  output_truth_table[lineIndex][columnIndex]));
+                output_ports[columnIndex]->state = GetBitState(
+                  output_truth_table[lineIndex][columnIndex]);
             }
 
             break;
@@ -99,32 +108,72 @@ void LogicGate::Decoder::RunLogicFunction(
     }
 }
 
-LogicGate::LogicGate(const std::vector<Port*>& inputPorts,
-                     const std::vector<Port*>& outputPorts,
-                     const Decoder& decoder)
- : _input_ports { inputPorts },
-   _output_ports { outputPorts },
-   _decoder { decoder }
+std::vector<std::byte> LogicGate::Serializer::Serialize()
 {
-}
+    ::Serializer serializer;
 
-const decltype(LogicGate::_input_ports)& LogicGate::InputPorts() const
-{
-    return _input_ports;
-}
+    static const auto AddPort = [&](const EncodedIndex& portIndex)
+    {
+        serializer.AddVar(portIndex);
+    };
 
-const decltype(LogicGate::_output_ports)& LogicGate::OutputPorts() const
-{
-    return _output_ports;
-}
+    static const auto AddElementType =
+      [&](const std::variant<EncodedIndex, Bit>& element)
+    {
+        switch (element.index())
+        {
+            case 0:
+            {
+                serializer.AddVar(std::get<0>(element));
+                break;
+            }
 
-const LogicGate::Decoder& LogicGate::Decoded() const
-{
-    return _decoder;
+            case 1:
+            {
+                serializer.AddVar(static_cast<std::uint8_t>(
+                  std::get<1>(element).to_ullong()));
+                break;
+            }
+
+            default:
+            {
+                Error::ExitWithMsg(
+                  Error::Msg::UNKNOWN_ELEMENT_TYPE_IN_TRUTH_TABLE);
+            }
+        }
+    };
+
+    static const auto AddPorts =
+      [&](const std::vector<EncodedIndex>& vector)
+    {
+        serializer.AddVar<EncodedIndex>(vector.size());
+        std::ranges::for_each(vector, AddPort);
+    };
+
+    static const auto AddElements =
+      [&](const std::vector<ElementType>& elements)
+    {
+        serializer.AddVar<EncodedIndex>(elements.size());
+        std::ranges::for_each(elements, AddElementType);
+    };
+
+    static const auto AddTruthTable = [&](const TruthTable& truthTable)
+    {
+        serializer.AddVar<EncodedIndex>(truthTable.size());
+        std::ranges::for_each(truthTable, AddElements);
+    };
+
+    AddPorts(input_ports);
+    AddPorts(output_ports);
+
+    AddTruthTable(input_truth_table);
+    AddTruthTable(output_truth_table);
+
+    return serializer.data;
 }
 
 void LogicGate::Simulate()
 {
-    _decoder.RunLogicFunction(_input_ports, _output_ports);
+    deserialized.RunLogicFunction();
 }
 

@@ -1,8 +1,9 @@
+#include "Deserializer.h"
 #include "FPGA.h"
+#include "Serializer.h"
 #include "Timer.h"
 
-#include "Deserializer.h"
-#include "Serializer.h"
+using namespace FPGASimulator;
 
 int main()
 {
@@ -16,7 +17,7 @@ int main()
                                                std::byte { 3 },
                                                std::byte { 7 } });
 
-    Deserializer deserializer(serializer.GetData());
+    Deserializer deserializer { serializer.data };
 
     const auto var_1337   = deserializer.ReadVar<std::uint16_t>();
     const auto var_1337_2 = deserializer.ReadVar<std::intmax_t>();
@@ -33,39 +34,37 @@ int main()
 
     std::cout << "FPGA test ... \n";
 
-    FPGA fpga(2, 1, 100000);
+    FPGA fpga(100000);
 
-    LogicGate logicGate(
-      {
-        fpga.GetPort(0),
-        fpga.GetPort(1)
-    },
-      { fpga.GetPort(2) },
-      { { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
-        { { 0 }, { 0 }, { 0 }, { 1 } } });
+    LogicGate logicGate {
+        {{ fpga.GetPort(0), fpga.GetPort(1) },
+         { fpga.GetPort(2) },
+         { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } },
+         { { 0 }, { 0 }, { 0 }, { 1 } }}
+    };
 
     fpga.InsertLogicGate(logicGate);
 
-    for (auto inputPort : logicGate.InputPorts())
+    for (auto inputPort : logicGate.deserialized.input_ports)
     {
         inputPort->SetHigh();
     }
 
-    fpga.InsertLogicGate(
-      {
-        fpga.GetPort(2)
-    },
+    fpga.InsertLogicGate({
       { fpga.GetPort(2) },
-      { { { 0 }, { 1 } }, { { 1 }, { 0 } } });
+      { fpga.GetPort(2) },
+      { { 0 }, { 1 } },
+      { { 1 }, { 0 } }
+    });
 
     for (std::size_t i = 3; i < 100000 - 1;)
     {
-        fpga.InsertLogicGate(
-          {
-            fpga.GetPort(i)
-        },
+        fpga.InsertLogicGate({
+          { fpga.GetPort(i) },
           { fpga.GetPort(i + 1) },
-          { { { 0 }, { 1 } }, { { 1 }, { 0 } } });
+          { { 0 }, { 1 } },
+          { { 1 }, { 0 } }
+        });
 
         i += 2;
     }
@@ -93,7 +92,7 @@ int main()
             std::cout << averageTime / countAverageTime
                       << " nanoseconds of average time in one second\n";
             countAverageTime = 0;
-	    averageTime = 0;
+            averageTime      = 0;
 
             timerPrint.Start();
         }

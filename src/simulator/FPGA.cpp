@@ -1,15 +1,97 @@
 #include "FPGA.h"
-#include "Error.h"
 
-FPGA::FPGA(std::size_t numberOfInputPins,
-           std::size_t numberOfOutputPins,
-           std::size_t numberOfOthersPorts)
- : _ports { numberOfInputPins + numberOfOutputPins + numberOfOthersPorts }
+using namespace FPGASimulator;
+
+FPGA::FPGA(const std::size_t numberOfPorts)
+ : _ports { numberOfPorts }
 {
 }
 
-FPGA::~FPGA()
+Port* FPGA::GetPort(std::size_t index)
 {
+    return &_ports[index];
+}
+
+const std::vector<LogicGate>& FPGA::LogicGates() const
+{
+    return _logic_gates;
+}
+
+void FPGA::InsertLogicGate(const LogicGate& logicGate)
+{
+    const auto numberOfInputPorts = logicGate.deserialized.input_ports
+                                      .size();
+    const auto numberOfOutputPorts = logicGate.deserialized.output_ports
+                                       .size();
+
+    ///////////////////////////////////////////////////////
+    /// Check if the truth table got the same amount of ///
+    /// columns in every lines which is equal to the    ///
+    /// input ports inside the logic gates              ///
+    ///////////////////////////////////////////////////////
+    const auto differentNumberOfInputPorts = std::find_if(
+      std::execution::par_unseq,
+      logicGate.deserialized.input_truth_table.begin(),
+      logicGate.deserialized.input_truth_table.end(),
+      [&](
+        const std::vector<LogicGate::Deserialized::ElementType>& elements)
+      {
+          return elements.size() != numberOfInputPorts;
+      });
+
+    if (differentNumberOfInputPorts
+        != logicGate.deserialized.input_truth_table.end())
+    {
+        Error::ExitWithMsg(
+          Error::Msg::
+            FPGA_LOGIC_GATE_DESERIALIZED_INPUTS_IN_TURH_TABLE_NOT_CORRECT);
+    }
+
+    //////////////////////////////////////////
+    /// Same as above but for output ports ///
+    //////////////////////////////////////////
+    const auto differentNumberOfOutputPorts = std::find_if(
+      std::execution::par_unseq,
+      logicGate.deserialized.output_truth_table.begin(),
+      logicGate.deserialized.output_truth_table.end(),
+      [&](
+        const std::vector<LogicGate::Deserialized::ElementType>& elements)
+      {
+          return elements.size() != numberOfOutputPorts;
+      });
+
+    if (differentNumberOfOutputPorts
+        != logicGate.deserialized.output_truth_table.end())
+    {
+        Error::ExitWithMsg(
+          Error::Msg::
+            FPGA_LOGIC_GATE_DESERIALIZED_OUTPUTS_IN_TURH_TABLE_NOT_CORRECT);
+    }
+
+    /////////////////////////////////////////////////////////
+    /// Check if there's the same number of lines for the ///
+    /// outputs and inputs truth table                    ///
+    /// We don't want some inputs condition               ///
+    /// that has no outputs and vice versa ...            ///
+    /////////////////////////////////////////////////////////
+    if (logicGate.deserialized.input_truth_table.size()
+        != logicGate.deserialized.output_truth_table.size())
+    {
+        Error::ExitWithMsg(
+          Error::Msg::FPGA_LOGIC_GATE_DESERIALIZED_TRUTH_TABLE_NOT_CORRECT);
+    }
+
+    _logic_gates.push_back(logicGate);
+}
+
+void FPGA::InsertLogicGate(const LogicGate::Deserialized& deserialized)
+{
+    InsertLogicGate(LogicGate { deserialized });
+}
+
+void FPGA::PrepareStages()
+{
+    CheckDependencyAndCreateStages();
 }
 
 void FPGA::Simulate()
@@ -89,91 +171,6 @@ void FPGA::Simulate()
                   });
 }
 
-Port* FPGA::GetPort(std::size_t index)
-{
-    return &_ports[index];
-}
-
-const decltype(FPGA::_logic_gates)& FPGA::LogicGates() const
-{
-    return _logic_gates;
-}
-
-void FPGA::InsertLogicGate(const LogicGate& logicGate)
-{
-    const auto numberOfInputPorts  = logicGate.InputPorts().size();
-    const auto numberOfOutputPorts = logicGate.OutputPorts().size();
-
-    ///////////////////////////////////////////////////////
-    /// Check if the truth table got the same amount of ///
-    /// columns in every lines which is equal to the    ///
-    /// input ports inside the logic gates              ///
-    ///////////////////////////////////////////////////////
-    const auto differentNumberOfInputPorts = std::find_if(
-      std::execution::par_unseq,
-      logicGate.Decoded().input_truth_table.begin(),
-      logicGate.Decoded().input_truth_table.end(),
-      [&](const std::vector<LogicGate::Decoder::ElementType>& elements)
-      {
-          return elements.size() != numberOfInputPorts;
-      });
-
-    if (differentNumberOfInputPorts
-        != logicGate.Decoded().input_truth_table.end())
-    {
-        Error::ExitWithMsg(
-          Error::Msg::
-            FPGA_LOGIC_GATE_DECODER_INPUTS_IN_TURH_TABLE_NOT_CORRECT);
-    }
-
-    //////////////////////////////////////////
-    /// Same as above but for output ports ///
-    //////////////////////////////////////////
-    const auto differentNumberOfOutputPorts = std::find_if(
-      std::execution::par_unseq,
-      logicGate.Decoded().output_truth_table.begin(),
-      logicGate.Decoded().output_truth_table.end(),
-      [&](const std::vector<LogicGate::Decoder::ElementType>& elements)
-      {
-          return elements.size() != numberOfOutputPorts;
-      });
-
-    if (differentNumberOfOutputPorts
-        != logicGate.Decoded().output_truth_table.end())
-    {
-        Error::ExitWithMsg(
-          Error::Msg::
-            FPGA_LOGIC_GATE_DECODER_OUTPUTS_IN_TURH_TABLE_NOT_CORRECT);
-    }
-
-    /////////////////////////////////////////////////////////
-    /// Check if there's the same number of lines for the ///
-    /// outputs and inputs truth table                    ///
-    /// We don't want some inputs condition               ///
-    /// that has no outputs and vice versa ...            ///
-    /////////////////////////////////////////////////////////
-    if (logicGate.Decoded().input_truth_table.size()
-        != logicGate.Decoded().output_truth_table.size())
-    {
-        Error::ExitWithMsg(
-          Error::Msg::FPGA_LOGIC_GATE_DECODER_TRUTH_TABLE_NOT_CORRECT);
-    }
-
-    _logic_gates.push_back(logicGate);
-}
-
-void FPGA::InsertLogicGate(const std::vector<Port*>& inputPorts,
-                           const std::vector<Port*>& outputPorts,
-                           const LogicGate::Decoder& decoder)
-{
-    InsertLogicGate({ inputPorts, outputPorts, decoder });
-}
-
-void FPGA::PrepareStages()
-{
-    CheckDependencyAndCreateStages();
-}
-
 void FPGA::CheckDependencyAndCreateStages()
 {
     ////////////////////////////////////////////
@@ -221,7 +218,7 @@ void FPGA::CheckDependencyAndCreateStages()
           [&](LogicGate& logicGate)
           {
               const auto foundPort = std::ranges::find_if(
-                logicGate.InputPorts(),
+                logicGate.deserialized.input_ports,
                 [&](Port* inputPort)
                 {
                     //////////////////////////////////
@@ -242,12 +239,12 @@ void FPGA::CheckDependencyAndCreateStages()
               /// If not found, we insert the current       ///
               /// logic gate inside the array.              ///
               /////////////////////////////////////////////////
-              if (foundPort == logicGate.InputPorts().end())
+              if (foundPort == logicGate.deserialized.input_ports.end())
               {
                   currentOutputPorts.insert(
                     currentOutputPorts.begin(),
-                    logicGate.OutputPorts().begin(),
-                    logicGate.OutputPorts().end());
+                    logicGate.deserialized.output_ports.begin(),
+                    logicGate.deserialized.output_ports.end());
 
                   currentLogicGates.push_back(&logicGate);
               }

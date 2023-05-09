@@ -3,19 +3,22 @@
 
 #include "StandardHeaders.h"
 
-class Error
+namespace FPGASimulator
 {
-  public:
-    enum class Msg : int
+    class Error
     {
-        NO_ERROR,
-        UNKNOWN_ELEMENT_TYPE_IN_TRUTH_TABLE,
-        FPGA_LOGIC_GATE_DECODER_INPUTS_IN_TURH_TABLE_NOT_CORRECT,
-        FPGA_LOGIC_GATE_DECODER_OUTPUTS_IN_TURH_TABLE_NOT_CORRECT,
-	FPGA_LOGIC_GATE_DECODER_TRUTH_TABLE_NOT_CORRECT
-    };
+      public:
+        enum class Msg : int
+        {
+            NO_ERROR,
+            UNKNOWN_ELEMENT_TYPE_IN_TRUTH_TABLE,
+            FPGA_LOGIC_GATE_DESERIALIZED_INPUTS_IN_TURH_TABLE_NOT_CORRECT,
+            FPGA_LOGIC_GATE_DESERIALIZED_OUTPUTS_IN_TURH_TABLE_NOT_CORRECT,
+            FPGA_LOGIC_GATE_DESERIALIZED_TRUTH_TABLE_NOT_CORRECT
+        };
 
-    [[noreturn]] static void ExitWithMsg(Msg&& msg);
-};
+        [[noreturn]] static void ExitWithMsg(Msg&& msg);
+    };
+}
 
 #endif

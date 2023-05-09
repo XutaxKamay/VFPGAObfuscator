@@ -3,7 +3,7 @@
 
 #include "Port.h"
 
-/*--------------------HOW-IT-WORKS------------------
+/*------------------HOW-IT-WORKS--------------------
  |                                                 |
  |  The possible outputs for a port:               |
  |                                                 |
@@ -67,66 +67,73 @@
  |  and interesting.                               |
  |                                                 |
  --------------------------------------------------*/
-class LogicGate
+
+namespace FPGASimulator
 {
-  public:
-    struct Decoder
+    class LogicGate
     {
-        void RunLogicFunction(const std::vector<Port*>& inputPorts,
-                              const std::vector<Port*>& outputPorts);
+      public:
+        class Deserialized
+        {
+          public:
+            using ElementType = std::variant<Port*, Bit>;
+            using TruthTable  = std::vector<std::vector<ElementType>>;
 
-        //////////////////////////////////////////////////////////
-        /// Order is: [lines][column]                          ///
-        ///                                                    ///
-        /// The reason is for performance.                     ///
-        /// While it may seem more logical to represent        ///
-        /// the order in the other way, if you do it by first  ///
-        /// selecting the column you have two algorithms:      ///
-        ///                                                    ///
-        /// One is going by iterating lines first,             ///
-        /// but then you have CPU cache problems               ///
-        /// and performance costs because                      ///
-        /// you everytime you increase column index,           ///
-        /// you essentially move on a whole new part of memory ///
-        /// which isn't cache efficient (cache miss).          ///
-        ///                                                    ///
-        /// The second algorithm is more complicated,          ///
-        /// you can start looping first with columns           ///
-        /// and you won't have CPU cache problems              ///
-        /// but you will need to keep track of the             ///
-        /// line index and test again for all others columns   ///
-        /// which is eventually slower than doing it           ///
-        /// [lines][column].                                   ///
-        //////////////////////////////////////////////////////////
+            std::vector<Port*> input_ports;
+            std::vector<Port*> output_ports;
 
-        using ElementType = std::variant<Port*, Bit>;
+            //////////////////////////////////////////////////////////
+            /// Order is: [lines][column]                          ///
+            ///                                                    ///
+            /// The reason is for performance.                     ///
+            /// While it may seem more logical to represent        ///
+            /// the order in the other way, if you do it by first  ///
+            /// selecting the column you have two algorithms:      ///
+            ///                                                    ///
+            /// One is going by iterating lines first,             ///
+            /// but then you have CPU cache problems               ///
+            /// and performance costs because                      ///
+            /// you everytime you increase column index,           ///
+            /// you essentially move on a whole new part of memory ///
+            /// which isn't cache efficient (cache miss).          ///
+            ///                                                    ///
+            /// The second algorithm is more complicated,          ///
+            /// you can start looping first with columns           ///
+            /// and you won't have CPU cache problems              ///
+            /// but you will need to keep track of the             ///
+            /// line index and test again for all others columns   ///
+            /// which is eventually slower than doing it           ///
+            /// [lines][column].                                   ///
+            //////////////////////////////////////////////////////////
+            TruthTable input_truth_table;
+            TruthTable output_truth_table;
 
-        std::vector<std::vector<ElementType>> input_truth_table;
-        std::vector<std::vector<ElementType>> output_truth_table;
+            void Deserialize(const std::vector<std::byte>& serialized,
+                             const std::vector<Port*>& allPorts);
+            void RunLogicFunction();
+        };
+
+        class Serializer
+        {
+          public:
+            using ElementType = std::variant<EncodedIndex, Bit>;
+            using TruthTable  = std::vector<std::vector<ElementType>>;
+
+            std::vector<EncodedIndex> input_ports;
+            std::vector<EncodedIndex> output_ports;
+            TruthTable input_truth_table;
+            TruthTable output_truth_table;
+
+          public:
+            std::vector<std::byte> Serialize();
+        };
+
+      public:
+        Deserialized deserialized;
+
+      public:
+        void Simulate();
     };
-
-    /////////////
-    /// TODO: ///
-    /////////////
-    struct Encoder
-    {
-    };
-
-  protected:
-    std::vector<Port*> _input_ports;
-    std::vector<Port*> _output_ports;
-    Decoder _decoder;
-
-  public:
-    LogicGate() = default;
-    LogicGate(const std::vector<Port*>& inputPorts,
-              const std::vector<Port*>& outputPorts,
-              const Decoder& decoder);
-
-    const decltype(_input_ports)& InputPorts() const;
-    const decltype(_output_ports)& OutputPorts() const;
-    const Decoder& Decoded() const;
-    void Simulate();
-};
+}
 
 #endif

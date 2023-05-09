@@ -1,17 +1,8 @@
 #include "Deserializer.h"
 
-Deserializer::Deserializer(const std::vector<std::byte>& data)
- : _data { data },
-   _data_index {}
-{
-}
+using namespace FPGASimulator;
 
 bool Deserializer::CanReadVar(std::size_t size)
 {
-    return (_data_index + size) <= _data.size();
-}
-
-const decltype(Deserializer::_data)& Deserializer::GetData() const
-{
-    return _data;
+    return (data_index + size) <= data.size();
 }

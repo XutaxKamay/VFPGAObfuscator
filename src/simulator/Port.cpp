@@ -1,26 +1,13 @@
 #include "Port.h"
 
-Port::Port(Bit&& state)
- : _state { state }
-{
-}
+using namespace FPGASimulator;
 
 void Port::SetHigh()
 {
-    _state = HIGH;
+    state = HIGH;
 }
 
 void Port::SetLow()
 {
-    _state = LOW;
-}
-
-Bit Port::GetState()
-{
-    return _state;
-}
-
-void Port::SetState(Bit state)
-{
-    _state = state;
+    state = LOW;
 }

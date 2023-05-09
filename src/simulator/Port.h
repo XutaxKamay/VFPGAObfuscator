@@ -3,25 +3,23 @@
 
 #include "StandardHeaders.h"
 
-using Bit = std::bitset<1>;
-
-class Port
+namespace FPGASimulator
 {
-  public:
-    static inline constexpr Bit LOW  = 0;
-    static inline constexpr Bit HIGH = 1;
+    using Bit = std::bitset<1>;
 
-  protected:
-    Bit _state;
+    class Port
+    {
+      public:
+        static inline constexpr Bit LOW  = 0;
+        static inline constexpr Bit HIGH = 1;
 
-  public:
-    Port() = default;
-    Port(Bit&& state);
+      public:
+        Bit state;
 
-    Bit GetState();
-    void SetLow();
-    void SetHigh();
-    void SetState(Bit state);
-};
+      public:
+        void SetLow();
+        void SetHigh();
+    };
+}
 
 #endif

@@ -11,4 +11,7 @@ With time (quite a lot of it), I plan to implement these things:
 - I have no idea much yet, but this is the best way I found to learn about the deep low-level stuffs without spending any pennies, but I'm sure it will end up useful in the future years as a reference, at least for myself.
 
 Anyway, there isn't much yet to read because I want it easy to be read by other people so that even a 10 years old little guy/girl could read it without having headaches.  
-This project also could be given up anytime or being taken back anytime, I just publish it because I'm not sure what I'm doing with my life (except contributing to the world with my own little force).  
+This project also could be given up anytime or being taken back anytime, I just publish it because I'm not sure what I'm doing with my life (except contributing to the world with my own little force).
+
+### You don't use getters and setters
+https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rh-get

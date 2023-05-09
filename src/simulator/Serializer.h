@@ -3,63 +3,63 @@
 
 #include "SharedSerializedTypes.h"
 
-class Serializer
+namespace FPGASimulator
 {
-  private:
-    std::vector<std::byte> _data;
-
-  public:
-    template <typename T>
-    requires (GoodSerializedType<T>)
-    void AddVar(const T& value);
-
-    const decltype(_data)& GetData() const;
-};
-
-template <typename T>
-requires (GoodSerializedType<T>)
-void Serializer::AddVar(const T& value)
-{
-    SharedSerializedType type;
-    std::uint64_t sizeOfData;
-
-    static const auto InsertData = [&](auto&& byteValues)
+    class Serializer
     {
-        ///////////////////
-        /// Insert type ///
-        ///////////////////
-        _data.push_back(static_cast<std::byte>(type));
+      public:
+        std::vector<std::byte> data;
 
-        ///////////////////////////////////////////
-        /// Ensure the size of the type or data ///
-        ///////////////////////////////////////////
-        _data.insert(_data.cend(),
-                     reinterpret_cast<const std::byte*>(&sizeOfData),
-                     reinterpret_cast<const std::byte*>(&sizeOfData)
-                       + sizeof(sizeOfData));
-
-	////////////////////////////////
-	/// Insert finally the value ///
-	////////////////////////////////
-        _data.insert(_data.cend(),
-                     reinterpret_cast<const std::byte*>(byteValues),
-                     reinterpret_cast<const std::byte*>(byteValues)
-                       + sizeOfData);
+        template <typename T>
+        requires (GoodSerializedType<T>)
+        void AddVar(const T& value);
     };
 
-    if constexpr (std::is_integral_v<T>)
+    template <typename T>
+    requires (GoodSerializedType<T>)
+    void Serializer::AddVar(const T& value)
     {
-        type       = SharedSerializedType::INTEGRAL;
-        sizeOfData = sizeof(T);
+        SharedSerializedType type;
+        std::uint64_t sizeOfData;
 
-        InsertData(&value);
-    }
-    else
-    {
-        type       = SharedSerializedType::DATA;
-        sizeOfData = value.size() * sizeof(std::byte);
+        static const auto InsertData = [&](auto&& byteValues)
+        {
+            ///////////////////
+            /// Insert type ///
+            ///////////////////
+            data.push_back(static_cast<std::byte>(type));
 
-        InsertData(value.data());
+            ///////////////////////////////////////////
+            /// Ensure the size of the type or data ///
+            ///////////////////////////////////////////
+            data.insert(data.cend(),
+                        reinterpret_cast<const std::byte*>(&sizeOfData),
+                        reinterpret_cast<const std::byte*>(&sizeOfData)
+                          + sizeof(sizeOfData));
+
+            ////////////////////////////////
+            /// Insert finally the value ///
+            ////////////////////////////////
+            data.insert(data.cend(),
+                        reinterpret_cast<const std::byte*>(byteValues),
+                        reinterpret_cast<const std::byte*>(byteValues)
+                          + sizeOfData);
+        };
+
+        if constexpr (std::is_integral_v<T>)
+        {
+            type       = SharedSerializedType::INTEGRAL;
+            sizeOfData = sizeof(T);
+
+            InsertData(&value);
+        }
+        else
+        {
+            type       = SharedSerializedType::DATA;
+            sizeOfData = value.size() * sizeof(std::byte);
+
+            InsertData(value.data());
+        }
     }
 }
 

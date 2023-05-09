@@ -1,6 +1,7 @@
 #ifndef FPGA_SIMULATOR_FPGA_H
 #define FPGA_SIMULATOR_FPGA_H
 
+#include "Error.h"
 #include "LogicGate.h"
 
 /*-----------------------------------------------------------------------
@@ -69,66 +70,67 @@
  |                                                                      |
  -----------------------------------------------------------------------*/
 
-class FPGA
+namespace FPGASimulator
 {
-  public:
-    ////////////////////////////////////////////////////
-    /// A pin is also a port, just a pin is exposed, ///
-    /// a port may be not exposed                    ///
-    ////////////////////////////////////////////////////
-    using Pin = Port;
-
-    struct Stage
+    class FPGA
     {
-        std::vector<LogicGate> logic_gates;
+      private:
+        struct Stage
+        {
+            std::vector<LogicGate> logic_gates;
+            ///////////////////////////////////
+            /// TODO:                       ///
+            /// Maybe fill more info here,  ///
+            /// like for multi-threading    ///
+            ///////////////////////////////////
+        };
+
+      private:
+        /////////////////////////////////////////
+        /// Number of ports doesn't change.   ///
+        /// We can still access to the vector ///
+        /// elements through GetPort          ///
+        /////////////////////////////////////////
+        std::vector<Port> _ports;
+
+        /////////////////////////////////////////////////
+        /// Keep logic gates private,                 ///
+        /// we don't want to set the vector directly, ///
+        /// instead we insert the logic gates we want ///
+        /// by design                                 ///
+        /////////////////////////////////////////////////
+        std::vector<LogicGate> _logic_gates;
+
+        ///////////////////////////////////////////////////////////////
+        ///                                                         ///
+        /// The idea is here is to process logic gates in parallel, ///
+        /// hence why there is double vectors.                      ///
+        /// Ideally, they represent different stages where we know  ///
+        /// that each logic gates are not dependent on each others  ///
+        ///                                                         ///
+        ///////////////////////////////////////////////////////////////
+        std::vector<Stage> _stages;
+
+      public:
+        FPGA(const std::size_t numberOfPorts);
+
+        Port* GetPort(std::size_t index);
+        const std::vector<LogicGate>& LogicGates() const;
+
+        void InsertLogicGate(const LogicGate& logicGate);
+        void InsertLogicGate(const LogicGate::Deserialized& deserialized);
+
+        void PrepareStages();
+        void Simulate();
+
+      private:
+        ///////////////////////////////////////////////////////////////
+        /// This should be compiled before,                         ///
+        /// since this can be created before running the simulator. ///
+        /// With a lot of logic gates, it may take a while.         ///
+        ///////////////////////////////////////////////////////////////
+        void CheckDependencyAndCreateStages();
     };
-
-  private:
-    ///////////////////////////////////////////////////////////
-    /// Number of pins and ports doesn't change,            ///
-    /// so we can get them by references as it is allocated ///
-    /// during only the constructor                         ///
-    ///////////////////////////////////////////////////////////
-    std::vector<Port> _ports;
-
-    ///////////////////////////////////////////////////////////////
-    ///                                                         ///
-    /// Double vectors for parallelism.                         ///
-    ///                                                         ///
-    /// The idea is here is to process logic gates in parallel, ///
-    /// hence why there is double vectors.                      ///
-    /// Ideally, they represent different stages where we know  ///
-    /// that each logic gates are not dependent on each others  ///
-    ///                                                         ///
-    ///////////////////////////////////////////////////////////////
-    std::vector<LogicGate> _logic_gates;
-    std::vector<Stage> _stages;
-
-  public:
-    FPGA(std::size_t numberOfInputPins,
-         std::size_t numberOfOutputPins,
-         std::size_t numberOfOthersPorts);
-    ~FPGA();
-
-    Port* GetPort(std::size_t index);
-    const decltype(_logic_gates)& LogicGates() const;
-
-    void InsertLogicGate(const LogicGate& logicGate);
-
-    void InsertLogicGate(const std::vector<Port*>& inputPorts,
-                         const std::vector<Port*>& outputPorts,
-                         const LogicGate::Decoder& decoder);
-
-    void PrepareStages();
-    void Simulate();
-
-  private:
-    ///////////////////////////////////////////////////////////////
-    /// This should be compiled before,                         ///
-    /// since this can be created before running the simulator. ///
-    /// With a lot of logic gates, it may take a while.         ///
-    ///////////////////////////////////////////////////////////////
-    void CheckDependencyAndCreateStages();
-};
+}
 
 #endif
