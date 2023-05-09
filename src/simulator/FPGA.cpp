@@ -210,6 +210,11 @@ void FPGA::Simulate()
                   });
 }
 
+///////////////////////////////////////////////
+/// TODO:                                   ///
+/// This could be done at the compilation   ///
+/// or during the serialization process too ///
+///////////////////////////////////////////////
 void FPGA::CheckDependencyAndCreateStages()
 {
     ////////////////////////////////////////////

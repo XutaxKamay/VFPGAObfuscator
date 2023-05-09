@@ -43,6 +43,9 @@ int main()
         });
     }
 
+    logicGatesSerializer.push_back(
+      { { 0_p }, { 0_p }, { { 0_p } }, { { 0_p } } });
+
     FPGA::Serializer fpgaSerializer { 600002, logicGatesSerializer };
 
     FPGA::Deserializer fpgaDeserializer;
@@ -68,10 +71,14 @@ int main()
         averageTime += timerFPGA.Difference();
         countAverageTime++;
 
-        if (timerPrint.Seconds() >= 1)
+        if (timerPrint.Seconds() >= 10)
         {
-            std::cout << averageTime / countAverageTime
-                      << " nanoseconds of average time in one second\n";
+            std::cout
+              << "Processed " << fpga.LogicGates().size()
+              << " logic gates in "
+              << static_cast<double>(averageTime / countAverageTime)
+                   / 10000000.0
+              << " milliseconds of average time for ten seconds\n";
             countAverageTime = 0;
             averageTime      = 0;
 
