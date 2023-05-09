@@ -169,7 +169,7 @@ void FPGA::Simulate()
 {
     const auto StageExecution = [](std::vector<LogicGate>& logicGates)
     {
-        const auto minThreads       = std::thread::hardware_concurrency();
+        static const auto minThreads       = std::thread::hardware_concurrency();
         const auto SimulateFunction = [](LogicGate& logicGate)
         {
             logicGate.Simulate();
