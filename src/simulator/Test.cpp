@@ -25,9 +25,7 @@ int main()
         { 1_b },
     };
 
-    logicGateInverterSerializer.output_truth_table = {
-        {1_b, 0_b}
-    };
+    logicGateInverterSerializer.output_truth_table = { { 1_b }, { 0_b } };
 
     FPGA::Serializer fpgaSerializer { 1,
                                       { logicGateInverterSerializer } };

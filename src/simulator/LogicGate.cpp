@@ -13,7 +13,7 @@ LogicGate LogicGate::Deserializer::Deserialize(
     LogicGate logicGate;
     ::Deserializer deserializer { serialized };
 
-    static const auto ReadPorts = [&](std::vector<Port*>& ports)
+    const auto ReadPorts = [&](std::vector<Port*>& ports)
     {
         const auto numberOfPorts = deserializer
                                      .ReadAndCheckStatus<EncodedIndex>();
@@ -33,7 +33,7 @@ LogicGate LogicGate::Deserializer::Deserialize(
         }
     };
 
-    static const auto ReadElement = [&]()
+    const auto ReadElement = [&]()
     {
         const auto elementIndex = deserializer
                                     .ReadAndCheckStatus<EncodedIndex>();
@@ -65,7 +65,7 @@ LogicGate LogicGate::Deserializer::Deserialize(
                 //////////////////
                 /// It's a bit ///
                 //////////////////
-                element = deserializer.ReadAndCheckStatus<EncodedIndex>();
+                element = deserializer.ReadAndCheckStatus<std::uint8_t>();
                 break;
             }
 
@@ -82,7 +82,7 @@ LogicGate LogicGate::Deserializer::Deserialize(
         return element;
     };
 
-    static const auto ReadElements = [&]()
+    const auto ReadElements = [&]()
     {
         std::vector<ElementType> elements;
 
@@ -97,7 +97,7 @@ LogicGate LogicGate::Deserializer::Deserialize(
         return elements;
     };
 
-    static const auto ReadTruthTable = [&](TruthTable& truthTable)
+    const auto ReadTruthTable = [&](TruthTable& truthTable)
     {
         const auto elementsVectorCount = deserializer.ReadAndCheckStatus<
           EncodedIndex>();
@@ -121,12 +121,12 @@ std::vector<std::byte> LogicGate::Serializer::Serialize() const
 {
     ::Serializer serializer;
 
-    static const auto AddPort = [&](const EncodedIndex& portIndex)
+    const auto AddPort = [&](const EncodedIndex& portIndex)
     {
         serializer.AddVar(portIndex);
     };
 
-    static const auto AddElementType = [&](const ElementType& element)
+    const auto AddElementType = [&](const ElementType& element)
     {
         serializer.AddVar<EncodedIndex>(element.index());
 
@@ -162,21 +162,19 @@ std::vector<std::byte> LogicGate::Serializer::Serialize() const
         }
     };
 
-    static const auto AddPorts =
-      [&](const std::vector<EncodedIndex>& ports)
+    const auto AddPorts = [&](const std::vector<EncodedIndex>& ports)
     {
         serializer.AddVar<EncodedIndex>(ports.size());
         std::ranges::for_each(ports, AddPort);
     };
 
-    static const auto AddElements =
-      [&](const std::vector<ElementType>& elements)
+    const auto AddElements = [&](const std::vector<ElementType>& elements)
     {
         serializer.AddVar<EncodedIndex>(elements.size());
         std::ranges::for_each(elements, AddElementType);
     };
 
-    static const auto AddTruthTable = [&](const TruthTable& truthTable)
+    const auto AddTruthTable = [&](const TruthTable& truthTable)
     {
         serializer.AddVar<EncodedIndex>(truthTable.size());
         std::ranges::for_each(truthTable, AddElements);
@@ -201,7 +199,7 @@ void LogicGate::Simulate()
     /// If it's a port,                                            ///
     /// then we get its state otherwise we just get the bit value  ///
     //////////////////////////////////////////////////////////////////
-    static const auto GetBitState = [&](const ElementType& element)
+    const auto GetBitState = [&](const ElementType& element)
     {
         Bit state;
 

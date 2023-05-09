@@ -19,9 +19,9 @@ namespace FPGASimulator
     requires (GoodSerializedType<T>)
     void Serializer::AddVar(const T& value)
     {
-        static const auto InsertData = [&](SharedSerializedType type,
-                                           std::uint64_t sizeOfData,
-                                           const auto byteValues)
+        const auto InsertData = [&](SharedSerializedType type,
+                                    std::uint64_t sizeOfData,
+                                    const auto byteValues)
         {
             ///////////////////
             /// Insert type ///

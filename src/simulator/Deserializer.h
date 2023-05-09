@@ -22,7 +22,7 @@ namespace FPGASimulator
 
         template <typename T>
         requires (GoodSerializedType<T>)
-        T ReadVar(std::optional<ReadStatus> status = std::nullopt);
+        T ReadVar(ReadStatus* readStatus = nullptr);
 
         template <typename T>
         auto ReadAndCheckStatus();
@@ -46,16 +46,15 @@ namespace FPGASimulator
 
     template <typename T>
     requires (GoodSerializedType<T>)
-    T Deserializer::ReadVar(std::optional<ReadStatus> status)
+    T Deserializer::ReadVar(ReadStatus* readStatus)
     {
         T value {};
 
-        static const auto SetStatusAndReturn =
-          [&]<ReadStatus READ_STATUS>()
+        const auto SetStatusAndReturn = [&]<ReadStatus READ_STATUS>()
         {
-            if (status)
+            if (readStatus)
             {
-                status = READ_STATUS;
+                *readStatus = READ_STATUS;
             }
 
             return value;
@@ -115,7 +114,7 @@ namespace FPGASimulator
     auto Deserializer::ReadAndCheckStatus()
     {
         auto readStatus = ReadStatus::NO_ERROR;
-        auto var        = ReadVar<T>(readStatus);
+        auto var        = ReadVar<T>(&readStatus);
 
         if (readStatus != ReadStatus::NO_ERROR)
         {
