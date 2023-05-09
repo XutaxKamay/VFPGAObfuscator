@@ -78,8 +78,8 @@ int main()
             std::cout
               << "Processed " << fpga.LogicGates().size()
               << " logic gates in "
-              << static_cast<double>(averageTime / countAverageTime)
-                   / 10000000.0
+              << static_cast<double>(averageTime)
+                   / static_cast<double>(countAverageTime) / 10000000.0
               << " milliseconds of average time for ten seconds\n";
             countAverageTime = 0;
             averageTime      = 0;
