@@ -2,7 +2,7 @@
 
 using namespace FPGASimulator;
 
-void Error::ExitWithMsg(Msg&& msg)
+void Error::ExitWithMsg(Msg msg)
 {
-    std::exit(static_cast<int>(std::move(msg)));
+    std::exit(static_cast<int>(msg));
 }

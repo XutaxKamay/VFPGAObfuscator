@@ -19,7 +19,7 @@ namespace FPGASimulator
             DESERIALIZER_READ_FAILED
         };
 
-        [[noreturn]] static void ExitWithMsg(Msg&& msg);
+        [[noreturn]] static void ExitWithMsg(Msg msg);
     };
 }
 
