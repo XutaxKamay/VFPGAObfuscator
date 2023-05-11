@@ -146,8 +146,7 @@ std::vector<std::byte> LogicGate::Serializer::Serialize() const
                 //////////////////
                 /// It's a bit ///
                 //////////////////
-                serializer.AddVar(static_cast<std::uint8_t>(
-                  std::get<1>(element).to_ullong()));
+                serializer.AddVar(std::get<1>(element));
                 break;
             }
 

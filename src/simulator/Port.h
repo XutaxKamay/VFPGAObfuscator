@@ -5,7 +5,7 @@
 
 namespace FPGASimulator
 {
-    using Bit = std::bitset<1>;
+    using Bit = std::uint_fast8_t;
 
     class Port
     {

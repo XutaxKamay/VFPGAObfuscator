@@ -10,7 +10,7 @@ static constexpr EncodedIndex operator""_p(unsigned long long index)
 
 static constexpr Bit operator""_b(unsigned long long index)
 {
-    return index;
+    return static_cast<std::uint8_t>(index);
 }
 
 int main()
