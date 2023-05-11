@@ -242,7 +242,6 @@ void LogicGate::Simulate()
          lineIndex++)
     {
         const auto& elementsOnLine = input_truth_table[lineIndex];
-        bool verifiesTruthTable    = false;
 
         //////////////////////////////////////////////////////////////////
         /// We are selecting the element/value in the truth table and  ///
@@ -255,30 +254,36 @@ void LogicGate::Simulate()
             const auto& element = elementsOnLine[columnIndex];
             const auto state    = GetBitState(element);
 
-            if (input_ports[columnIndex]->state == state)
+            if (input_ports[columnIndex]->state != state)
             {
-                verifiesTruthTable = true;
-                continue;
+                ////////////////////////////////////////////////////
+                /// So here is maybe a good example where goto   ///
+                /// can be useful, instead of wasting a variable ///
+                /// to check if the truth table is verified      ///
+                /// and apply output ports states                ///
+                /// we can tell to the cpu to skip the line      ///
+                /// and let flow the program to the code below   ///
+                /// if all input ports states are verified       ///
+                /// If not it will set the output ports states   ///
+                /// and break the outer loop                     ///
+                ////////////////////////////////////////////////////
+                goto SKIP_LINE;
             }
-
-            verifiesTruthTable = false;
-            break;
         }
 
         ///////////////////////////////////////////////////////////////
         /// We found one match, apply all the outputs and exit loop ///
         ///////////////////////////////////////////////////////////////
-        if (verifiesTruthTable)
+        for (std::size_t columnIndex = 0;
+             columnIndex < output_ports.size();
+             columnIndex++)
         {
-            for (std::size_t columnIndex = 0;
-                 columnIndex < output_ports.size();
-                 columnIndex++)
-            {
-                output_ports[columnIndex]->state = GetBitState(
-                  output_truth_table[lineIndex][columnIndex]);
-            }
-
-            break;
+            output_ports[columnIndex]->state = GetBitState(
+              output_truth_table[lineIndex][columnIndex]);
         }
+
+        break;
+
+    SKIP_LINE:;
     }
 }
