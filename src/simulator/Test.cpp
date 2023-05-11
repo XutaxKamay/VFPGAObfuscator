@@ -44,7 +44,10 @@ int main()
     }
 
     logicGatesSerializer.push_back(
-      { { 0_p }, { 0_p }, { { 0_p } }, { { 0_p } } });
+      { { 1_p }, { 1_p }, { { 1_p } }, { { 1_p } } });
+
+    logicGatesSerializer.push_back(
+      { { 1_p }, { 1_p }, { { 1_p } }, { { 1_p } } });
 
     FPGA::Serializer fpgaSerializer { 600002, logicGatesSerializer };
 

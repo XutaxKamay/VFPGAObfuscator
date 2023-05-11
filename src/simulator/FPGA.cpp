@@ -169,7 +169,15 @@ void FPGA::Simulate()
 {
     const auto StageExecution = [](std::vector<LogicGate>& logicGates)
     {
-        static const auto minThreads       = std::thread::hardware_concurrency();
+        /////////////////////////////////////////////////
+        /// TODO:                                     ///
+        /// 2 in theory but this is only if we think  ///
+        /// that there's no thread starting time cost ///
+        /// and this could be adjusted in the future. ///
+        /// Adjust automatically ?                    ///
+        /////////////////////////////////////////////////
+        static constexpr auto minLG = 2; /// std::thread::hardware_concurrency();
+
         const auto SimulateFunction = [](LogicGate& logicGate)
         {
             logicGate.Simulate();
@@ -179,7 +187,7 @@ void FPGA::Simulate()
         /// Only run in parallel if necessary. ///
         /// Check the comment bottom.          ///
         //////////////////////////////////////////
-        if (logicGates.size() >= minThreads)
+        if (logicGates.size() >= minLG)
         {
             std::for_each(std::execution::par_unseq,
                           logicGates.begin(),
