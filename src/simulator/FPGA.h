@@ -222,6 +222,29 @@ std::vector<STAGE_T> FPGASimulator::FPGA::CheckDependencyAndCreateStages(
     std::vector<LOGIC_GATE_T*> currentLogicGates;
     std::vector<PORT_T> currentOutputPorts;
 
+    /////////////////////////
+    /// Reserve memory    ///
+    /// for faster pushes ///
+    /////////////////////////
+    const auto ReserveMemory = [&]()
+    {
+        stages.reserve(logicGatesLeft.size());
+        currentLogicGates.reserve(logicGatesLeft.size());
+
+        std::size_t maxNumberOfOutputPorts = 0;
+
+        std::ranges::for_each(
+          logicGates,
+          [&](const LOGIC_GATE_T& logicGate)
+          {
+              maxNumberOfOutputPorts += logicGate.output_ports.size();
+          });
+
+        currentOutputPorts.reserve(maxNumberOfOutputPorts);
+    };
+
+    ReserveMemory();
+
     ////////////////////////////////////////////////////////////////////
     /// Each stages will contain logic gates that are not depending  ///
     /// on each others which is useful for parallelism.              ///
