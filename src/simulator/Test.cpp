@@ -3,14 +3,14 @@
 
 using namespace FPGASimulator;
 
-static constexpr EncodedIndex operator""_p(unsigned long long index)
+static constexpr EncodedIndex operator""_p(unsigned long long i)
 {
-    return index;
+    return i;
 }
 
-static constexpr Bit operator""_b(unsigned long long index)
+static constexpr Bit operator""_b(unsigned long long i)
 {
-    return static_cast<std::uint8_t>(index);
+    return static_cast<std::uint8_t>(i);
 }
 
 int main()
@@ -26,7 +26,7 @@ int main()
       { { 1_b }, { 0_b } }
     });
 
-    for (std::size_t index = 0; index < 30; index++)
+    for (std::size_t i = 0; i < 30; i++)
     {
         for (EncodedIndex j = 1; j < 10001; j++)
         {
@@ -44,7 +44,12 @@ int main()
     fpga.GetPort(0)->SetLow();
     std::cout << "FPGA test ... \n";
     std::cout << "Number of stages: " << fpga.stages.size() << '\n';
-    std::cout << fpga.stages[1].logic_gates.size() << '\n';
+
+    for (std::size_t i = 0; i < fpga.stages.size(); i++)
+    {
+        std::cout << "Number of logic gates in stage " << i << ":"
+                  << fpga.stages[i].logic_gates.size() << '\n';
+    }
 
     Timer timerFPGA;
     Timer timerPrint;

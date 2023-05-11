@@ -153,7 +153,7 @@ namespace FPGASimulator
         /// since this can be created before running the simulator. ///
         /// With a lot of logic gates, it may take a while.         ///
         ///////////////////////////////////////////////////////////////
-        template <typename LOGIC_GATE_T, typename PORT_T, typename STAGE_T>
+        template <class LOGIC_GATE_T, class PORT_T, class STAGE_T>
         static std::vector<STAGE_T> CheckDependencyAndCreateStages(
           const std::vector<LOGIC_GATE_T>& logicGates);
     };
@@ -204,7 +204,7 @@ namespace FPGASimulator
     }
 }
 
-template <typename LOGIC_GATE_T, typename PORT_T, typename STAGE_T>
+template <class LOGIC_GATE_T, class PORT_T, class STAGE_T>
 std::vector<STAGE_T> FPGASimulator::FPGA::CheckDependencyAndCreateStages(
   const std::vector<LOGIC_GATE_T>& logicGates)
 {
