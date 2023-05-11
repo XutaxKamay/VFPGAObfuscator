@@ -15,3 +15,9 @@ This project also could be given up anytime or being taken back anytime, I just 
 
 ### You don't use getters and setters
 https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rh-get
+
+### How to compile
+```
+CXX='clang++ -march=native -Ofast' meson setup --buildtype=release build
+meson compile -C build
+```
