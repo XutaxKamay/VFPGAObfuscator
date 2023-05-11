@@ -26,30 +26,16 @@ int main()
       { { 1_b }, { 0_b } }
     });
 
-    for (std::size_t index = 2; index < 600002; index += 2)
+    for (std::size_t index = 0; index < 30; index++)
     {
-        logicGatesSerializer.push_back({
-          { index },
-          { index + 1 },
-          { { 0_b }, { 1_b } },
-          { { 1_b }, { 0_b } }
-        });
-
-        logicGatesSerializer.push_back({
-          { index + 1 },
-          { index },
-          { { 0_b }, { 1_b } },
-          { { 1_b }, { 0_b } }
-        });
+        for (EncodedIndex j = 1; j < 10001; j++)
+        {
+            logicGatesSerializer.push_back(
+              { { j }, { j }, { { j } }, { { j } } });
+        }
     }
 
-    logicGatesSerializer.push_back(
-      { { 1_p }, { 1_p }, { { 1_p } }, { { 1_p } } });
-
-    logicGatesSerializer.push_back(
-      { { 1_p }, { 1_p }, { { 1_p } }, { { 1_p } } });
-
-    FPGA::Serializer fpgaSerializer { 600002, logicGatesSerializer };
+    FPGA::Serializer fpgaSerializer { 1000000, logicGatesSerializer };
 
     FPGA::Deserializer fpgaDeserializer;
     auto fpga = fpgaDeserializer.Deserialize(
@@ -58,6 +44,7 @@ int main()
     fpga.GetPort(0)->SetLow();
     std::cout << "FPGA test ... \n";
     std::cout << "Number of stages: " << fpga.stages.size() << '\n';
+    std::cout << fpga.stages[1].logic_gates.size() << '\n';
 
     Timer timerFPGA;
     Timer timerPrint;
@@ -88,7 +75,7 @@ int main()
             averageTime      = 0;
 
             std::cout << "port 1 should have state 1: "
-                      << fpga.GetPort(1)->state << '\n';
+                      << static_cast<int>(fpga.GetPort(1)->state) << '\n';
 
             timerPrint.Start();
         }
