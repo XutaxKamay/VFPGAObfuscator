@@ -1,4 +1,4 @@
-# VFPGA (Virtual VFPGA) Obfuscator
+# VFPGA (Virtual FPGA) Obfuscator
 
 This is a very early version of a Virtual FPGA Obfuscator done for fun right now. It can only run logic gates in parallel in multiples stages.  
 The end goal would be to use it as an obfuscation system and a way to learn how a CPU could work, where you can upload the bitstream to the FPGA from networks in an encrypted form.  
