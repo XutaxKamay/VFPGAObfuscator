@@ -1,10 +1,10 @@
-#ifndef FPGA_SIMULATOR_DESERIALIZER_H
-#define FPGA_SIMULATOR_DESERIALIZER_H
+#ifndef FPGA_OBFUSCATOR_LIBRARY_DESERIALIZER_H
+#define FPGA_OBFUSCATOR_LIBRARY_DESERIALIZER_H
 
 #include "Error.h"
 #include "SharedSerializedTypes.h"
 
-namespace FPGASimulator
+namespace FPGAObfuscatorLibrary
 {
     class Deserializer
     {

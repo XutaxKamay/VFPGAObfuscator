@@ -1,6 +1,6 @@
-# FPGA Simulator
+# FPGA Obfuscator
 
-This is a very early version of a FPGA simulator done for fun right now. It can only run logic gates in parallel in multiples stages.  
+This is a very early version of a FPGA Obfuscator done for fun right now. It can only run logic gates in parallel in multiples stages.  
 The end goal would be to use it as an obfuscation system and a way to learn how a CPU could work, where you can upload the bitstream to the FPGA from networks in an encrypted form.  
 For example you would be able to run your custom virtual asynchronous soft-core where the CPU decrypts itself its instructions for funny things and CTFs built only from logic gates that runs in parallel inside your host CPU (GPU?). Or totally invent new stuffs.   
 

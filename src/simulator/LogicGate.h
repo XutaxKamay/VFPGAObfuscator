@@ -1,5 +1,5 @@
-#ifndef FPGA_SIMULATOR_LOGIC_GATE_H
-#define FPGA_SIMULATOR_LOGIC_GATE_H
+#ifndef FPGA_OBFUSCATOR_SIMULATOR_LOGIC_GATE_H
+#define FPGA_OBFUSCATOR_SIMULATOR_LOGIC_GATE_H
 
 #include "Port.h"
 
@@ -68,7 +68,7 @@
  |                                                 |
  --------------------------------------------------*/
 
-namespace FPGASimulator
+namespace FPGAObfuscatorSimulator
 {
     class FPGA;
 

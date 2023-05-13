@@ -1,9 +1,9 @@
-#ifndef FPGA_SIMULATOR_SHARED_SERIALIZER_TYPES_H
-#define FPGA_SIMULATOR_SHARED_SERIALIZER_TYPES_H
+#ifndef FPGA_OBFUSCATOR_LIBRARY_SHARED_SERIALIZER_TYPES_H
+#define FPGA_OBFUSCATOR_LIBRARY_SHARED_SERIALIZER_TYPES_H
 
 #include "StandardHeaders.h"
 
-namespace FPGASimulator
+namespace FPGAObfuscatorLibrary
 {
     enum class SharedSerializedType : std::uint8_t
     {

@@ -1,5 +1,5 @@
-#ifndef FPGA_SIMULATOR_FPGA_H
-#define FPGA_SIMULATOR_FPGA_H
+#ifndef FPGA_OBFUSCATOR_SIMULATOR_FPGA_H
+#define FPGA_OBFUSCATOR_SIMULATOR_FPGA_H
 
 #include "Deserializer.h"
 #include "Error.h"
@@ -72,7 +72,7 @@
  |                                                                      |
  -----------------------------------------------------------------------*/
 
-namespace FPGASimulator
+namespace FPGAObfuscatorSimulator
 {
     class FPGA
     {
@@ -161,7 +161,7 @@ namespace FPGASimulator
     template <bool PREPARE_STAGES>
     std::vector<std::byte> FPGA::Serializer::Serialize()
     {
-        FPGASimulator::Serializer serializer;
+        FPGAObfuscatorLibrary::Serializer serializer;
 
         serializer.AddVar(PREPARE_STAGES);
         serializer.AddVar<EncodedIndex>(number_of_ports);
@@ -205,8 +205,9 @@ namespace FPGASimulator
 }
 
 template <class LOGIC_GATE_T, class PORT_T, class STAGE_T>
-std::vector<STAGE_T> FPGASimulator::FPGA::CheckDependencyAndCreateStages(
-  const std::vector<LOGIC_GATE_T>& logicGates)
+std::vector<STAGE_T> FPGAObfuscatorSimulator::FPGA::
+  CheckDependencyAndCreateStages(
+    const std::vector<LOGIC_GATE_T>& logicGates)
 {
     ////////////////////////////////////////////
     /// Each stages will be represented as a ///

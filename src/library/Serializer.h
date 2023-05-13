@@ -1,9 +1,9 @@
-#ifndef FPGA_SIMULATOR_SERIALIZER_H
-#define FPGA_SIMULATOR_SERIALIZER_H
+#ifndef FPGA_OBFUSCATOR_LIBRARY_SERIALIZER_H
+#define FPGA_OBFUSCATOR_LIBRARY_SERIALIZER_H
 
 #include "SharedSerializedTypes.h"
 
-namespace FPGASimulator
+namespace FPGAObfuscatorLibrary
 {
     class Serializer
     {

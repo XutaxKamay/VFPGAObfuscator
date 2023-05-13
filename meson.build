@@ -1,21 +1,44 @@
 project('FPGASimulator', 'cpp', default_options : ['cpp_std=c++20', 'warning_level=everything', 'werror=true'])
 add_project_arguments(['-DPARALLEL', '-Wno-effc++', '-Wno-c++98-compat', '-Wno-c++98-compat-pedantic'], language : 'cpp')
 
+include_library = include_directories('src/library')
+
+src_library = [
+  'src/library/Deserializer.cpp',
+  'src/library/Error.cpp',
+  'src/library/Serializer.cpp'
+]
+
 src_simulator = [
-  'src/simulator/Deserializer.cpp',
-  'src/simulator/Error.cpp',
   'src/simulator/FPGA.cpp',
   'src/simulator/Port.cpp',
   'src/simulator/LogicGate.cpp',
-  'src/simulator/Serializer.cpp',
   'src/simulator/Timer.cpp'
+]
+
+src_simulator += src_library
+
+src_language = [
+  'src/language/LogicGate.cpp'
+]
+
+src_language += src_library
+
+src_language_test = [
+  'src/language/Test.cpp'
 ]
 
 src_simulator_test = [
   'src/simulator/Test.cpp'
 ]
+
 src_simulator_test += src_simulator
+src_language_test += src_language
 
 tbb = dependency('tbb')
-library('FPGASimulator', src_simulator, dependencies : tbb)
-executable('Test', src_simulator_test, dependencies : tbb)
+
+library('FPGASimulator', src_simulator, dependencies : tbb, include_directories : include_library)
+library('FPGALanguage', src_language, include_directories : include_library)
+
+executable('TestSimulator', src_simulator_test, dependencies : tbb, include_directories : include_library)
+executable('TestLanguage', src_language_test, dependencies : tbb, include_directories : include_library)

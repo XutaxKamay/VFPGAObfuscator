@@ -1,7 +1,8 @@
 #include "FPGA.h"
 #include "Timer.h"
 
-using namespace FPGASimulator;
+using namespace FPGAObfuscatorLibrary;
+using namespace FPGAObfuscatorSimulator;
 
 static constexpr EncodedIndex operator""_p(unsigned long long i)
 {

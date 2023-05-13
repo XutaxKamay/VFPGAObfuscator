@@ -3,7 +3,7 @@
 
 #include "StandardHeaders.h"
 
-namespace FPGASimulator
+namespace FPGAObfuscatorSimulator
 {
     class Timer
     {

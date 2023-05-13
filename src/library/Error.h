@@ -1,9 +1,9 @@
-#ifndef FPGA_SIMULATOR_ERROR_H
-#define FPGA_SIMULATOR_ERROR_H
+#ifndef FPGA_OBFUSCATOR_LIBRARY_ERROR_H
+#define FPGA_OBFUSCATOR_LIBRARY_ERROR_H
 
 #include "StandardHeaders.h"
 
-namespace FPGASimulator
+namespace FPGAObfuscatorLibrary
 {
     class Error
     {

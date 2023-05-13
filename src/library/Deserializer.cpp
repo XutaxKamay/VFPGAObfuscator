@@ -1,6 +1,6 @@
 #include "Deserializer.h"
 
-using namespace FPGASimulator;
+using namespace FPGAObfuscatorLibrary;
 
 bool Deserializer::CanReadVar(std::size_t size)
 {

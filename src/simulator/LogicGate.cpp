@@ -1,10 +1,8 @@
 #include "LogicGate.h"
-#include "Deserializer.h"
-#include "Error.h"
 #include "FPGA.h"
-#include "Serializer.h"
 
-using namespace FPGASimulator;
+using namespace FPGAObfuscatorLibrary;
+using namespace FPGAObfuscatorSimulator;
 
 LogicGate LogicGate::Deserializer::Deserialize(
   const std::vector<std::byte>& serialized,

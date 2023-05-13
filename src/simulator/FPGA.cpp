@@ -1,8 +1,7 @@
 #include "FPGA.h"
-#include "Deserializer.h"
-#include "Serializer.h"
 
-using namespace FPGASimulator;
+using namespace FPGAObfuscatorLibrary;
+using namespace FPGAObfuscatorSimulator;
 
 FPGA FPGA::Deserializer::Deserialize(
   const std::vector<std::byte>& serialized)
