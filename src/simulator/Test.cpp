@@ -1,8 +1,8 @@
-#include "FPGA.h"
 #include "Timer.h"
+#include "VFPGA.h"
 
-using namespace FPGAObfuscatorLibrary;
-using namespace FPGAObfuscatorSimulator;
+using namespace VFPGAObfuscatorLibrary;
+using namespace VFPGAObfuscatorSimulator;
 
 static constexpr EncodedIndex operator""_p(unsigned long long i)
 {
@@ -36,43 +36,43 @@ int main()
         }
     }
 
-    FPGA::Serializer fpgaSerializer { 1000000, logicGatesSerializer };
+    VFPGA::Serializer vfpgaSerializer { 1000000, logicGatesSerializer };
 
-    FPGA::Deserializer fpgaDeserializer;
-    auto fpga = fpgaDeserializer.Deserialize(
-      fpgaSerializer.Serialize<true>());
+    VFPGA::Deserializer vfpgaDeserializer;
+    auto vfpga = vfpgaDeserializer.Deserialize(
+      vfpgaSerializer.Serialize<true>());
 
-    fpga.GetPort(0)->SetLow();
-    std::cout << "FPGA test ... \n";
-    std::cout << "Number of stages: " << fpga.stages.size() << '\n';
+    vfpga.GetPort(0)->SetLow();
+    std::cout << "VFPGA test ... \n";
+    std::cout << "Number of stages: " << vfpga.stages.size() << '\n';
 
-    for (std::size_t i = 0; i < fpga.stages.size(); i++)
+    for (std::size_t i = 0; i < vfpga.stages.size(); i++)
     {
         std::cout << "Number of logic gates in stage " << i << ":"
-                  << fpga.stages[i].logic_gates.size() << '\n';
+                  << vfpga.stages[i].logic_gates.size() << '\n';
     }
 
-    Timer timerFPGA;
+    Timer timerVFPGA;
     Timer timerPrint;
     timerPrint.Start();
 
     std::int64_t averageTime      = 0;
     std::int64_t countAverageTime = 0;
-    fpga.PrepareStages();
+    vfpga.PrepareStages();
 
     while (true)
     {
-        timerFPGA.Start();
-        fpga.Simulate();
-        timerFPGA.End();
+        timerVFPGA.Start();
+        vfpga.Simulate();
+        timerVFPGA.End();
 
-        averageTime += timerFPGA.Difference();
+        averageTime += timerVFPGA.Difference();
         countAverageTime++;
 
         if (timerPrint.Seconds() >= 10)
         {
             std::cout
-              << "Processed " << fpga.LogicGates().size()
+              << "Processed " << vfpga.LogicGates().size()
               << " logic gates in "
               << static_cast<double>(averageTime)
                    / static_cast<double>(countAverageTime) / 10000000.0
@@ -81,7 +81,8 @@ int main()
             averageTime      = 0;
 
             std::cout << "port 1 should have state 1: "
-                      << static_cast<int>(fpga.GetPort(1)->state) << '\n';
+                      << static_cast<int>(vfpga.GetPort(1)->state)
+                      << '\n';
 
             timerPrint.Start();
         }

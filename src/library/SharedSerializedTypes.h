@@ -1,9 +1,9 @@
-#ifndef FPGA_OBFUSCATOR_LIBRARY_SHARED_SERIALIZER_TYPES_H
-#define FPGA_OBFUSCATOR_LIBRARY_SHARED_SERIALIZER_TYPES_H
+#ifndef VFPGA_OBFUSCATOR_LIBRARY_SHARED_SERIALIZER_TYPES_H
+#define VFPGA_OBFUSCATOR_LIBRARY_SHARED_SERIALIZER_TYPES_H
 
 #include "StandardHeaders.h"
 
-namespace FPGAObfuscatorLibrary
+namespace VFPGAObfuscatorLibrary
 {
     enum class SharedSerializedType : std::uint8_t
     {

@@ -1,6 +1,6 @@
 #include "Error.h"
 
-using namespace FPGAObfuscatorLibrary;
+using namespace VFPGAObfuscatorLibrary;
 
 void Error::ExitWithMsg(Msg msg)
 {

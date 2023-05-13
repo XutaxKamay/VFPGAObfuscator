@@ -1,5 +1,5 @@
-#ifndef FPGA_OBFUSCATOR_SIMULATOR_LOGIC_GATE_H
-#define FPGA_OBFUSCATOR_SIMULATOR_LOGIC_GATE_H
+#ifndef VFPGA_OBFUSCATOR_SIMULATOR_LOGIC_GATE_H
+#define VFPGA_OBFUSCATOR_SIMULATOR_LOGIC_GATE_H
 
 #include "Port.h"
 
@@ -68,9 +68,9 @@
  |                                                 |
  --------------------------------------------------*/
 
-namespace FPGAObfuscatorSimulator
+namespace VFPGAObfuscatorSimulator
 {
-    class FPGA;
+    class VFPGA;
 
     class LogicGate
     {
@@ -79,7 +79,7 @@ namespace FPGAObfuscatorSimulator
         {
           public:
             LogicGate Deserialize(const std::vector<std::byte>& serialized,
-                                  FPGA* const fpga) const;
+                                  VFPGA* const vfpga) const;
         };
 
         class Serializer

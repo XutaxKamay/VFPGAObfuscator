@@ -1,9 +1,9 @@
-#include "FPGA.h"
+#include "VFPGA.h"
 
-using namespace FPGAObfuscatorLibrary;
-using namespace FPGAObfuscatorSimulator;
+using namespace VFPGAObfuscatorLibrary;
+using namespace VFPGAObfuscatorSimulator;
 
-FPGA FPGA::Deserializer::Deserialize(
+VFPGA VFPGA::Deserializer::Deserialize(
   const std::vector<std::byte>& serialized)
 {
     ::Deserializer deserializer { serialized };
@@ -13,7 +13,7 @@ FPGA FPGA::Deserializer::Deserialize(
     const auto numberOfPorts = deserializer
                                  .ReadAndCheckStatus<EncodedIndex>();
 
-    FPGA fpga { numberOfPorts };
+    VFPGA vfpga { numberOfPorts };
 
     const auto ReadLogicGates = [&]()
     {
@@ -30,7 +30,7 @@ FPGA FPGA::Deserializer::Deserialize(
             LogicGate::Deserializer logicGateDeserializer;
             logicGates.push_back(
               logicGateDeserializer.Deserialize(logicGateSerialized,
-                                                &fpga));
+                                                &vfpga));
         }
 
         return logicGates;
@@ -45,39 +45,39 @@ FPGA FPGA::Deserializer::Deserialize(
         {
             const auto logicGates = ReadLogicGates();
 
-            fpga.InsertLogicGates(logicGates);
-            fpga.stages.push_back({ logicGates });
+            vfpga.InsertLogicGates(logicGates);
+            vfpga.stages.push_back({ logicGates });
         }
     }
     else
     {
-        fpga.InsertLogicGates(ReadLogicGates());
+        vfpga.InsertLogicGates(ReadLogicGates());
     }
 
-    return fpga;
+    return vfpga;
 }
 
-FPGA::FPGA(const std::size_t numberOfPorts)
+VFPGA::VFPGA(const std::size_t numberOfPorts)
  : _ports { numberOfPorts }
 {
 }
 
-Port* FPGA::GetPort(std::size_t index)
+Port* VFPGA::GetPort(std::size_t index)
 {
     return &_ports[index];
 }
 
-std::size_t FPGA::NumberOfPorts() const
+std::size_t VFPGA::NumberOfPorts() const
 {
     return _ports.size();
 }
 
-const std::vector<LogicGate>& FPGA::LogicGates() const
+const std::vector<LogicGate>& VFPGA::LogicGates() const
 {
     return _logic_gates;
 }
 
-void FPGA::CheckLogicGateValidity(const LogicGate& logicGate)
+void VFPGA::CheckLogicGateValidity(const LogicGate& logicGate)
 {
     const auto numberOfInputPorts  = logicGate.input_ports.size();
     const auto numberOfOutputPorts = logicGate.output_ports.size();
@@ -100,7 +100,7 @@ void FPGA::CheckLogicGateValidity(const LogicGate& logicGate)
     {
         Error::ExitWithMsg(
           Error::Msg::
-            FPGA_LOGIC_GATE_DESERIALIZED_INPUTS_IN_TRUTH_TABLE_NOT_CORRECT);
+            VFPGA_LOGIC_GATE_DESERIALIZED_INPUTS_IN_TRUTH_TABLE_NOT_CORRECT);
     }
 
     //////////////////////////////////////////
@@ -120,7 +120,7 @@ void FPGA::CheckLogicGateValidity(const LogicGate& logicGate)
     {
         Error::ExitWithMsg(
           Error::Msg::
-            FPGA_LOGIC_GATE_DESERIALIZED_OUTPUTS_IN_TRUTH_TABLE_NOT_CORRECT);
+            VFPGA_LOGIC_GATE_DESERIALIZED_OUTPUTS_IN_TRUTH_TABLE_NOT_CORRECT);
     }
 
     /////////////////////////////////////////////////////////
@@ -133,17 +133,17 @@ void FPGA::CheckLogicGateValidity(const LogicGate& logicGate)
         != logicGate.output_truth_table.size())
     {
         Error::ExitWithMsg(
-          Error::Msg::FPGA_LOGIC_GATE_DESERIALIZED_TRUTH_TABLE_NOT_CORRECT);
+          Error::Msg::VFPGA_LOGIC_GATE_DESERIALIZED_TRUTH_TABLE_NOT_CORRECT);
     }
 }
 
-void FPGA::InsertLogicGate(const LogicGate& logicGate)
+void VFPGA::InsertLogicGate(const LogicGate& logicGate)
 {
     CheckLogicGateValidity(logicGate);
     _logic_gates.push_back(logicGate);
 }
 
-void FPGA::InsertLogicGates(const std::vector<LogicGate>& logicGates)
+void VFPGA::InsertLogicGates(const std::vector<LogicGate>& logicGates)
 {
     std::ranges::transform(logicGates.begin(),
                            logicGates.end(),
@@ -155,7 +155,7 @@ void FPGA::InsertLogicGates(const std::vector<LogicGate>& logicGates)
                            });
 }
 
-void FPGA::PrepareStages()
+void VFPGA::PrepareStages()
 {
     if (not stages.size())
     {
@@ -164,7 +164,7 @@ void FPGA::PrepareStages()
     }
 }
 
-void FPGA::Simulate()
+void VFPGA::Simulate()
 {
     const auto StageExecution = [](std::vector<LogicGate>& logicGates)
     {
@@ -247,4 +247,3 @@ void FPGA::Simulate()
                       StageExecution(stage.logic_gates);
                   });
 }
-

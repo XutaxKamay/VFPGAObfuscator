@@ -1,4 +1,4 @@
-project('FPGASimulator', 'cpp', default_options : ['cpp_std=c++20', 'warning_level=everything', 'werror=true'])
+project('VFPGASimulator', 'cpp', default_options : ['cpp_std=c++20', 'warning_level=everything', 'werror=true'])
 add_project_arguments(['-DPARALLEL', '-Wno-effc++', '-Wno-c++98-compat', '-Wno-c++98-compat-pedantic'], language : 'cpp')
 
 include_library = include_directories('src/library')
@@ -10,7 +10,7 @@ src_library = [
 ]
 
 src_simulator = [
-  'src/simulator/FPGA.cpp',
+  'src/simulator/VFPGA.cpp',
   'src/simulator/Port.cpp',
   'src/simulator/LogicGate.cpp',
   'src/simulator/Timer.cpp'
@@ -37,8 +37,8 @@ src_language_test += src_language
 
 tbb = dependency('tbb')
 
-library('FPGASimulator', src_simulator, dependencies : tbb, include_directories : include_library)
-library('FPGALanguage', src_language, include_directories : include_library)
+library('VFPGASimulator', src_simulator, dependencies : tbb, include_directories : include_library)
+library('VFPGALanguage', src_language, include_directories : include_library)
 
 executable('TestSimulator', src_simulator_test, dependencies : tbb, include_directories : include_library)
 executable('TestLanguage', src_language_test, dependencies : tbb, include_directories : include_library)

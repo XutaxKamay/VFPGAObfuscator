@@ -1,6 +1,6 @@
 #include "Port.h"
 
-using namespace FPGAObfuscatorSimulator;
+using namespace VFPGAObfuscatorSimulator;
 
 void Port::SetHigh()
 {

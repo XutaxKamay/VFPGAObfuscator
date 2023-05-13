@@ -1,5 +1,5 @@
-#ifndef FPGA_OBFUSCATOR_SIMULATOR_FPGA_H
-#define FPGA_OBFUSCATOR_SIMULATOR_FPGA_H
+#ifndef VFPGA_OBFUSCATOR_SIMULATOR_VFPGA_H
+#define VFPGA_OBFUSCATOR_SIMULATOR_VFPGA_H
 
 #include "Deserializer.h"
 #include "Error.h"
@@ -8,7 +8,7 @@
 
 /*-----------------------------------------------------------------------
  |                                                                      |
- |                                FPGA                                  |
+ |                                VFPGA                                  |
  |               ---------------------------------------                |
  |               |                                     |                |
  |               |     ██--|   CONNECTIONS   |--██     |                |
@@ -72,14 +72,14 @@
  |                                                                      |
  -----------------------------------------------------------------------*/
 
-namespace FPGAObfuscatorSimulator
+namespace VFPGAObfuscatorSimulator
 {
-    class FPGA
+    class VFPGA
     {
       public:
         struct Deserializer
         {
-            FPGA Deserialize(const std::vector<std::byte>& serialized);
+            VFPGA Deserialize(const std::vector<std::byte>& serialized);
         };
 
         struct Serializer
@@ -134,7 +134,7 @@ namespace FPGAObfuscatorSimulator
         std::vector<LogicGate> _logic_gates;
 
       public:
-        FPGA(const std::size_t numberOfPorts);
+        VFPGA(const std::size_t numberOfPorts);
 
         Port* GetPort(std::size_t index);
         std::size_t NumberOfPorts() const;
@@ -159,9 +159,9 @@ namespace FPGAObfuscatorSimulator
     };
 
     template <bool PREPARE_STAGES>
-    std::vector<std::byte> FPGA::Serializer::Serialize()
+    std::vector<std::byte> VFPGA::Serializer::Serialize()
     {
-        FPGAObfuscatorLibrary::Serializer serializer;
+        VFPGAObfuscatorLibrary::Serializer serializer;
 
         serializer.AddVar(PREPARE_STAGES);
         serializer.AddVar<EncodedIndex>(number_of_ports);
@@ -205,7 +205,7 @@ namespace FPGAObfuscatorSimulator
 }
 
 template <class LOGIC_GATE_T, class PORT_T, class STAGE_T>
-std::vector<STAGE_T> FPGAObfuscatorSimulator::FPGA::
+std::vector<STAGE_T> VFPGAObfuscatorSimulator::VFPGA::
   CheckDependencyAndCreateStages(
     const std::vector<LOGIC_GATE_T>& logicGates)
 {

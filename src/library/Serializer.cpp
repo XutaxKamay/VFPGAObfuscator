@@ -1,3 +1,3 @@
 #include "Serializer.h"
 
-using namespace FPGAObfuscatorLibrary;
+using namespace VFPGAObfuscatorLibrary;

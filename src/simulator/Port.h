@@ -1,9 +1,9 @@
-#ifndef FPGA_OBFUSCATOR_SIMULATOR_PORT_H
-#define FPGA_OBFUSCATOR_SIMULATOR_PORT_H
+#ifndef VFPGA_OBFUSCATOR_SIMULATOR_PORT_H
+#define VFPGA_OBFUSCATOR_SIMULATOR_PORT_H
 
 #include "StandardHeaders.h"
 
-namespace FPGAObfuscatorSimulator
+namespace VFPGAObfuscatorSimulator
 {
     using Bit = std::uint_fast8_t;
 

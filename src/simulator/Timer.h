@@ -1,9 +1,9 @@
-#ifndef FPGA_TIMER_H
-#define FPGA_TIMER_H
+#ifndef VFPGA_TIMER_H
+#define VFPGA_TIMER_H
 
 #include "StandardHeaders.h"
 
-namespace FPGAObfuscatorSimulator
+namespace VFPGAObfuscatorSimulator
 {
     class Timer
     {

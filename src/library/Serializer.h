@@ -1,9 +1,9 @@
-#ifndef FPGA_OBFUSCATOR_LIBRARY_SERIALIZER_H
-#define FPGA_OBFUSCATOR_LIBRARY_SERIALIZER_H
+#ifndef VFPGA_OBFUSCATOR_LIBRARY_SERIALIZER_H
+#define VFPGA_OBFUSCATOR_LIBRARY_SERIALIZER_H
 
 #include "SharedSerializedTypes.h"
 
-namespace FPGAObfuscatorLibrary
+namespace VFPGAObfuscatorLibrary
 {
     class Serializer
     {

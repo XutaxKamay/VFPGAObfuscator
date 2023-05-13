@@ -1,10 +1,10 @@
-#ifndef FPGA_OBFUSCATOR_LIBRARY_DESERIALIZER_H
-#define FPGA_OBFUSCATOR_LIBRARY_DESERIALIZER_H
+#ifndef VFPGA_OBFUSCATOR_LIBRARY_DESERIALIZER_H
+#define VFPGA_OBFUSCATOR_LIBRARY_DESERIALIZER_H
 
 #include "Error.h"
 #include "SharedSerializedTypes.h"
 
-namespace FPGAObfuscatorLibrary
+namespace VFPGAObfuscatorLibrary
 {
     class Deserializer
     {

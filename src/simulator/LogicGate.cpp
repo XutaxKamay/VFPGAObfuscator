@@ -1,12 +1,12 @@
 #include "LogicGate.h"
-#include "FPGA.h"
+#include "VFPGA.h"
 
-using namespace FPGAObfuscatorLibrary;
-using namespace FPGAObfuscatorSimulator;
+using namespace VFPGAObfuscatorLibrary;
+using namespace VFPGAObfuscatorSimulator;
 
 LogicGate LogicGate::Deserializer::Deserialize(
   const std::vector<std::byte>& serialized,
-  FPGA* const fpga) const
+  VFPGA* const vfpga) const
 {
     LogicGate logicGate;
     ::Deserializer deserializer { serialized };
@@ -21,13 +21,13 @@ LogicGate LogicGate::Deserializer::Deserialize(
             const auto portIndex = deserializer
                                      .ReadAndCheckStatus<EncodedIndex>();
 
-            if (portIndex >= fpga->NumberOfPorts())
+            if (portIndex >= vfpga->NumberOfPorts())
             {
                 Error::ExitWithMsg(
                   Error::Msg::LOGIC_GATE_DESERIALIZER_READ_FAILED);
             }
 
-            ports.push_back(fpga->GetPort(portIndex));
+            ports.push_back(vfpga->GetPort(portIndex));
         }
     };
 
@@ -48,13 +48,13 @@ LogicGate LogicGate::Deserializer::Deserialize(
                 const auto portIndex = deserializer.ReadAndCheckStatus<
                   EncodedIndex>();
 
-                if (portIndex >= fpga->NumberOfPorts())
+                if (portIndex >= vfpga->NumberOfPorts())
                 {
                     Error::ExitWithMsg(
                       Error::Msg::LOGIC_GATE_DESERIALIZER_READ_FAILED);
                 }
 
-                element = fpga->GetPort(portIndex);
+                element = vfpga->GetPort(portIndex);
                 break;
             }
 
