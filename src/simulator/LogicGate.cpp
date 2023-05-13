@@ -1,4 +1,5 @@
 #include "LogicGate.h"
+#include "Deserializer.h"
 #include "VFPGA.h"
 
 using namespace VFPGAObfuscatorLibrary;

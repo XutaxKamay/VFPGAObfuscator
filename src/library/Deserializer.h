@@ -33,96 +33,94 @@ namespace VFPGAObfuscatorLibrary
         template <typename T>
         auto ReadType();
     };
+}
 
-    template <typename T>
-    auto Deserializer::ReadType()
+template <typename T>
+auto VFPGAObfuscatorLibrary::Deserializer::ReadType()
+{
+    const auto var = *reinterpret_cast<T*>(&data[data_index]);
+
+    data_index += sizeof(T);
+
+    return var;
+}
+
+template <typename T>
+requires (VFPGAObfuscatorLibrary::GoodSerializedType<T>)
+T VFPGAObfuscatorLibrary::Deserializer::ReadVar(ReadStatus* readStatus)
+{
+    T value {};
+
+    const auto SetStatusAndReturn = [&]<ReadStatus READ_STATUS>()
     {
-        const auto var = *reinterpret_cast<T*>(&data[data_index]);
+        if (readStatus)
+        {
+            *readStatus = READ_STATUS;
+        }
 
-        data_index += sizeof(T);
+        return value;
+    };
 
-        return var;
-    }
-
-    template <typename T>
-    requires (GoodSerializedType<T>)
-    T Deserializer::ReadVar(ReadStatus* readStatus)
+    if (not CanReadVar(sizeof(SharedSerializedType)
+                       + sizeof(std::uint64_t)))
     {
-        T value {};
-
-        const auto SetStatusAndReturn = [&]<ReadStatus READ_STATUS>()
-        {
-            if (readStatus)
-            {
-                *readStatus = READ_STATUS;
-            }
-
-            return value;
-        };
-
-        if (not CanReadVar(sizeof(SharedSerializedType)
-                           + sizeof(std::uint64_t)))
-        {
-            return SetStatusAndReturn
-              .template operator()<ReadStatus::OUT_OF_BOUNDS>();
-        }
-
-        const auto type       = ReadType<SharedSerializedType>();
-        const auto sizeOfData = ReadType<std::uint64_t>();
-
-        if (not CanReadVar(sizeOfData))
-        {
-            return SetStatusAndReturn
-              .template operator()<ReadStatus::OUT_OF_BOUNDS>();
-        }
-
-        if constexpr (std::is_integral_v<T>)
-        {
-            if (type != SharedSerializedType::INTEGRAL)
-            {
-                return SetStatusAndReturn
-                  .template operator()<ReadStatus::NOT_SAME_TYPE>();
-            }
-
-            if (sizeOfData != sizeof(T))
-            {
-                return SetStatusAndReturn.template
-                  operator()<ReadStatus::SIZE_OF_INTEGRAL_NOT_CORRECT>();
-            }
-
-            value = ReadType<T>();
-        }
-        else
-        {
-            if (type != SharedSerializedType::DATA)
-            {
-                return SetStatusAndReturn
-                  .template operator()<ReadStatus::NOT_SAME_TYPE>();
-            }
-
-            value = T { &data[data_index],
-                        &data[data_index] + sizeOfData };
-
-            data_index += sizeOfData;
-        }
-
         return SetStatusAndReturn
-          .template operator()<ReadStatus::NO_ERROR>();
+          .template operator()<ReadStatus::OUT_OF_BOUNDS>();
     }
 
-    template <typename T>
-    auto Deserializer::ReadAndCheckStatus()
-    {
-        auto readStatus = ReadStatus::NO_ERROR;
-        auto var        = ReadVar<T>(&readStatus);
+    const auto type       = ReadType<SharedSerializedType>();
+    const auto sizeOfData = ReadType<std::uint64_t>();
 
-        if (readStatus != ReadStatus::NO_ERROR)
+    if (not CanReadVar(sizeOfData))
+    {
+        return SetStatusAndReturn
+          .template operator()<ReadStatus::OUT_OF_BOUNDS>();
+    }
+
+    if constexpr (std::is_integral_v<T>)
+    {
+        if (type != SharedSerializedType::INTEGRAL)
         {
-            Error::ExitWithMsg(Error::Msg::DESERIALIZER_READ_FAILED);
+            return SetStatusAndReturn
+              .template operator()<ReadStatus::NOT_SAME_TYPE>();
         }
 
-        return var;
+        if (sizeOfData != sizeof(T))
+        {
+            return SetStatusAndReturn.template
+              operator()<ReadStatus::SIZE_OF_INTEGRAL_NOT_CORRECT>();
+        }
+
+        value = ReadType<T>();
     }
+    else
+    {
+        if (type != SharedSerializedType::DATA)
+        {
+            return SetStatusAndReturn
+              .template operator()<ReadStatus::NOT_SAME_TYPE>();
+        }
+
+        value = T { &data[data_index], &data[data_index] + sizeOfData };
+
+        data_index += sizeOfData;
+    }
+
+    return SetStatusAndReturn.template operator()<ReadStatus::NO_ERROR>();
+}
+
+template <typename T>
+auto VFPGAObfuscatorLibrary::Deserializer::ReadAndCheckStatus()
+{
+    auto readStatus = ReadStatus::NO_ERROR;
+    auto var        = ReadVar<T>(&readStatus);
+
+    if (readStatus != ReadStatus::NO_ERROR)
+    {
+        Error::ExitWithMsg(Error::Msg::DESERIALIZER_READ_FAILED);
+    }
+
+    return var;
 }
 
 #endif

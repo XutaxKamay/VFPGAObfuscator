@@ -1,8 +1,6 @@
 #ifndef VFPGA_OBFUSCATOR_SIMULATOR_VFPGA_H
 #define VFPGA_OBFUSCATOR_SIMULATOR_VFPGA_H
 
-#include "Deserializer.h"
-#include "Error.h"
 #include "LogicGate.h"
 #include "Serializer.h"
 
@@ -158,50 +156,52 @@ namespace VFPGAObfuscatorSimulator
           const std::vector<LOGIC_GATE_T>& logicGates);
     };
 
-    template <bool PREPARE_STAGES>
-    std::vector<std::byte> VFPGA::Serializer::Serialize()
+}
+
+template <bool PREPARE_STAGES>
+std::vector<std::byte> VFPGAObfuscatorSimulator::VFPGA::Serializer::
+  Serialize()
+{
+    VFPGAObfuscatorLibrary::Serializer serializer;
+
+    serializer.AddVar(PREPARE_STAGES);
+    serializer.AddVar<EncodedIndex>(number_of_ports);
+
+    const auto AddLogicGates =
+      [&](const decltype(logic_gates)& logicGatesSerializer)
     {
-        VFPGAObfuscatorLibrary::Serializer serializer;
+        std::ranges::for_each(
+          logicGatesSerializer,
+          [&](const LogicGate::Serializer& logicGateSerializer)
+          {
+              serializer.AddVar(logicGateSerializer.Serialize());
+          });
+    };
 
-        serializer.AddVar(PREPARE_STAGES);
-        serializer.AddVar<EncodedIndex>(number_of_ports);
+    if constexpr (PREPARE_STAGES)
+    {
+        auto preparedStages = CheckDependencyAndCreateStages<
+          LogicGate::Serializer,
+          EncodedIndex,
+          Stage>(logic_gates);
 
-        const auto AddLogicGates =
-          [&](const decltype(logic_gates)& logicGatesSerializer)
-        {
-            std::ranges::for_each(
-              logicGatesSerializer,
-              [&](const LogicGate::Serializer& logicGateSerializer)
-              {
-                  serializer.AddVar(logicGateSerializer.Serialize());
-              });
-        };
+        serializer.AddVar<EncodedIndex>(preparedStages.size());
 
-        if constexpr (PREPARE_STAGES)
-        {
-            auto preparedStages = CheckDependencyAndCreateStages<
-              LogicGate::Serializer,
-              EncodedIndex,
-              Stage>(logic_gates);
-
-            serializer.AddVar<EncodedIndex>(preparedStages.size());
-
-            std::ranges::for_each(preparedStages,
-                                  [&](const Stage& stage)
-                                  {
-                                      serializer.AddVar<EncodedIndex>(
-                                        stage.logic_gates.size());
-                                      AddLogicGates(stage.logic_gates);
-                                  });
-        }
-        else
-        {
-            serializer.AddVar<EncodedIndex>(logic_gates.size());
-            AddLogicGates(logic_gates);
-        }
-
-        return serializer.data;
+        std::ranges::for_each(preparedStages,
+                              [&](const Stage& stage)
+                              {
+                                  serializer.AddVar<EncodedIndex>(
+                                    stage.logic_gates.size());
+                                  AddLogicGates(stage.logic_gates);
+                              });
     }
+    else
+    {
+        serializer.AddVar<EncodedIndex>(logic_gates.size());
+        AddLogicGates(logic_gates);
+    }
+
+    return serializer.data;
 }
 
 template <class LOGIC_GATE_T, class PORT_T, class STAGE_T>

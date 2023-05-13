@@ -1,4 +1,5 @@
 #include "VFPGA.h"
+#include "Deserializer.h"
 
 using namespace VFPGAObfuscatorLibrary;
 using namespace VFPGAObfuscatorSimulator;
