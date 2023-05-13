@@ -1,5 +1,13 @@
 project('VFPGASimulator', 'cpp', default_options : ['cpp_std=c++20', 'warning_level=everything', 'werror=true'])
-add_project_arguments(['-DPARALLEL', '-Wno-effc++', '-Wno-c++98-compat', '-Wno-c++98-compat-pedantic'], language : 'cpp')
+
+add_project_arguments([
+    '-DPARALLEL',
+    '-Wno-effc++',
+    '-Wno-c++98-compat',
+    '-Wno-c++98-compat-pedantic',
+    '-fno-rtti',
+    '-fno-exceptions' ## Goal would be to make it freestanding code
+], language : 'cpp')
 
 include_library = include_directories('src/library')
 
