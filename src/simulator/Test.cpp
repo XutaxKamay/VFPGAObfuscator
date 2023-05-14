@@ -4,12 +4,12 @@
 using namespace VFPGAObfuscatorLibrary;
 using namespace VFPGAObfuscatorSimulator;
 
-static constexpr EncodedIndex operator""_p(unsigned long long i)
+static consteval EncodedIndex operator""_p(unsigned long long i)
 {
     return i;
 }
 
-static constexpr Bit operator""_b(unsigned long long i)
+static consteval Bit operator""_b(unsigned long long i)
 {
     return static_cast<std::uint8_t>(i);
 }

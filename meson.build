@@ -5,11 +5,12 @@ add_project_arguments([
     '-Wno-effc++',
     '-Wno-c++98-compat',
     '-Wno-c++98-compat-pedantic',
+    '-Wno-c++20-compat',
     '-fno-rtti',
     '-fno-exceptions' ## Goal would be to make it freestanding code
 ], language : 'cpp')
 
-include_library = include_directories('src/library')
+include_library = [include_directories('src/library'), include_directories('src')]
 
 src_library = [
   'src/library/Deserializer.cpp',
@@ -35,6 +36,8 @@ src_language += src_library
 src_language_test = [
   'src/language/Test.cpp'
 ]
+
+src_language_test += src_simulator
 
 src_simulator_test = [
   'src/simulator/Test.cpp'

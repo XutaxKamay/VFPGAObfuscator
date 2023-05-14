@@ -7,6 +7,6 @@
 #include <variant>
 #include <vector>
 
-using EncodedIndex = std::uintmax_t;
+using EncodedIndex = std::uint_fast64_t;
 
 #endif

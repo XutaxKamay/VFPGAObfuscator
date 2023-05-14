@@ -9,8 +9,7 @@ VFPGA VFPGA::Deserializer::Deserialize(
 {
     ::Deserializer deserializer { serialized };
 
-    const auto hasStages = deserializer.ReadAndCheckStatus<bool>();
-
+    const auto hasStages     = deserializer.ReadAndCheckStatus<bool>();
     const auto numberOfPorts = deserializer
                                  .ReadAndCheckStatus<EncodedIndex>();
 
