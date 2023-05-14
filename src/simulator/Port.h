@@ -10,8 +10,8 @@ namespace VFPGAObfuscatorSimulator
     class Port
     {
       public:
-        static inline constexpr Bit LOW  = 0;
-        static inline constexpr Bit HIGH = 1;
+        static inline constinit Bit LOW  = 0;
+        static inline constinit Bit HIGH = 1;
 
       public:
         Bit state;
