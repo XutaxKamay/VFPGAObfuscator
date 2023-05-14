@@ -1,6 +1,7 @@
 #ifndef VFPGA_OBFUSCATOR_LANGUAGE_LOGIC_GATE_H
 #define VFPGA_OBFUSCATOR_LANGUAGE_LOGIC_GATE_H
 
+#include "Error.h"
 #include "simulator/LogicGate.h"
 
 namespace VFPGAObfuscatorLanguage
@@ -191,10 +192,9 @@ constexpr void VFPGAObfuscatorLanguage::LogicGate::FillStandardTruthTable(
           }
           else
           {
-              ///////////////////////////////////////////////
-              /// This will be an error during simulation ///
-              ///////////////////////////////////////////////
-              output_truth_table.push_back({});
+              VFPGAObfuscatorLibrary::Error::ExitWithMsg(
+                VFPGAObfuscatorLibrary::Error::Msg::
+                  LOGIC_GATE_NOT_ENOUGH_INPUT_PORTS);
           }
       });
 }
