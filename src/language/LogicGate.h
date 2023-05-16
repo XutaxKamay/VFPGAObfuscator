@@ -6,7 +6,7 @@
 
 namespace VFPGAObfuscatorLanguage
 {
-    using Bit = VFPGAObfuscatorSimulator::Bit;
+    using namespace VFPGAObfuscatorLibrary;
 
     class LogicGate :
      public VFPGAObfuscatorSimulator::LogicGate::Serializer
@@ -59,11 +59,11 @@ constexpr void VFPGAObfuscatorLanguage::LogicGate::FillStandardTruthTable(
         {
             if (i > j)
             {
-                permutations[i][j] = 1;
+                permutations[i][j] = 1_vfpga_bit;
             }
             else
             {
-                permutations[i][j] = 0;
+                permutations[i][j] = 0_vfpga_bit;
             }
         }
     }
@@ -182,9 +182,12 @@ constexpr void VFPGAObfuscatorLanguage::LogicGate::FillStandardTruthTable(
               Bit finalState;
               firstOperation(finalState, std::get<1>(elements[0]));
 
-              for (std::size_t i = 1; i < elements.size(); i++)
+              if (operation)
               {
-                  operation(finalState, std::get<1>(elements[i]));
+                  for (std::size_t i = 1; i < elements.size(); i++)
+                  {
+                      operation(finalState, std::get<1>(elements[i]));
+                  }
               }
 
               output_truth_table.push_back(

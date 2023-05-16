@@ -64,7 +64,9 @@ LogicGate LogicGate::Deserializer::Deserialize(
                 //////////////////
                 /// It's a bit ///
                 //////////////////
-                element = deserializer.ReadAndCheckStatus<std::uint8_t>();
+                element = Bit {
+                    deserializer.ReadAndCheckStatus<std::uint_fast8_t>()
+                };
                 break;
             }
 
@@ -145,7 +147,7 @@ std::vector<std::byte> LogicGate::Serializer::Serialize() const
                 //////////////////
                 /// It's a bit ///
                 //////////////////
-                serializer.AddVar(std::get<1>(element));
+                serializer.AddVar(std::get<1>(element).value);
                 break;
             }
 

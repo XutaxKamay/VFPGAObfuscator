@@ -9,11 +9,6 @@ static consteval EncodedIndex operator""_p(unsigned long long i)
     return i;
 }
 
-static consteval Bit operator""_b(unsigned long long i)
-{
-    return static_cast<std::uint8_t>(i);
-}
-
 int main()
 {
     std::cout << "Serializing test ...\n";
@@ -23,8 +18,8 @@ int main()
     logicGatesSerializer.push_back({
       { 0_p },
       { 1_p },
-      { { 0_b }, { 1_b } },
-      { { 1_b }, { 0_b } }
+      { { 0_vfpga_bit }, { 1_vfpga_bit } },
+      { { 1_vfpga_bit }, { 0_vfpga_bit } }
     });
 
     for (std::size_t i = 0; i < 30; i++)
@@ -56,8 +51,8 @@ int main()
     Timer timerPrint;
     timerPrint.Start();
 
-    std::int64_t averageTime      = 0;
-    std::int64_t countAverageTime = 0;
+    std::int_fast64_t averageTime      = 0;
+    std::int_fast64_t countAverageTime = 0;
     vfpga.PrepareStages();
 
     while (true)

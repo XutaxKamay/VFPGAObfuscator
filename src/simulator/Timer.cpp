@@ -2,27 +2,28 @@
 
 using namespace VFPGAObfuscatorSimulator;
 
-std::uint16_t Timer::Nanos() const
+std::uint_fast16_t Timer::Nanos() const
 {
-    return static_cast<std::uint16_t>(_difference % 1000);
+    return static_cast<std::uint_fast16_t>(_difference % 1000);
 }
 
-std::uint16_t Timer::Micros() const
+std::uint_fast16_t Timer::Micros() const
 {
-    return static_cast<std::uint16_t>((_difference / 1000) % 1000);
+    return static_cast<std::uint_fast16_t>((_difference / 1000) % 1000);
 }
 
-std::uint16_t Timer::Millis() const
+std::uint_fast16_t Timer::Millis() const
 {
-    return static_cast<std::uint16_t>((_difference / 1000000) % 1000);
+    return static_cast<std::uint_fast16_t>((_difference / 1000000)
+                                           % 1000);
 }
 
-std::uint16_t Timer::Seconds() const
+std::uint_fast16_t Timer::Seconds() const
 {
-    return static_cast<std::uint16_t>((_difference / 1000000000));
+    return static_cast<std::uint_fast16_t>((_difference / 1000000000));
 }
 
-std::int64_t Timer::Difference() const
+std::int_fast64_t Timer::Difference() const
 {
     return _difference;
 }

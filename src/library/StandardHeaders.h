@@ -7,6 +7,4 @@
 #include <variant>
 #include <vector>
 
-using EncodedIndex = std::uint_fast64_t;
-
 #endif

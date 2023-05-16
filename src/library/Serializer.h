@@ -21,7 +21,7 @@ requires (VFPGAObfuscatorLibrary::GoodSerializedType<T>)
 void VFPGAObfuscatorLibrary::Serializer::AddVar(const T& value)
 {
     const auto InsertData = [&](SharedSerializedType type,
-                                std::uint64_t sizeOfData,
+                                std::uint_fast64_t sizeOfData,
                                 const auto byteValues)
     {
         ///////////////////

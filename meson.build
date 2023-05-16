@@ -28,7 +28,6 @@ src_simulator = [
 src_simulator += src_library
 
 src_language = [
-  'src/language/LogicGate.cpp'
 ]
 
 src_language += src_library

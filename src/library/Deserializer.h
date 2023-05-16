@@ -62,14 +62,14 @@ T VFPGAObfuscatorLibrary::Deserializer::ReadVar(ReadStatus* readStatus)
     };
 
     if (not CanReadVar(sizeof(SharedSerializedType)
-                       + sizeof(std::uint64_t)))
+                       + sizeof(std::uint_fast64_t)))
     {
         return SetStatusAndReturn
           .template operator()<ReadStatus::OUT_OF_BOUNDS>();
     }
 
     const auto type       = ReadType<SharedSerializedType>();
-    const auto sizeOfData = ReadType<std::uint64_t>();
+    const auto sizeOfData = ReadType<std::uint_fast64_t>();
 
     if (not CanReadVar(sizeOfData))
     {

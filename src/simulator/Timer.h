@@ -8,11 +8,11 @@ namespace VFPGAObfuscatorSimulator
     class Timer
     {
       public:
-        std::uint16_t Nanos() const;
-        std::uint16_t Micros() const;
-        std::uint16_t Millis() const;
-        std::uint16_t Seconds() const;
-        std::int64_t Difference() const;
+        std::uint_fast16_t Nanos() const;
+        std::uint_fast16_t Micros() const;
+        std::uint_fast16_t Millis() const;
+        std::uint_fast16_t Seconds() const;
+        std::int_fast64_t Difference() const;
 
       public:
         void Start();
@@ -21,7 +21,7 @@ namespace VFPGAObfuscatorSimulator
       private:
         std::chrono::high_resolution_clock::time_point _start;
         std::chrono::high_resolution_clock::time_point _end;
-        std::int64_t _difference;
+        std::int_fast64_t _difference;
     };
 }
 

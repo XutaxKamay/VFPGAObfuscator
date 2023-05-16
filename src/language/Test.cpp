@@ -2,6 +2,8 @@
 
 #include "simulator/VFPGA.h"
 
+using namespace VFPGAObfuscatorLibrary;
+
 int main()
 {
     enum Port : EncodedIndex
