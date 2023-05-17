@@ -85,11 +85,13 @@ namespace VFPGAObfuscatorSimulator
         class Serializer
         {
           public:
-            using ElementType = std::variant<EncodedIndex, Bit>;
-            using TruthTable  = std::vector<std::vector<ElementType>>;
+            using ElementType = std::variant<
+              VFPGAObfuscatorLibrary::EncodedIndex,
+              VFPGAObfuscatorLibrary::Bit>;
+            using TruthTable = std::vector<std::vector<ElementType>>;
 
-            std::vector<EncodedIndex> input_ports;
-            std::vector<EncodedIndex> output_ports;
+            std::vector<VFPGAObfuscatorLibrary::EncodedIndex> input_ports;
+            std::vector<VFPGAObfuscatorLibrary::EncodedIndex> output_ports;
             TruthTable input_truth_table;
             TruthTable output_truth_table;
 
@@ -98,7 +100,8 @@ namespace VFPGAObfuscatorSimulator
         };
 
       public:
-        using ElementType = std::variant<Port*, Bit>;
+        using ElementType = std::variant<Port*,
+                                         VFPGAObfuscatorLibrary::Bit>;
         using TruthTable  = std::vector<std::vector<ElementType>>;
 
         std::vector<Port*> input_ports;

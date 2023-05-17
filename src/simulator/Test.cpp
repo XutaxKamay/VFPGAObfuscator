@@ -18,8 +18,8 @@ int main()
     logicGatesSerializer.push_back({
       { 0_p },
       { 1_p },
-      { { 0_vfpga_bit }, { 1_vfpga_bit } },
-      { { 1_vfpga_bit }, { 0_vfpga_bit } }
+      { { 0_vfpga_obf_lib_bit }, { 1_vfpga_obf_lib_bit } },
+      { { 1_vfpga_obf_lib_bit }, { 0_vfpga_obf_lib_bit } }
     });
 
     for (std::size_t i = 0; i < 30; i++)

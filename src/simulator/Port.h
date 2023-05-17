@@ -6,16 +6,15 @@
 
 namespace VFPGAObfuscatorSimulator
 {
-    using namespace VFPGAObfuscatorLibrary;
 
     class Port
     {
       public:
-        static inline constinit Bit LOW  = 0_vfpga_bit;
-        static inline constinit Bit HIGH = 1_vfpga_bit;
+        static inline constinit auto LOW  = 0_vfpga_obf_lib_bit;
+        static inline constinit auto HIGH = 1_vfpga_obf_lib_bit;
 
       public:
-        Bit state;
+        VFPGAObfuscatorLibrary::Bit state;
 
       public:
         void SetLow();

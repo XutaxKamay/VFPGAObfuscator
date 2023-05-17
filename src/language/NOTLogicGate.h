@@ -9,20 +9,22 @@ namespace VFPGAObfuscatorLanguage
     {
       public:
         constexpr NOTLogicGate(
-          EncodedIndex inputPort,
-          const std::vector<EncodedIndex>& outputPorts);
+          VFPGAObfuscatorLibrary::EncodedIndex inputPort,
+          const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>&
+            outputPorts);
     };
 
 };
 
 constexpr VFPGAObfuscatorLanguage::NOTLogicGate::NOTLogicGate(
-  EncodedIndex inputPort,
-  const std::vector<EncodedIndex>& outputPorts)
+  VFPGAObfuscatorLibrary::EncodedIndex inputPort,
+  const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>& outputPorts)
 {
     FillStandardTruthTable({ inputPort },
                            outputPorts,
                            nullptr,
-                           [](Bit& finalState, Bit firstBit)
+                           [](VFPGAObfuscatorLibrary::Bit& finalState,
+                              VFPGAObfuscatorLibrary::Bit firstBit)
                            {
                                finalState = ~firstBit;
                            });

@@ -87,7 +87,7 @@ namespace VFPGAObfuscatorSimulator
                 std::vector<LogicGate::Serializer> logic_gates;
             };
 
-            EncodedIndex number_of_ports;
+            VFPGAObfuscatorLibrary::EncodedIndex number_of_ports;
             std::vector<LogicGate::Serializer> logic_gates;
 
             template <bool PREPARE_STAGES>
@@ -165,7 +165,8 @@ std::vector<std::byte> VFPGAObfuscatorSimulator::VFPGA::Serializer::
     VFPGAObfuscatorLibrary::Serializer serializer;
 
     serializer.AddVar(PREPARE_STAGES);
-    serializer.AddVar<EncodedIndex>(number_of_ports);
+    serializer.AddVar<VFPGAObfuscatorLibrary::EncodedIndex>(
+      number_of_ports);
 
     const auto AddLogicGates =
       [&](const decltype(logic_gates)& logicGatesSerializer)
@@ -182,22 +183,25 @@ std::vector<std::byte> VFPGAObfuscatorSimulator::VFPGA::Serializer::
     {
         auto preparedStages = CheckDependencyAndCreateStages<
           LogicGate::Serializer,
-          EncodedIndex,
+          VFPGAObfuscatorLibrary::EncodedIndex,
           Stage>(logic_gates);
 
-        serializer.AddVar<EncodedIndex>(preparedStages.size());
+        serializer.AddVar<VFPGAObfuscatorLibrary::EncodedIndex>(
+          preparedStages.size());
 
-        std::ranges::for_each(preparedStages,
-                              [&](const Stage& stage)
-                              {
-                                  serializer.AddVar<EncodedIndex>(
-                                    stage.logic_gates.size());
-                                  AddLogicGates(stage.logic_gates);
-                              });
+        std::ranges::for_each(
+          preparedStages,
+          [&](const Stage& stage)
+          {
+              serializer.AddVar<VFPGAObfuscatorLibrary::EncodedIndex>(
+                stage.logic_gates.size());
+              AddLogicGates(stage.logic_gates);
+          });
     }
     else
     {
-        serializer.AddVar<EncodedIndex>(logic_gates.size());
+        serializer.AddVar<VFPGAObfuscatorLibrary::EncodedIndex>(
+          logic_gates.size());
         AddLogicGates(logic_gates);
     }
 
