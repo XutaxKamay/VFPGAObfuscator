@@ -26,7 +26,7 @@ constexpr VFPGAObfuscatorLanguage::NOTLogicGate::NOTLogicGate(
                            [](VFPGAObfuscatorLibrary::Bit& finalState,
                               VFPGAObfuscatorLibrary::Bit firstBit)
                            {
-                               finalState = ~firstBit;
+                               finalState.Set(~firstBit);
                            });
 }
 
