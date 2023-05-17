@@ -24,6 +24,7 @@ namespace VFPGAObfuscatorLibrary
         std::uint_fast8_t value;
     };
 
+    consteval Bit operator""_vfpga_bit(unsigned long long i);
 }
 
 constexpr VFPGAObfuscatorLibrary::Bit& VFPGAObfuscatorLibrary::Bit::
@@ -101,8 +102,8 @@ constexpr void VFPGAObfuscatorLibrary::Bit::Set(std::uint_fast8_t state)
     value = state & 1;
 }
 
-static consteval VFPGAObfuscatorLibrary::Bit operator""_vfpga_bit(
-  unsigned long long i)
+consteval VFPGAObfuscatorLibrary::Bit VFPGAObfuscatorLibrary::
+  operator""_vfpga_bit(unsigned long long i)
 {
     return { static_cast<std::uint_fast8_t>(i) };
 }
