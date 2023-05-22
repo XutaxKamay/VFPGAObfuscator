@@ -1,3 +1,4 @@
+#include "NOTLogicGate.h"
 #include "XORLogicGate.h"
 
 #include "simulator/VFPGA.h"
@@ -22,7 +23,8 @@ int main()
 
     VFPGAObfuscatorSimulator::VFPGA::Serializer vfpgaSerializer {
         Port::ALL,
-        { xorLogicGate }
+        {xorLogicGate,
+               VFPGAObfuscatorLanguage::NOTLogicGate(Port::D, { Port::D })}
     };
 
     VFPGAObfuscatorSimulator::VFPGA::Deserializer vpfgaDeserializer;
@@ -35,6 +37,8 @@ int main()
     vfpga.GetPort(Port::A)->SetLow();
     vfpga.GetPort(Port::B)->SetLow();
     vfpga.GetPort(Port::C)->SetHigh();
+
+    std::cout << "Stages: " << vfpga.stages.size() << '\n';
 
     vfpga.Simulate();
 

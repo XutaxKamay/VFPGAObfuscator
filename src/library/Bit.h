@@ -50,7 +50,7 @@ constexpr VFPGAObfuscatorLibrary::Bit VFPGAObfuscatorLibrary::Bit::
   operator~() const
 {
     Bit ret;
-    ret.Set(~value);
+    ret.Set(static_cast<decltype(value)>(~value));
     return ret;
 }
 
@@ -101,9 +101,9 @@ constexpr void VFPGAObfuscatorLibrary::Bit::Set(std::uint_fast8_t state)
 }
 
 consteval VFPGAObfuscatorLibrary::Bit operator""_vfpga_obf_lib_bit(
-  unsigned long long i)
+  unsigned long long value)
 {
-    return { static_cast<std::uint_fast8_t>(i) };
+    return { static_cast<std::uint_fast8_t>(value) };
 }
 
 #endif

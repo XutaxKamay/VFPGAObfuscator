@@ -48,7 +48,7 @@ src_language_test += src_language
 tbb = dependency('tbb')
 
 library('VFPGASimulator', src_simulator, dependencies : tbb, include_directories : include_library)
-library('VFPGALanguage', src_language, include_directories : include_library)
+library('VFPGALanguage', src_language, dependencies : tbb, include_directories : include_library)
 
 executable('TestSimulator', src_simulator_test, dependencies : tbb, include_directories : include_library)
 executable('TestLanguage', src_language_test, dependencies : tbb, include_directories : include_library)
