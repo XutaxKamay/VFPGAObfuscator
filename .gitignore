@@ -1,0 +1,9 @@
+*
+!*/
+!*.h
+!*.cpp
+!README.md
+!LICENSE
+!.gitmodules
+!.gitignore
+!meson.build
