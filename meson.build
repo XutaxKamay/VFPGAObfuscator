@@ -7,7 +7,7 @@ add_project_arguments([
     '-Wno-c++98-compat-pedantic',
     '-Wno-c++20-compat',
     '-fno-rtti',
-    '-fno-exceptions' ## Goal would be to make it freestanding code
+    '-fno-exceptions' # Goal would be to make it freestanding code
 ], language : 'cpp')
 
 include_library = [include_directories('src/library'), include_directories('src')]
