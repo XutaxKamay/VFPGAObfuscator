@@ -54,6 +54,30 @@ VFPGA VFPGA::Deserializer::Deserialize(
         vfpga.InsertLogicGates(ReadLogicGates());
     }
 
+    std::vector<PortInit> portsInit {
+        deserializer.ReadVar<EncodedIndex>()
+    };
+
+    std::ranges::for_each(
+      portsInit,
+      [&](PortInit& portInit)
+      {
+          std::get<0>(portInit) = deserializer.ReadVar<EncodedIndex>();
+          std::get<1>(portInit) = Bit {
+              deserializer.ReadVar<decltype(Bit::value)>()
+          };
+      });
+
+    std::for_each(
+      std::execution::par_unseq,
+      portsInit.begin(),
+      portsInit.end(),
+      [&](const PortInit& portInit)
+      {
+          vfpga.GetPort(std::get<0>(portInit))->state = std::get<1>(
+            portInit);
+      });
+
     return vfpga;
 }
 

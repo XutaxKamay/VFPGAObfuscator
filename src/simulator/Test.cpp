@@ -22,7 +22,7 @@ int main()
       { { 1_vfpga_obf_lib_bit }, { 0_vfpga_obf_lib_bit } }
     });
 
-    for (std::size_t i = 0; i < 30; i++)
+    for (std::size_t i = 0; i < 2; i++)
     {
         for (EncodedIndex j = 1; j < 10001; j++)
         {
@@ -31,7 +31,9 @@ int main()
         }
     }
 
-    VFPGA::Serializer vfpgaSerializer { 1000000, logicGatesSerializer };
+    VFPGA::Serializer vfpgaSerializer { 1000000,
+                                        logicGatesSerializer,
+                                        {} };
 
     VFPGA::Deserializer vfpgaDeserializer;
     auto vfpga = vfpgaDeserializer.Deserialize(

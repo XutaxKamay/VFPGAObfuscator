@@ -75,6 +75,9 @@ namespace VFPGAObfuscatorSimulator
     class VFPGA
     {
       public:
+        using PortInit = std::tuple<VFPGAObfuscatorLibrary::EncodedIndex,
+                                    VFPGAObfuscatorLibrary::Bit>;
+
         struct Deserializer
         {
             VFPGA Deserialize(const std::vector<std::byte>& serialized);
@@ -89,6 +92,7 @@ namespace VFPGAObfuscatorSimulator
 
             VFPGAObfuscatorLibrary::EncodedIndex number_of_ports;
             std::vector<LogicGate::Serializer> logic_gates;
+            std::vector<PortInit> ports_init;
 
             template <bool PREPARE_STAGES>
             std::vector<std::byte> Serialize();
@@ -205,6 +209,18 @@ std::vector<std::byte> VFPGAObfuscatorSimulator::VFPGA::Serializer::
         AddLogicGates(logic_gates);
     }
 
+    serializer.AddVar<VFPGAObfuscatorLibrary::EncodedIndex>(
+      ports_init.size());
+
+    std::ranges::for_each(ports_init.begin(),
+                          ports_init.end(),
+                          [&](const PortInit& portInit)
+                          {
+                              serializer.AddVar(std::get<0>(portInit));
+                              serializer.AddVar(
+                                std::get<1>(portInit).value);
+                          });
+
     return serializer.data;
 }
 
@@ -295,20 +311,28 @@ std::vector<STAGE_T> VFPGAObfuscatorSimulator::VFPGA::
                            != currentOutputPorts.end();
                 });
 
+              ////////////////////////////////////////
+              /// We need to add all output ports, ///
+              /// even if we didn't find a link    ///
+              /// since the output ports           ///
+              /// are dependent of the previous    ///
+              /// output ports of the previous     ///
+              /// logic gate                       ///
+              ////////////////////////////////////////
+              currentOutputPorts.insert(currentOutputPorts.begin(),
+                                        logicGate.output_ports.begin(),
+                                        logicGate.output_ports.end());
+
               /////////////////////////////////////////////////
               /// If we found a previous                    ///
               /// logic gates output port linked            ///
               /// to an input port in the logic gates left, ///
               /// We simply skip it for another stage.      ///
               /// If not found, we insert the current       ///
-              /// logic gate inside the array.              ///
+              /// logic gate inside the array               ///
               /////////////////////////////////////////////////
               if (foundPort == logicGate.input_ports.end())
               {
-                  currentOutputPorts.insert(currentOutputPorts.begin(),
-                                            logicGate.output_ports.begin(),
-                                            logicGate.output_ports.end());
-
                   currentLogicGates.push_back(&logicGate);
               }
           });
