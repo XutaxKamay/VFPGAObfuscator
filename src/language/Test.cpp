@@ -90,9 +90,9 @@ int main()
           { Port::F_IN, 1_vfpga_obf_lib_bit }}
     };
 
-    VFPGAObfuscatorSimulator::VFPGA::Deserializer vpfgaDeserializer;
+    VFPGAObfuscatorSimulator::VFPGA::Deserializer vfpgaDeserializer;
 
-    auto vfpga = vpfgaDeserializer.Deserialize(
+    auto vfpga = vfpgaDeserializer.Deserialize(
       vfpgaSerializer.Serialize<true>());
 
     vfpga.PrepareStages();
