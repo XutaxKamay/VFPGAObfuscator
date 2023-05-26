@@ -26,7 +26,7 @@ constexpr VFPGAObfuscatorLanguage::BUFLogicGate::BUFLogicGate(
                            [](VFPGAObfuscatorLibrary::Bit& finalState,
                               VFPGAObfuscatorLibrary::Bit firstBit)
                            {
-                               finalState.Set(firstBit);
+                               finalState = firstBit;
                            });
 }
 
