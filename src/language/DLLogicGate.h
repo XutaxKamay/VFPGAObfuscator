@@ -1,18 +1,18 @@
-#ifndef VFPGA_OBFUSCATOR_LANGUAGE_DFF_LOGIC_GATE_H
-#define VFPGA_OBFUSCATOR_LANGUAGE_DFF_LOGIC_GATE_H
+#ifndef VFPGA_OBFUSCATOR_LANGUAGE_DL_LOGIC_GATE_H
+#define VFPGA_OBFUSCATOR_LANGUAGE_DL_LOGIC_GATE_H
 
 #include "LogicGate.h"
 
 namespace VFPGAObfuscatorLanguage
 {
-    class DFFLogicGate : public LogicGate
+    class DLLogicGate : public LogicGate
     {
       public:
         //////////////////////////////////////
         /// First input port: Enable set   ///
         /// Second input port: Data to set ///
         //////////////////////////////////////
-        constexpr DFFLogicGate(
+        constexpr DLLogicGate(
           const std::array<VFPGAObfuscatorLibrary::EncodedIndex, 2>&
             inputPorts,
           const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>&
@@ -20,7 +20,7 @@ namespace VFPGAObfuscatorLanguage
     };
 };
 
-constexpr VFPGAObfuscatorLanguage::DFFLogicGate::DFFLogicGate(
+constexpr VFPGAObfuscatorLanguage::DLLogicGate::DLLogicGate(
   const std::array<VFPGAObfuscatorLibrary::EncodedIndex, 2>& inputPorts,
   const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>& outputPorts)
 {
