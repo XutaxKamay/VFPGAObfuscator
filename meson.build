@@ -15,14 +15,14 @@ include_library = [include_directories('src/library'), include_directories('src'
 src_library = [
   'src/library/Deserializer.cpp',
   'src/library/Error.cpp',
-  'src/library/Serializer.cpp'
+  'src/library/Serializer.cpp',
+  'src/library/Timer.cpp'
 ]
 
 src_simulator = [
   'src/simulator/VFPGA.cpp',
   'src/simulator/Port.cpp',
   'src/simulator/LogicGate.cpp',
-  'src/simulator/Timer.cpp'
 ]
 
 src_simulator += src_library

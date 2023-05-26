@@ -1,6 +1,6 @@
 #include "Timer.h"
 
-using namespace VFPGAObfuscatorSimulator;
+using namespace VFPGAObfuscatorLibrary;
 
 std::uint_fast16_t Timer::Nanos() const
 {
