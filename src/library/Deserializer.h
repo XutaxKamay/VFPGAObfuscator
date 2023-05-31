@@ -40,11 +40,12 @@ auto VFPGAObfuscatorLibrary::Deserializer::ReadType()
 {
     T var;
 
-    std::copy(&data[data_index],
-              &data[data_index + sizeof(T)],
-              reinterpret_cast<std::byte*>(&var));
-
-    data_index += sizeof(T);
+    std::ranges::for_each_n(reinterpret_cast<std::byte*>(&var),
+                            sizeof(T),
+                            [&](std::byte& b)
+                            {
+                                b = data[data_index++];
+                            });
 
     return var;
 }
