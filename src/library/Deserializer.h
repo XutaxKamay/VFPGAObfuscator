@@ -42,7 +42,7 @@ auto VFPGAObfuscatorLibrary::Deserializer::ReadType()
 
     std::ranges::for_each_n(reinterpret_cast<std::byte*>(&var),
                             sizeof(T),
-                            [&](std::byte& b)
+                            [&](std::byte& b) noexcept
                             {
                                 b = data[data_index++];
                             });
