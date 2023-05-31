@@ -10,33 +10,28 @@ namespace VFPGAObfuscatorLanguage
      public VFPGAObfuscatorSimulator::LogicGate::Serializer
     {
       protected:
+        template <typename FO_T, typename O_T>
         constexpr void FillStandardTruthTable(
           const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>&
             inputPorts,
           const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>&
             outputPorts,
-          const std::function<void(VFPGAObfuscatorLibrary::Bit& finalState,
-                                   VFPGAObfuscatorLibrary::Bit nextBit)>&
-            operation,
-          const std::function<void(VFPGAObfuscatorLibrary::Bit& finalState,
-                                   VFPGAObfuscatorLibrary::Bit firstBit)>&
-            firstOperation);
+          const FO_T& firstOperation,
+          const O_T& operation);
     };
 };
 
+template <typename FO_T, typename O_T>
 constexpr void VFPGAObfuscatorLanguage::LogicGate::FillStandardTruthTable(
   const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>& inputPorts,
   const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>& outputPorts,
-  const std::function<void(VFPGAObfuscatorLibrary::Bit& finalState,
-                           VFPGAObfuscatorLibrary::Bit nextBit)>& operation,
   ///////////////////////////////////////////////////////
   /// There might be sometimes only one input port,   ///
   /// if there is, we should just let the user decide ///
   /// (if it's a NOT logic gate for example)          ///
   ///////////////////////////////////////////////////////
-  const std::function<void(VFPGAObfuscatorLibrary::Bit& finalState,
-                           VFPGAObfuscatorLibrary::Bit firstBit)>&
-    firstOperation)
+  const FO_T& firstOperation,
+  const O_T& operation)
 {
     input_ports  = inputPorts;
     output_ports = outputPorts;
@@ -154,7 +149,7 @@ constexpr void VFPGAObfuscatorLanguage::LogicGate::FillStandardTruthTable(
               std::ranges::transform(
                 permutation,
                 std::back_inserter(elements),
-                [](const VFPGAObfuscatorLibrary::Bit bit)
+                [](const VFPGAObfuscatorLibrary::Bit bit) noexcept
                 {
                     return bit;
                 });
@@ -186,14 +181,11 @@ constexpr void VFPGAObfuscatorLanguage::LogicGate::FillStandardTruthTable(
           if (elements.size() >= 1)
           {
               VFPGAObfuscatorLibrary::Bit finalState;
-              firstOperation(finalState, std::get<1>(elements[0]));
+              firstOperation.run(finalState, std::get<1>(elements[0]));
 
-              if (operation)
+              for (std::size_t i = 1; i < elements.size(); i++)
               {
-                  for (std::size_t i = 1; i < elements.size(); i++)
-                  {
-                      operation(finalState, std::get<1>(elements[i]));
-                  }
+                  operation.run(finalState, std::get<1>(elements[i]));
               }
 
               output_truth_table.push_back(

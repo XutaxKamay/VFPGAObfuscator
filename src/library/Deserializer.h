@@ -38,7 +38,11 @@ namespace VFPGAObfuscatorLibrary
 template <typename T>
 auto VFPGAObfuscatorLibrary::Deserializer::ReadType()
 {
-    const auto var = *reinterpret_cast<T*>(&data[data_index]);
+    T var;
+
+    std::copy(&data[data_index],
+              &data[data_index + sizeof(T)],
+              reinterpret_cast<std::byte*>(&var));
 
     data_index += sizeof(T);
 
@@ -62,14 +66,14 @@ T VFPGAObfuscatorLibrary::Deserializer::ReadVar(ReadStatus* readStatus)
     };
 
     if (not CanReadVar(sizeof(SharedSerializedType)
-                       + sizeof(std::uint_fast64_t)))
+                       + sizeof(EncodedIndex)))
     {
         return SetStatusAndReturn
           .template operator()<ReadStatus::OUT_OF_BOUNDS>();
     }
 
     const auto type       = ReadType<SharedSerializedType>();
-    const auto sizeOfData = ReadType<std::uint_fast64_t>();
+    const auto sizeOfData = ReadType<EncodedIndex>();
 
     if (not CanReadVar(sizeOfData))
     {

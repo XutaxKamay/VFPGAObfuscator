@@ -20,14 +20,28 @@ constexpr VFPGAObfuscatorLanguage::BUFLogicGate::BUFLogicGate(
   VFPGAObfuscatorLibrary::EncodedIndex inputPort,
   const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>& outputPorts)
 {
+    struct
+    {
+        constexpr void run(VFPGAObfuscatorLibrary::Bit& finalState,
+                           VFPGAObfuscatorLibrary::Bit nextBit) const
+        {
+            finalState ^= nextBit;
+        }
+    } operation;
+
+    struct
+    {
+        constexpr void run(VFPGAObfuscatorLibrary::Bit& finalState,
+                           VFPGAObfuscatorLibrary::Bit nextBit) const
+        {
+            finalState = nextBit;
+        }
+    } firstOperation;
+
     FillStandardTruthTable({ inputPort },
                            outputPorts,
-                           nullptr,
-                           [](VFPGAObfuscatorLibrary::Bit& finalState,
-                              VFPGAObfuscatorLibrary::Bit firstBit)
-                           {
-                               finalState = firstBit;
-                           });
+                           firstOperation,
+                           operation);
 }
 
 #endif

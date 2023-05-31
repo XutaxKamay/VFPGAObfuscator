@@ -140,7 +140,8 @@ namespace VFPGAObfuscatorSimulator
 
         Port* GetPort(std::size_t index);
         std::size_t NumberOfPorts() const;
-        const std::vector<LogicGate>& LogicGates() const;
+        const std::vector<LogicGate>& LogicGates() const
+          __attribute__((const));
 
         void CheckLogicGateValidity(const LogicGate& logicGate);
         void InsertLogicGate(const LogicGate& logicGate);
@@ -256,7 +257,7 @@ std::vector<STAGE_T> VFPGAObfuscatorSimulator::VFPGA::
 
         std::ranges::for_each(
           logicGates,
-          [&](const LOGIC_GATE_T& logicGate)
+          [&](const LOGIC_GATE_T& logicGate) noexcept
           {
               maxNumberOfOutputPorts += logicGate.output_ports.size();
           });

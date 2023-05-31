@@ -20,9 +20,9 @@ template <typename T>
 requires (VFPGAObfuscatorLibrary::GoodSerializedType<T>)
 void VFPGAObfuscatorLibrary::Serializer::AddVar(const T& value)
 {
-    const auto InsertData = [&](SharedSerializedType type,
-                                std::uint_fast64_t sizeOfData,
-                                const auto byteValues)
+    const auto InsertType = [&](SharedSerializedType type,
+                                EncodedIndex sizeOfData,
+                                const std::byte* byteValues)
     {
         ///////////////////
         /// Insert type ///
@@ -32,27 +32,34 @@ void VFPGAObfuscatorLibrary::Serializer::AddVar(const T& value)
         ///////////////////////////////////////////
         /// Ensure the size of the type or data ///
         ///////////////////////////////////////////
-        data.insert(data.cend(),
-                    reinterpret_cast<const std::byte*>(&sizeOfData),
-                    reinterpret_cast<const std::byte*>(&sizeOfData)
-                      + sizeof(sizeOfData));
+        const auto InsertData =
+          [&](const std::byte* inputData, EncodedIndex size)
+        {
+            const auto dataSize = data.size();
+
+            data.resize(dataSize + size);
+
+            std::copy(inputData, inputData + size, &data[dataSize]);
+        };
+
+        InsertData(reinterpret_cast<const std::byte*>(&sizeOfData),
+                   sizeof(sizeOfData));
 
         ////////////////////////////////
         /// Insert finally the value ///
         ////////////////////////////////
-        data.insert(data.cend(),
-                    reinterpret_cast<const std::byte*>(byteValues),
-                    reinterpret_cast<const std::byte*>(byteValues)
-                      + sizeOfData);
+        InsertData(byteValues, sizeOfData);
     };
 
     if constexpr (std::is_integral_v<T>)
     {
-        InsertData(SharedSerializedType::INTEGRAL, sizeof(T), &value);
+        InsertType(SharedSerializedType::INTEGRAL,
+                   sizeof(T),
+                   reinterpret_cast<const std::byte*>(&value));
     }
     else
     {
-        InsertData(SharedSerializedType::DATA,
+        InsertType(SharedSerializedType::DATA,
                    value.size() * sizeof(std::byte),
                    value.data());
     }

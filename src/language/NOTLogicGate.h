@@ -20,14 +20,27 @@ constexpr VFPGAObfuscatorLanguage::NOTLogicGate::NOTLogicGate(
   VFPGAObfuscatorLibrary::EncodedIndex inputPort,
   const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>& outputPorts)
 {
+    struct
+    {
+        constexpr void run(VFPGAObfuscatorLibrary::Bit&,
+                           VFPGAObfuscatorLibrary::Bit) const
+        {
+        }
+    } operation;
+
+    struct
+    {
+        constexpr void run(VFPGAObfuscatorLibrary::Bit& finalState,
+                           VFPGAObfuscatorLibrary::Bit nextBit) const
+        {
+            finalState.Set(~nextBit);
+        }
+    } firstOperation;
+
     FillStandardTruthTable({ inputPort },
                            outputPorts,
-                           nullptr,
-                           [](VFPGAObfuscatorLibrary::Bit& finalState,
-                              VFPGAObfuscatorLibrary::Bit firstBit)
-                           {
-                               finalState.Set(~firstBit);
-                           });
+                           firstOperation,
+                           operation);
 }
 
 #endif

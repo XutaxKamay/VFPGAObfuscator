@@ -17,7 +17,7 @@ namespace VFPGAObfuscatorLibrary
         constexpr bool operator==(const Bit& other) const;
         constexpr bool operator!=(const Bit& other) const;
 
-        constexpr operator std::uint_fast8_t() const;
+        constexpr operator std::uint_fast8_t() const noexcept;
 
         constexpr void Set(std::uint_fast8_t state);
 
@@ -90,7 +90,8 @@ constexpr bool VFPGAObfuscatorLibrary::Bit::operator!=(
     return value != other.value;
 }
 
-constexpr VFPGAObfuscatorLibrary::Bit::operator std::uint_fast8_t() const
+constexpr VFPGAObfuscatorLibrary::Bit::operator std::uint_fast8_t()
+  const noexcept
 {
     return value;
 }

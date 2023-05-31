@@ -20,19 +20,28 @@ constexpr VFPGAObfuscatorLanguage::ANDLogicGate::ANDLogicGate(
   const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>& inputPorts,
   const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>& outputPorts)
 {
-    FillStandardTruthTable(
-      inputPorts,
-      outputPorts,
-      [](VFPGAObfuscatorLibrary::Bit& finalState,
-         VFPGAObfuscatorLibrary::Bit nextBit)
-      {
-          finalState &= nextBit;
-      },
-      [](VFPGAObfuscatorLibrary::Bit& finalState,
-         VFPGAObfuscatorLibrary::Bit firstBit)
-      {
-          finalState = firstBit;
-      });
+    struct
+    {
+        constexpr void run(VFPGAObfuscatorLibrary::Bit& finalState,
+                           VFPGAObfuscatorLibrary::Bit nextBit) const
+        {
+            finalState &= nextBit;
+        }
+    } operation;
+
+    struct
+    {
+        constexpr void run(VFPGAObfuscatorLibrary::Bit& finalState,
+                           VFPGAObfuscatorLibrary::Bit nextBit) const
+        {
+            finalState = nextBit;
+        }
+    } firstOperation;
+
+    FillStandardTruthTable(inputPorts,
+                           outputPorts,
+                           firstOperation,
+                           operation);
 }
 
 #endif
