@@ -8,7 +8,8 @@ add_project_arguments([
     '-Wno-c++20-compat',
     #'-Wno-cast-align',
     '-Wno-suggest-attribute=pure',
-    '-Wno-inline'
+    '-Wno-inline',
+    '-Wno-unknown-warning-option'
     # '-fno-rtti',
     # '-fno-exceptions' # Goal would be to make it freestanding code
 ], language : 'cpp')
