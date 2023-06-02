@@ -9,9 +9,17 @@ namespace VFPGAObfuscatorLanguage
     class LogicGate :
      public VFPGAObfuscatorSimulator::LogicGate::Serializer
     {
+      public:
+        constexpr LogicGate() = default;
+        constexpr LogicGate(
+          const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>&
+            inputPorts,
+          const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>&
+            outputPorts);
+
       protected:
         template <typename FO_T, typename O_T>
-        constexpr void FillStandardTruthTable(
+        static constexpr LogicGate CreateStandardTruthTable(
           const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>&
             inputPorts,
           const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>&
@@ -21,24 +29,34 @@ namespace VFPGAObfuscatorLanguage
     };
 };
 
-template <typename FO_T, typename O_T>
-constexpr void VFPGAObfuscatorLanguage::LogicGate::FillStandardTruthTable(
+constexpr VFPGAObfuscatorLanguage::LogicGate::LogicGate(
   const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>& inputPorts,
-  const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>& outputPorts,
-  ///////////////////////////////////////////////////////
-  /// There might be sometimes only one input port,   ///
-  /// if there is, we should just let the user decide ///
-  /// (if it's a NOT logic gate for example)          ///
-  ///////////////////////////////////////////////////////
-  const FO_T& firstOperation,
-  const O_T& operation)
+  const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>& outputPorts)
+ : Serializer { inputPorts, outputPorts, {}, {} }
 {
-    input_ports  = inputPorts;
-    output_ports = outputPorts;
+}
 
-    std::vector<std::vector<VFPGAObfuscatorLibrary::Bit>> permutations(
-      input_ports.size() + 1,
-      std::vector<VFPGAObfuscatorLibrary::Bit>(input_ports.size()));
+template <typename FO_T, typename O_T>
+constexpr VFPGAObfuscatorLanguage::LogicGate VFPGAObfuscatorLanguage::
+  LogicGate::CreateStandardTruthTable(
+    const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>& inputPorts,
+    const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>& outputPorts,
+    ///////////////////////////////////////////////////////
+    /// There might be sometimes only one input port,   ///
+    /// if there is, we should just let the user decide ///
+    /// (if it's a NOT logic gate for example)          ///
+    ///////////////////////////////////////////////////////
+    const FO_T& firstOperation,
+    const O_T& operation)
+{
+    LogicGate logicGate { inputPorts, outputPorts };
+
+    std::vector<std::vector<VFPGAObfuscatorLibrary::Bit>> permutations {
+        logicGate.input_ports.size() + 1,
+        std::vector<VFPGAObfuscatorLibrary::Bit> {
+                                                  logicGate.input_ports.size(),
+                                                  0_vfpga_obf_lib_bit}
+    };
 
     //////////////////////////////////////////////////////
     /// Make a triangle for all possible permutations. ///
@@ -55,15 +73,11 @@ constexpr void VFPGAObfuscatorLanguage::LogicGate::FillStandardTruthTable(
     //////////////////////////////////////////////////////
     for (std::size_t i = 0; i < permutations.size(); i++)
     {
-        for (std::size_t j = 0; j < input_ports.size(); j++)
+        for (std::size_t j = 0; j < logicGate.input_ports.size(); j++)
         {
             if (i > j)
             {
                 permutations[i][j] = 1_vfpga_obf_lib_bit;
-            }
-            else
-            {
-                permutations[i][j] = 0_vfpga_obf_lib_bit;
             }
         }
     }
@@ -146,15 +160,16 @@ constexpr void VFPGAObfuscatorLanguage::LogicGate::FillStandardTruthTable(
           do
           {
               std::vector<ElementType> elements;
+
               std::ranges::transform(
                 permutation,
                 std::back_inserter(elements),
-                [](const VFPGAObfuscatorLibrary::Bit bit) noexcept
+                [&](VFPGAObfuscatorLibrary::Bit bit) noexcept
                 {
                     return bit;
                 });
 
-              input_truth_table.push_back(elements);
+              logicGate.input_truth_table.push_back(elements);
           }
           while (std::ranges::next_permutation(permutation,
                                                std::ranges::greater())
@@ -172,7 +187,7 @@ constexpr void VFPGAObfuscatorLanguage::LogicGate::FillStandardTruthTable(
     /// it might an error made by the user           ///
     ////////////////////////////////////////////////////
     std::ranges::for_each(
-      input_truth_table,
+      logicGate.input_truth_table,
       [&](const std::vector<ElementType>& elements)
       {
           ////////////////////////////////////////////////
@@ -188,16 +203,13 @@ constexpr void VFPGAObfuscatorLanguage::LogicGate::FillStandardTruthTable(
                   operation.run(finalState, std::get<1>(elements[i]));
               }
 
-              output_truth_table.push_back(
-                std::vector<ElementType>(outputPorts.size(), finalState));
-          }
-          else
-          {
-              VFPGAObfuscatorLibrary::Error::ExitWithMsg(
-                VFPGAObfuscatorLibrary::Error::Msg::
-                  LOGIC_GATE_NOT_ENOUGH_INPUT_PORTS);
+              logicGate.output_truth_table.push_back(
+                std::vector<ElementType>(logicGate.output_ports.size(),
+                                         finalState));
           }
       });
+
+    return logicGate;
 }
 
 #endif

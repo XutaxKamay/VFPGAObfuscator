@@ -22,37 +22,44 @@ namespace VFPGAObfuscatorLibrary
 
         template <typename T>
         requires (GoodSerializedType<T>)
-        T ReadVar(ReadStatus* readStatus = nullptr);
+        constexpr T ReadVar(ReadStatus* readStatus = nullptr);
 
         template <typename T>
-        auto ReadAndCheckStatus();
+        constexpr auto ReadAndCheckStatus();
 
       private:
-        bool CanReadVar(std::size_t size);
+        constexpr bool CanReadVar(std::size_t size);
 
         template <typename T>
-        auto ReadType();
+        constexpr auto ReadType();
     };
 }
 
-template <typename T>
-auto VFPGAObfuscatorLibrary::Deserializer::ReadType()
+constexpr bool VFPGAObfuscatorLibrary::Deserializer::CanReadVar(
+  std::size_t size)
 {
-    T var;
+    return (data_index + size) <= data.size();
+}
 
-    std::ranges::for_each_n(reinterpret_cast<std::byte*>(&var),
-                            sizeof(T),
-                            [&](std::byte& b) noexcept
-                            {
-                                b = data[data_index++];
-                            });
+template <typename T>
+constexpr auto VFPGAObfuscatorLibrary::Deserializer::ReadType()
+{
+    T var {};
+
+    for (std::size_t i = 0; i < sizeof(T); i++)
+    {
+        var += static_cast<T>(data[data_index + i]) << (i * CHAR_BIT);
+    }
+
+    data_index += sizeof(T);
 
     return var;
 }
 
 template <typename T>
 requires (VFPGAObfuscatorLibrary::GoodSerializedType<T>)
-T VFPGAObfuscatorLibrary::Deserializer::ReadVar(ReadStatus* readStatus)
+constexpr T VFPGAObfuscatorLibrary::Deserializer::ReadVar(
+  ReadStatus* readStatus)
 {
     T value {};
 
@@ -73,7 +80,8 @@ T VFPGAObfuscatorLibrary::Deserializer::ReadVar(ReadStatus* readStatus)
           .template operator()<ReadStatus::OUT_OF_BOUNDS>();
     }
 
-    const auto type       = ReadType<SharedSerializedType>();
+    const auto type = static_cast<SharedSerializedType>(
+      ReadType<std::uint_fast8_t>());
     const auto sizeOfData = ReadType<EncodedIndex>();
 
     if (not CanReadVar(sizeOfData))
@@ -115,7 +123,7 @@ T VFPGAObfuscatorLibrary::Deserializer::ReadVar(ReadStatus* readStatus)
 }
 
 template <typename T>
-auto VFPGAObfuscatorLibrary::Deserializer::ReadAndCheckStatus()
+constexpr auto VFPGAObfuscatorLibrary::Deserializer::ReadAndCheckStatus()
 {
     auto readStatus = ReadStatus::NO_ERROR;
     auto var        = ReadVar<T>(&readStatus);

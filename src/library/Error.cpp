@@ -2,7 +2,7 @@
 
 using namespace VFPGAObfuscatorLibrary;
 
-void Error::ExitWithMsg(Msg msg)
+void VFPGAObfuscatorLibrary::Error::ExitWithMsg(Msg msg)
 {
     std::exit(static_cast<int>(msg));
 }

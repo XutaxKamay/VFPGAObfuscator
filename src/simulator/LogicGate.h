@@ -1,7 +1,9 @@
 #ifndef VFPGA_OBFUSCATOR_SIMULATOR_LOGIC_GATE_H
 #define VFPGA_OBFUSCATOR_SIMULATOR_LOGIC_GATE_H
 
+#include "Error.h"
 #include "Port.h"
+#include "Serializer.h"
 
 /*------------------HOW-IT-WORKS--------------------
  |                                                 |
@@ -96,7 +98,7 @@ namespace VFPGAObfuscatorSimulator
             TruthTable output_truth_table;
 
           public:
-            std::vector<std::byte> Serialize() const;
+            constexpr std::vector<std::byte> Serialize() const;
         };
 
       public:
@@ -135,6 +137,85 @@ namespace VFPGAObfuscatorSimulator
 
         void Simulate();
     };
+}
+
+constexpr std::vector<std::byte> VFPGAObfuscatorSimulator::LogicGate::
+  Serializer::Serialize() const
+{
+    VFPGAObfuscatorLibrary::Serializer serializer;
+
+    const auto AddPort =
+      [&](const VFPGAObfuscatorLibrary::EncodedIndex& portIndex)
+    {
+        serializer.AddVar(portIndex);
+    };
+
+    const auto AddElementType = [&](const ElementType& element)
+    {
+        serializer.AddVar<VFPGAObfuscatorLibrary::EncodedIndex>(
+          element.index());
+
+        switch (element.index())
+        {
+            case 0:
+            {
+                ///////////////////
+                /// It's a port ///
+                ///////////////////
+                serializer.AddVar(std::get<0>(element));
+                break;
+            }
+
+            case 1:
+            {
+                //////////////////
+                /// It's a bit ///
+                //////////////////
+                serializer.AddVar(std::get<1>(element).value);
+                break;
+            }
+
+            default:
+            {
+                ///////////////////////////
+                /// Should never happen ///
+                ///////////////////////////
+                VFPGAObfuscatorLibrary::Error::ExitWithMsg(
+                  VFPGAObfuscatorLibrary::Error::Msg::
+                    UNKNOWN_ELEMENT_TYPE_IN_TRUTH_TABLE);
+            }
+        }
+    };
+
+    const auto AddPorts =
+      [&](const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>& ports)
+    {
+        serializer.AddVar<VFPGAObfuscatorLibrary::EncodedIndex>(
+          ports.size());
+        std::ranges::for_each(ports, AddPort);
+    };
+
+    const auto AddElements = [&](const std::vector<ElementType>& elements)
+    {
+        serializer.AddVar<VFPGAObfuscatorLibrary::EncodedIndex>(
+          elements.size());
+        std::ranges::for_each(elements, AddElementType);
+    };
+
+    const auto AddTruthTable = [&](const TruthTable& truthTable)
+    {
+        serializer.AddVar<VFPGAObfuscatorLibrary::EncodedIndex>(
+          truthTable.size());
+        std::ranges::for_each(truthTable, AddElements);
+    };
+
+    AddPorts(input_ports);
+    AddPorts(output_ports);
+
+    AddTruthTable(input_truth_table);
+    AddTruthTable(output_truth_table);
+
+    return serializer.data;
 }
 
 #endif

@@ -12,17 +12,16 @@ namespace VFPGAObfuscatorLibrary
 
         template <typename T>
         requires (GoodSerializedType<T>)
-        void AddVar(const T& value);
+        constexpr void AddVar(const T& value);
     };
 }
 
 template <typename T>
 requires (VFPGAObfuscatorLibrary::GoodSerializedType<T>)
-void VFPGAObfuscatorLibrary::Serializer::AddVar(const T& value)
+constexpr void VFPGAObfuscatorLibrary::Serializer::AddVar(const T& value)
 {
-    const auto InsertType = [&](SharedSerializedType type,
-                                EncodedIndex sizeOfData,
-                                const std::byte* byteValues)
+    const auto InsertData =
+      [&](SharedSerializedType type, EncodedIndex sizeOfData)
     {
         ///////////////////
         /// Insert type ///
@@ -32,36 +31,34 @@ void VFPGAObfuscatorLibrary::Serializer::AddVar(const T& value)
         ///////////////////////////////////////////
         /// Ensure the size of the type or data ///
         ///////////////////////////////////////////
-        const auto InsertData =
-          [&](const std::byte* inputData, EncodedIndex size)
+        for (std::size_t i = 0; i < sizeof(sizeOfData); i++)
         {
-            const auto dataSize = data.size();
-
-            data.resize(dataSize + size);
-
-            std::copy(inputData, inputData + size, &data[dataSize]);
-        };
-
-        InsertData(reinterpret_cast<const std::byte*>(&sizeOfData),
-                   sizeof(sizeOfData));
-
-        ////////////////////////////////
-        /// Insert finally the value ///
-        ////////////////////////////////
-        InsertData(byteValues, sizeOfData);
+            data.push_back(static_cast<std::byte>(
+              (sizeOfData >> (i * CHAR_BIT)) & 0xFF));
+        }
     };
 
     if constexpr (std::is_integral_v<T>)
     {
-        InsertType(SharedSerializedType::INTEGRAL,
-                   sizeof(T),
-                   reinterpret_cast<const std::byte*>(&value));
+        InsertData(SharedSerializedType::INTEGRAL, sizeof(T));
+
+        ////////////////////////////////
+        /// Insert finally the value ///
+        ////////////////////////////////
+        for (std::size_t i = 0; i < sizeof(T); i++)
+        {
+            data.push_back(
+              static_cast<std::byte>((value >> (i * CHAR_BIT)) & 0xFF));
+        }
     }
     else
     {
-        InsertType(SharedSerializedType::DATA,
-                   value.size() * sizeof(std::byte),
-                   value.data());
+        InsertData(SharedSerializedType::DATA, value.size());
+
+        ////////////////////////////////
+        /// Insert finally the value ///
+        ////////////////////////////////
+        data.insert(data.cend(), value.begin(), value.end());
     }
 }
 

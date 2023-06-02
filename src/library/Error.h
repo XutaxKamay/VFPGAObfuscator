@@ -10,7 +10,6 @@ namespace VFPGAObfuscatorLibrary
       public:
         enum class Msg : int
         {
-            NO_ERROR,
             UNKNOWN_ELEMENT_TYPE_IN_TRUTH_TABLE,
             VFPGA_LOGIC_GATE_DESERIALIZED_INPUTS_IN_TRUTH_TABLE_NOT_CORRECT,
             VFPGA_LOGIC_GATE_DESERIALIZED_OUTPUTS_IN_TRUTH_TABLE_NOT_CORRECT,

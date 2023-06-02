@@ -4,6 +4,7 @@
 #include <execution>
 #include <iostream>
 #include <ranges>
+#include <string>
 #include <variant>
 #include <vector>
 

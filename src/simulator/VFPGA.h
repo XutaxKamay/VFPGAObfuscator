@@ -95,7 +95,7 @@ namespace VFPGAObfuscatorSimulator
             std::vector<PortInit> ports_init;
 
             template <bool PREPARE_STAGES>
-            std::vector<std::byte> Serialize();
+            constexpr std::vector<std::byte> Serialize();
         };
 
       public:
@@ -157,15 +157,15 @@ namespace VFPGAObfuscatorSimulator
         /// With a lot of logic gates, it may take a while.         ///
         ///////////////////////////////////////////////////////////////
         template <class LOGIC_GATE_T, class PORT_T, class STAGE_T>
-        static std::vector<STAGE_T> CheckDependencyAndCreateStages(
+        static constexpr std::vector<STAGE_T> CheckDependencyAndCreateStages(
           const std::vector<LOGIC_GATE_T>& logicGates);
     };
 
 }
 
 template <bool PREPARE_STAGES>
-std::vector<std::byte> VFPGAObfuscatorSimulator::VFPGA::Serializer::
-  Serialize()
+constexpr std::vector<std::byte> VFPGAObfuscatorSimulator::VFPGA::
+  Serializer::Serialize()
 {
     VFPGAObfuscatorLibrary::Serializer serializer;
 
@@ -226,7 +226,7 @@ std::vector<std::byte> VFPGAObfuscatorSimulator::VFPGA::Serializer::
 }
 
 template <class LOGIC_GATE_T, class PORT_T, class STAGE_T>
-std::vector<STAGE_T> VFPGAObfuscatorSimulator::VFPGA::
+constexpr std::vector<STAGE_T> VFPGAObfuscatorSimulator::VFPGA::
   CheckDependencyAndCreateStages(
     const std::vector<LOGIC_GATE_T>& logicGates)
 {

@@ -2,7 +2,6 @@
 #define VFPGA_OBFUSCATOR_SIMULATOR_PORT_H
 
 #include "Bit.h"
-#include "SharedSerializedTypes.h"
 
 namespace VFPGAObfuscatorSimulator
 {
@@ -17,9 +16,19 @@ namespace VFPGAObfuscatorSimulator
         VFPGAObfuscatorLibrary::Bit state;
 
       public:
-        void SetLow();
-        void SetHigh();
+        constexpr void SetLow();
+        constexpr void SetHigh();
     };
+}
+
+constexpr void VFPGAObfuscatorSimulator::Port::SetHigh()
+{
+    state = HIGH;
+}
+
+constexpr void VFPGAObfuscatorSimulator::Port::SetLow()
+{
+    state = LOW;
 }
 
 #endif

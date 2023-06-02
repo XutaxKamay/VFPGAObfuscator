@@ -7,6 +7,18 @@ namespace VFPGAObfuscatorLanguage
 {
     class XORLogicGate : public LogicGate
     {
+        struct FirstOperation
+        {
+            constexpr void run(VFPGAObfuscatorLibrary::Bit& finalState,
+                               VFPGAObfuscatorLibrary::Bit firstBit) const;
+        };
+
+        struct Operation
+        {
+            constexpr void run(VFPGAObfuscatorLibrary::Bit& finalState,
+                               VFPGAObfuscatorLibrary::Bit nextBit) const;
+        };
+
       public:
         constexpr XORLogicGate(
           const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>&
@@ -19,29 +31,25 @@ namespace VFPGAObfuscatorLanguage
 constexpr VFPGAObfuscatorLanguage::XORLogicGate::XORLogicGate(
   const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>& inputPorts,
   const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>& outputPorts)
+ : LogicGate { CreateStandardTruthTable(inputPorts,
+                                        outputPorts,
+                                        FirstOperation {},
+                                        Operation {}) }
 {
-    struct
-    {
-        constexpr void run(VFPGAObfuscatorLibrary::Bit& finalState,
-                           VFPGAObfuscatorLibrary::Bit nextBit) const
-        {
-            finalState ^= nextBit;
-        }
-    } operation;
+}
 
-    struct
-    {
-        constexpr void run(VFPGAObfuscatorLibrary::Bit& finalState,
-                           VFPGAObfuscatorLibrary::Bit nextBit) const
-        {
-            finalState = nextBit;
-        }
-    } firstOperation;
+constexpr void VFPGAObfuscatorLanguage::XORLogicGate::FirstOperation::run(
+  VFPGAObfuscatorLibrary::Bit& finalState,
+  VFPGAObfuscatorLibrary::Bit firstBit) const
+{
+    finalState = firstBit;
+}
 
-    FillStandardTruthTable(inputPorts,
-                           outputPorts,
-                           firstOperation,
-                           operation);
+constexpr void VFPGAObfuscatorLanguage::XORLogicGate::Operation::run(
+  VFPGAObfuscatorLibrary::Bit& finalState,
+  VFPGAObfuscatorLibrary::Bit nextBit) const
+{
+    finalState ^= nextBit;
 }
 
 #endif

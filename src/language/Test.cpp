@@ -6,6 +6,7 @@
 #include "simulator/VFPGA.h"
 
 using namespace VFPGAObfuscatorLibrary;
+using namespace VFPGAObfuscatorLanguage;
 
 int main()
 {
@@ -34,50 +35,48 @@ int main()
         ALL
     };
 
-    std::vector<VFPGAObfuscatorLanguage::LogicGate::Serializer> logicGates;
+    std::vector<LogicGate::Serializer> logicGates = {
+        ANDLogicGate(
+          {
+            Port::A_IN,
+            Port::B_IN,
+          },
+          { Port::TEMP_STAGE1_1 }),
 
-    logicGates.push_back(VFPGAObfuscatorLanguage::ANDLogicGate(
-      {
-        Port::A_IN,
-        Port::B_IN,
-      },
-      { Port::TEMP_STAGE1_1 }));
+        ORLogicGate(
+          {
+            Port::C_IN,
+            Port::D_IN,
+          },
+          { Port::TEMP_STAGE1_2 }),
 
-    logicGates.push_back(VFPGAObfuscatorLanguage::ORLogicGate(
-      {
-        Port::C_IN,
-        Port::D_IN,
-      },
-      { Port::TEMP_STAGE1_2 }));
+        XORLogicGate(
+          {
+            Port::E_IN,
+            Port::F_IN,
+          },
+          { Port::TEMP_STAGE1_3 }),
 
-    logicGates.push_back(VFPGAObfuscatorLanguage::XORLogicGate(
-      {
-        Port::E_IN,
-        Port::F_IN,
-      },
-      { Port::TEMP_STAGE1_3 }));
+        ORLogicGate(
+          {
+            Port::TEMP_STAGE1_1,
+            Port::TEMP_STAGE1_2,
+          },
+          { Port::TEMP_STAGE2_1 }),
 
-    logicGates.push_back(VFPGAObfuscatorLanguage::ORLogicGate(
-      {
-        Port::TEMP_STAGE1_1,
-        Port::TEMP_STAGE1_2,
-      },
-      { Port::TEMP_STAGE2_1 }));
+        ANDLogicGate(
+          {
+            Port::TEMP_STAGE1_2,
+            Port::TEMP_STAGE1_3,
+          },
+          { Port::TEMP_STAGE2_2 }),
 
-    logicGates.push_back(VFPGAObfuscatorLanguage::ANDLogicGate(
-      {
-        Port::TEMP_STAGE1_2,
-        Port::TEMP_STAGE1_3,
-      },
-      { Port::TEMP_STAGE2_2 }));
+        BUFLogicGate(Port::TEMP_STAGE2_1,
+                     { Port::A_OUT, Port::B_OUT, Port::C_OUT }),
 
-    logicGates.push_back(VFPGAObfuscatorLanguage::BUFLogicGate(
-      Port::TEMP_STAGE2_1,
-      { Port::A_OUT, Port::B_OUT, Port::C_OUT }));
-
-    logicGates.push_back(VFPGAObfuscatorLanguage::BUFLogicGate(
-      Port::TEMP_STAGE2_2,
-      { Port::D_OUT, Port::E_OUT, Port::F_OUT }));
+        BUFLogicGate(Port::TEMP_STAGE2_2,
+                     { Port::D_OUT, Port::E_OUT, Port::F_OUT })
+    };
 
     VFPGAObfuscatorSimulator::VFPGA::Serializer vfpgaSerializer {
         Port::ALL,

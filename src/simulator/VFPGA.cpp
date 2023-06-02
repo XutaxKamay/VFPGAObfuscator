@@ -169,8 +169,7 @@ void VFPGA::InsertLogicGate(const LogicGate& logicGate)
 
 void VFPGA::InsertLogicGates(const std::vector<LogicGate>& logicGates)
 {
-    std::ranges::transform(logicGates.begin(),
-                           logicGates.end(),
+    std::ranges::transform(logicGates,
                            std::back_inserter(_logic_gates),
                            [&](const LogicGate& logicGate)
                            {

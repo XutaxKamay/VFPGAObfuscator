@@ -9,7 +9,8 @@ add_project_arguments([
     #'-Wno-cast-align',
     '-Wno-suggest-attribute=pure',
     '-Wno-inline',
-    '-Wno-unknown-warning-option'
+    '-Wno-unknown-warning-option',
+    '-Wno-unused-command-line-argument'
     # '-fno-rtti',
     # '-fno-exceptions' # Goal would be to make it freestanding code
 ], language : 'cpp')
