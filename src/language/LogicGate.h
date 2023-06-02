@@ -11,13 +11,13 @@ namespace VFPGAObfuscatorLanguage
     {
       public:
         constexpr LogicGate() = default;
+
         constexpr LogicGate(
           const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>&
             inputPorts,
           const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>&
             outputPorts);
 
-      protected:
         template <typename FO_T, typename O_T>
         static constexpr LogicGate CreateStandardTruthTable(
           const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>&
@@ -55,7 +55,7 @@ constexpr VFPGAObfuscatorLanguage::LogicGate VFPGAObfuscatorLanguage::
         logicGate.input_ports.size() + 1,
         std::vector<VFPGAObfuscatorLibrary::Bit> {
                                                   logicGate.input_ports.size(),
-                                                  0_vfpga_obf_lib_bit}
+                                                  VFPGAObfuscatorLibrary::Bit {}}
     };
 
     //////////////////////////////////////////////////////
@@ -78,6 +78,10 @@ constexpr VFPGAObfuscatorLanguage::LogicGate VFPGAObfuscatorLanguage::
             if (i > j)
             {
                 permutations[i][j] = 1_vfpga_obf_lib_bit;
+            }
+            else
+            {
+                permutations[i][j] = 0_vfpga_obf_lib_bit;
             }
         }
     }

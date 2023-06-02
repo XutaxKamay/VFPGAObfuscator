@@ -305,10 +305,8 @@ constexpr std::vector<STAGE_T> VFPGAObfuscatorSimulator::VFPGA::
                     //////////////////////////////////
                     /// Check if there's any links ///
                     //////////////////////////////////
-                    return std::find(std::execution::par_unseq,
-                                     currentOutputPorts.begin(),
-                                     currentOutputPorts.end(),
-                                     inputPort)
+                    return std::ranges::find(currentOutputPorts,
+                                             inputPort)
                            != currentOutputPorts.end();
                 });
 
@@ -358,15 +356,12 @@ constexpr std::vector<STAGE_T> VFPGAObfuscatorSimulator::VFPGA::
         /// the current one we pushed earlier                       ///
         ///////////////////////////////////////////////////////////////
         logicGatesLeft.erase(
-          std::remove_if(std::execution::seq,
-                         logicGatesLeft.begin(),
+          std::remove_if(logicGatesLeft.begin(),
                          logicGatesLeft.end(),
                          [&currentLogicGates](LOGIC_GATE_T& logicGate)
                          {
-                             return std::find(std::execution::par_unseq,
-                                              currentLogicGates.begin(),
-                                              currentLogicGates.end(),
-                                              &logicGate)
+                             return std::ranges::find(currentLogicGates,
+                                                      &logicGate)
                                     != currentLogicGates.end();
                          }),
           logicGatesLeft.end());

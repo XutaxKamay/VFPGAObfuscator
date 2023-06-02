@@ -25,7 +25,7 @@ namespace VFPGAObfuscatorLibrary
         constexpr T ReadVar(ReadStatus* readStatus = nullptr);
 
         template <typename T>
-        constexpr auto ReadAndCheckStatus();
+        auto ReadAndCheckStatus();
 
       private:
         constexpr bool CanReadVar(std::size_t size);
@@ -123,7 +123,7 @@ constexpr T VFPGAObfuscatorLibrary::Deserializer::ReadVar(
 }
 
 template <typename T>
-constexpr auto VFPGAObfuscatorLibrary::Deserializer::ReadAndCheckStatus()
+auto VFPGAObfuscatorLibrary::Deserializer::ReadAndCheckStatus()
 {
     auto readStatus = ReadStatus::NO_ERROR;
     auto var        = ReadVar<T>(&readStatus);

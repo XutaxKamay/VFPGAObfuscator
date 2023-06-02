@@ -10,7 +10,8 @@ add_project_arguments([
     '-Wno-suggest-attribute=pure',
     '-Wno-inline',
     '-Wno-unknown-warning-option',
-    '-Wno-unused-command-line-argument'
+    '-Wno-unused-command-line-argument',
+    '-fconstexpr-steps=16777216'
     # '-fno-rtti',
     # '-fno-exceptions' # Goal would be to make it freestanding code
 ], language : 'cpp')
