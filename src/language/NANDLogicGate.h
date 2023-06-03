@@ -31,8 +31,8 @@ constexpr VFPGAObfuscatorLanguage::NANDLogicGate::NANDLogicGate(
                                 elements,
                                 [&](ElementType& state)
                                 {
-                                    std::get<1>(state).Set(
-                                      ~std::get<1>(state));
+                                    std::get<1>(state) = ~std::get<1>(
+                                      state);
                                 });
                           });
 }

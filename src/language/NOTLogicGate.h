@@ -42,7 +42,7 @@ constexpr void VFPGAObfuscatorLanguage::NOTLogicGate::FirstOperation::
   operator()(VFPGAObfuscatorLibrary::Bit& finalState,
              VFPGAObfuscatorLibrary::Bit firstBit) const
 {
-    finalState.Set(~firstBit);
+    finalState = ~firstBit;
 }
 
 constexpr void VFPGAObfuscatorLanguage::NOTLogicGate::Operation::operator()(
