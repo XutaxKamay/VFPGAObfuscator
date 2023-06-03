@@ -31,10 +31,10 @@ namespace VFPGAObfuscatorLanguage
 constexpr VFPGAObfuscatorLanguage::NOTLogicGate::NOTLogicGate(
   VFPGAObfuscatorLibrary::EncodedIndex inputPort,
   const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>& outputPorts)
- : LogicGate { CreateStandardTruthTable({ inputPort },
-                                        { outputPorts },
-                                        FirstOperation {},
-                                        Operation {}) }
+ : LogicGate {
+       CreateStandardTruthTable<FirstOperation, Operation>({ inputPort },
+                                                           outputPorts)
+   }
 {
 }
 

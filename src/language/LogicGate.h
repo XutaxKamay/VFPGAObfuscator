@@ -23,9 +23,7 @@ namespace VFPGAObfuscatorLanguage
           const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>&
             inputPorts,
           const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>&
-            outputPorts,
-          const FO_T& firstOperation,
-          const O_T& operation);
+            outputPorts);
     };
 };
 
@@ -36,18 +34,17 @@ constexpr VFPGAObfuscatorLanguage::LogicGate::LogicGate(
 {
 }
 
+///////////////////////////////////////////////////////
+/// There might be sometimes only one input port,   ///
+/// if there is, we should just let the user decide ///
+/// (if it's a NOT logic gate for example)          ///
+///////////////////////////////////////////////////////
+
 template <typename FO_T, typename O_T>
 constexpr VFPGAObfuscatorLanguage::LogicGate VFPGAObfuscatorLanguage::
   LogicGate::CreateStandardTruthTable(
     const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>& inputPorts,
-    const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>& outputPorts,
-    ///////////////////////////////////////////////////////
-    /// There might be sometimes only one input port,   ///
-    /// if there is, we should just let the user decide ///
-    /// (if it's a NOT logic gate for example)          ///
-    ///////////////////////////////////////////////////////
-    const FO_T& firstOperation,
-    const O_T& operation)
+    const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>& outputPorts)
 {
     LogicGate logicGate { inputPorts, outputPorts };
 
@@ -200,16 +197,22 @@ constexpr VFPGAObfuscatorLanguage::LogicGate VFPGAObfuscatorLanguage::
           if (elements.size() >= 1)
           {
               VFPGAObfuscatorLibrary::Bit finalState;
-              firstOperation(finalState, std::get<1>(elements[0]));
+              FO_T {}(finalState, std::get<1>(elements[0]));
 
               for (std::size_t i = 1; i < elements.size(); i++)
               {
-                  operation(finalState, std::get<1>(elements[i]));
+                  O_T {}(finalState, std::get<1>(elements[i]));
               }
 
               logicGate.output_truth_table.push_back(
                 std::vector<ElementType>(logicGate.output_ports.size(),
                                          finalState));
+          }
+          else
+          {
+              VFPGAObfuscatorLibrary::Error::ExitWithMsg(
+                VFPGAObfuscatorLibrary::Error::Msg::
+                  LOGIC_GATE_NOT_ENOUGH_INPUT_PORTS);
           }
       });
 
