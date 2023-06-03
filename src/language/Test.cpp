@@ -3,6 +3,7 @@
 #include "ORLogicGate.h"
 #include "XORLogicGate.h"
 
+#include "library/CExpressionUtils.h"
 #include "simulator/VFPGA.h"
 
 using namespace VFPGAObfuscatorLibrary;
@@ -35,92 +36,76 @@ int main()
         ALL
     };
 
-    static constexpr auto constInitVFPGASerialized = []()
+    static constexpr auto vfpgaSerializedTmp = []()
     {
-        constexpr auto resultedVFPGASerialized = []()
-        {
-            VFPGAObfuscatorSimulator::VFPGA::Serializer vfpgaSerializer {
-                Port::ALL,
-                { ANDLogicGate(
-                    {
-                      Port::A_IN,
-                      Port::B_IN,
-                    }, { Port::TEMP_STAGE1_1 }),
+        const std::vector<LogicGate::Serializer> logicGates = {
+            ANDLogicGate(
+              {
+                Port::A_IN,
+                Port::B_IN,
+              },
+              { Port::TEMP_STAGE1_1 }),
 
-                       ORLogicGate(
-                    {
-                      Port::C_IN,
-                      Port::D_IN,
-                    }, { Port::TEMP_STAGE1_2 }),
+            ORLogicGate(
+              {
+                Port::C_IN,
+                Port::D_IN,
+              },
+              { Port::TEMP_STAGE1_2 }),
 
-                       XORLogicGate(
-                    {
-                      Port::E_IN,
-                      Port::F_IN,
-                    }, { Port::TEMP_STAGE1_3 }),
+            XORLogicGate(
+              {
+                Port::E_IN,
+                Port::F_IN,
+              },
+              { Port::TEMP_STAGE1_3 }),
 
-                       ORLogicGate(
-                    {
-                      Port::TEMP_STAGE1_1,
-                      Port::TEMP_STAGE1_2,
-                    }, { Port::TEMP_STAGE2_1 }),
+            ORLogicGate(
+              {
+                Port::TEMP_STAGE1_1,
+                Port::TEMP_STAGE1_2,
+              },
+              { Port::TEMP_STAGE2_1 }),
 
-                       ANDLogicGate(
-                    {
-                      Port::TEMP_STAGE1_2,
-                      Port::TEMP_STAGE1_3,
-                    }, { Port::TEMP_STAGE2_2 }),
+            ANDLogicGate(
+              {
+                Port::TEMP_STAGE1_2,
+                Port::TEMP_STAGE1_3,
+              },
+              { Port::TEMP_STAGE2_2 }),
 
-                       BUFLogicGate(Port::TEMP_STAGE2_1,
-                       { Port::A_OUT, Port::B_OUT, Port::C_OUT }),
+            BUFLogicGate(Port::TEMP_STAGE2_1,
+                         { Port::A_OUT, Port::B_OUT, Port::C_OUT }),
 
-                       BUFLogicGate(
-                    Port::TEMP_STAGE2_2,
-                       { Port::D_OUT, Port::E_OUT, Port::F_OUT }) },
-                { { Port::A_IN, 1_vfpga_obf_lib_bit },
-                       { Port::B_IN, 0_vfpga_obf_lib_bit },
-                       { Port::C_IN, 0_vfpga_obf_lib_bit },
-                       { Port::D_IN, 1_vfpga_obf_lib_bit },
-                       { Port::E_IN, 1_vfpga_obf_lib_bit },
-                       { Port::F_IN, 1_vfpga_obf_lib_bit } }
-            };
+            BUFLogicGate(Port::TEMP_STAGE2_2,
+                         { Port::D_OUT, Port::E_OUT, Port::F_OUT })
+        };
 
-            const auto bytes = vfpgaSerializer.Serialize<true>();
+        VFPGAObfuscatorSimulator::VFPGA::Serializer vfpgaSerializer {
+            Port::ALL,
+            logicGates,
+            {{ Port::A_IN, 1_vfpga_obf_lib_bit },
+              { Port::B_IN, 0_vfpga_obf_lib_bit },
+              { Port::C_IN, 0_vfpga_obf_lib_bit },
+              { Port::D_IN, 1_vfpga_obf_lib_bit },
+              { Port::E_IN, 1_vfpga_obf_lib_bit },
+              { Port::F_IN, 1_vfpga_obf_lib_bit }}
+        };
 
-            struct result_t
-            {
-                std::array<std::byte, 0x1000000> data;
-                std::size_t size;
-            } result {};
-
-            if (bytes.size() <= result.data.size())
-            {
-                for (std::size_t i = 0; i < bytes.size(); i++)
-                {
-                    result.data[i] = bytes[i];
-                }
-
-                result.size = bytes.size();
-            }
-
-            return result;
-        }();
-
-        std::array<std::byte, resultedVFPGASerialized.size> result;
-
-        for (std::size_t i = 0; i < result.size(); i++)
-        {
-            result[i] = resultedVFPGASerialized.data[i];
-        }
-
-        return result;
+        return CExpressionUtils::VectorToTmpArray(
+          vfpgaSerializer.Serialize<true>());
     }();
+
+    static constexpr auto vfpgaSerialized = vfpgaSerializedTmp
+                                              .ToRealSizedArray<
+                                                vfpgaSerializedTmp
+                                                  .real_size>(
+                                                vfpgaSerializedTmp.array);
 
     VFPGAObfuscatorSimulator::VFPGA::Deserializer vfpgaDeserializer;
 
-    auto vfpga = vfpgaDeserializer.Deserialize(
-      { constInitVFPGASerialized.begin(),
-        constInitVFPGASerialized.end() });
+    auto vfpga = vfpgaDeserializer.Deserialize({ vfpgaSerialized.begin(),
+                                                 vfpgaSerialized.end() });
 
     vfpga.PrepareStages();
 

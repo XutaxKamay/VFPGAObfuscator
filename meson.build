@@ -1,4 +1,4 @@
-project('VFPGASimulator', 'cpp', default_options : ['cpp_std=c++20', 'warning_level=everything', 'werror=true'])
+project('VFPGASimulator', 'cpp', default_options : ['cpp_std=c++2b', 'warning_level=everything', 'werror=true'])
 
 add_project_arguments([
     '-DPARALLEL',
@@ -11,7 +11,8 @@ add_project_arguments([
     '-Wno-inline',
     '-Wno-unknown-warning-option',
     '-Wno-unused-command-line-argument',
-    '-fconstexpr-steps=16777216'
+    '-Wno-c++2b-extension',
+    '-fconstexpr-steps=16777216',
     # '-fno-rtti',
     # '-fno-exceptions' # Goal would be to make it freestanding code
 ], language : 'cpp')
