@@ -7,7 +7,7 @@ namespace VFPGAObfuscatorLibrary
 {
     class CExpressionUtils
     {
-      public:
+      private:
         static inline constexpr auto DEFAULT_SIZE_TMP_ARRAY = 0x1000000;
 
         template <typename VECTOR_ELEMENT_T = std::byte,
@@ -26,8 +26,12 @@ namespace VFPGAObfuscatorLibrary
         static constexpr auto VectorToTmpArray(
           const std::vector<VECTOR_ELEMENT_T>& vector);
 
-        template <auto&& TMP_ARRAY_T>
+        template <auto TMP_ARRAY_T>
         static constexpr auto TmpArrayToRealSizedArray();
+
+      public:
+        template <typename FUNCTION_T>
+        static constexpr auto VectorToArray();
     };
 }
 
@@ -65,11 +69,22 @@ constexpr auto VFPGAObfuscatorLibrary::CExpressionUtils::VectorToTmpArray(
     return tmp;
 }
 
-template <auto&& TMP_ARRAY_T>
+template <auto TMP_ARRAY_T>
 constexpr auto VFPGAObfuscatorLibrary::CExpressionUtils::
   TmpArrayToRealSizedArray()
 {
     return TMP_ARRAY_T.template ToRealSizedArray<TMP_ARRAY_T.real_size>();
+}
+
+template <typename FUNCTION_T>
+constexpr auto VFPGAObfuscatorLibrary::CExpressionUtils::VectorToArray()
+{
+    constexpr auto TmpArray = [&]
+    {
+        return VectorToTmpArray(FUNCTION_T {}());
+    }();
+
+    return TmpArrayToRealSizedArray<TmpArray>();
 }
 
 #endif
