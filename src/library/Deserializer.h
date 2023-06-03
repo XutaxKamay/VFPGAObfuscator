@@ -9,7 +9,7 @@ namespace VFPGAObfuscatorLibrary
     class Deserializer
     {
       public:
-        enum class ReadStatus
+        enum struct ReadStatus
         {
             NO_ERROR,
             NOT_SAME_TYPE,

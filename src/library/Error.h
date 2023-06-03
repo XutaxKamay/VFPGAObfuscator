@@ -8,7 +8,7 @@ namespace VFPGAObfuscatorLibrary
     class Error
     {
       public:
-        enum class Msg : int
+        enum struct Msg : int
         {
             UNKNOWN_ELEMENT_TYPE_IN_TRUTH_TABLE,
             VFPGA_LOGIC_GATE_DESERIALIZED_INPUTS_IN_TRUTH_TABLE_NOT_CORRECT,

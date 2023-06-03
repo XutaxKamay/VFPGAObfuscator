@@ -96,11 +96,8 @@ int main()
           vfpgaSerializer.Serialize<true>());
     }();
 
-    static constexpr auto vfpgaSerialized = vfpgaSerializedTmp
-                                              .ToRealSizedArray<
-                                                vfpgaSerializedTmp
-                                                  .real_size>(
-                                                vfpgaSerializedTmp.array);
+    static constexpr auto vfpgaSerialized = CExpressionUtils::
+      TmpArrayToRealSizedArray<vfpgaSerializedTmp>();
 
     VFPGAObfuscatorSimulator::VFPGA::Deserializer vfpgaDeserializer;
 

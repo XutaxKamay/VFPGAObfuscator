@@ -7,7 +7,7 @@ namespace VFPGAObfuscatorLibrary
 {
     using EncodedIndex = std::uint_fast64_t;
 
-    enum class SharedSerializedType : std::uint_fast8_t
+    enum struct SharedSerializedType : std::uint_fast8_t
     {
         INTEGRAL,
         DATA
