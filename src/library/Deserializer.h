@@ -44,14 +44,13 @@ constexpr bool VFPGAObfuscatorLibrary::Deserializer::CanReadVar(
 template <typename T>
 constexpr auto VFPGAObfuscatorLibrary::Deserializer::ReadType()
 {
-    T var;
+    T var {};
 
-    std::ranges::for_each_n(reinterpret_cast<std::byte*>(&var),
-                            sizeof(T),
-                            [&](std::byte& b) noexcept
-                            {
-                                b = data[data_index++];
-                            });
+    for (std::size_t i = 0; i < sizeof(T); i++)
+    {
+        var += static_cast<T>(data[data_index++])
+               << static_cast<T>(i * 8);
+    }
 
     return var;
 }
