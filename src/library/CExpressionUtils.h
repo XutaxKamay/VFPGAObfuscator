@@ -5,7 +5,6 @@
 
 namespace VFPGAObfuscatorLibrary
 {
-
     class CExpressionUtils
     {
       public:

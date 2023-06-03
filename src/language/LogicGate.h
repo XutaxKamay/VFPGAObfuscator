@@ -200,11 +200,11 @@ constexpr VFPGAObfuscatorLanguage::LogicGate VFPGAObfuscatorLanguage::
           if (elements.size() >= 1)
           {
               VFPGAObfuscatorLibrary::Bit finalState;
-              firstOperation.run(finalState, std::get<1>(elements[0]));
+              firstOperation(finalState, std::get<1>(elements[0]));
 
               for (std::size_t i = 1; i < elements.size(); i++)
               {
-                  operation.run(finalState, std::get<1>(elements[i]));
+                  operation(finalState, std::get<1>(elements[i]));
               }
 
               logicGate.output_truth_table.push_back(

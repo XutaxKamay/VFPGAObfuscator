@@ -9,14 +9,15 @@ namespace VFPGAObfuscatorLanguage
     {
         struct FirstOperation
         {
-            constexpr void run(VFPGAObfuscatorLibrary::Bit& finalState,
-                               VFPGAObfuscatorLibrary::Bit firstBit) const;
+            constexpr void operator()(
+              VFPGAObfuscatorLibrary::Bit& finalState,
+              VFPGAObfuscatorLibrary::Bit firstBit) const;
         };
 
         struct Operation
         {
-            constexpr void run(VFPGAObfuscatorLibrary::Bit&,
-                               VFPGAObfuscatorLibrary::Bit) const;
+            constexpr void operator()(VFPGAObfuscatorLibrary::Bit&,
+                                      VFPGAObfuscatorLibrary::Bit) const;
         };
 
       public:
@@ -37,14 +38,14 @@ constexpr VFPGAObfuscatorLanguage::BUFLogicGate::BUFLogicGate(
 {
 }
 
-constexpr void VFPGAObfuscatorLanguage::BUFLogicGate::FirstOperation::run(
-  VFPGAObfuscatorLibrary::Bit& finalState,
-  VFPGAObfuscatorLibrary::Bit firstBit) const
+constexpr void VFPGAObfuscatorLanguage::BUFLogicGate::FirstOperation::
+  operator()(VFPGAObfuscatorLibrary::Bit& finalState,
+             VFPGAObfuscatorLibrary::Bit firstBit) const
 {
     finalState = firstBit;
 }
 
-constexpr void VFPGAObfuscatorLanguage::BUFLogicGate::Operation::run(
+constexpr void VFPGAObfuscatorLanguage::BUFLogicGate::Operation::operator()(
   VFPGAObfuscatorLibrary::Bit&,
   VFPGAObfuscatorLibrary::Bit) const
 {
