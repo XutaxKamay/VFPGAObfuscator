@@ -14,7 +14,7 @@ namespace VFPGAObfuscatorLibrary
                   std::size_t TMP_SIZE_T    = DEFAULT_SIZE_TMP_ARRAY>
         struct TemporaryArray
         {
-            std::array<VECTOR_ELEMENT_T, TMP_SIZE_T> array;
+            std::array<VECTOR_ELEMENT_T, TMP_SIZE_T> value;
             std::size_t real_size;
 
             template <std::size_t REAL_SIZE_T>
@@ -44,7 +44,7 @@ constexpr auto VFPGAObfuscatorLibrary::CExpressionUtils::
 
     for (std::size_t i = 0; i < REAL_SIZE_T; i++)
     {
-        real_sized_array[i] = array[i];
+        real_sized_array[i] = value[i];
     }
 
     return real_sized_array;
@@ -54,19 +54,19 @@ template <typename VECTOR_ELEMENT_T, std::size_t TMP_SIZE_T>
 constexpr auto VFPGAObfuscatorLibrary::CExpressionUtils::VectorToTmpArray(
   const std::vector<VECTOR_ELEMENT_T>& vector)
 {
-    TemporaryArray<VECTOR_ELEMENT_T, TMP_SIZE_T> tmp {};
+    TemporaryArray<VECTOR_ELEMENT_T, TMP_SIZE_T> tmpArray {};
 
-    if (vector.size() <= tmp.array.size())
+    if (vector.size() <= tmpArray.value.size())
     {
         for (std::size_t i = 0; i < vector.size(); i++)
         {
-            tmp.array[i] = vector[i];
+            tmpArray.value[i] = vector[i];
         }
 
-        tmp.real_size = vector.size();
+        tmpArray.real_size = vector.size();
     }
 
-    return tmp;
+    return tmpArray;
 }
 
 template <auto TMP_ARRAY_T>
