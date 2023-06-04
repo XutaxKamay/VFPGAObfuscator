@@ -24,17 +24,18 @@ constexpr VFPGAObfuscatorLanguage::NORLogicGate::NORLogicGate(
     ///////////////////////////////
     /// Reverse all output bits ///
     ///////////////////////////////
-    std::ranges::for_each(output_truth_table,
-                          [&](std::vector<ElementType>& elements)
-                          {
-                              std::ranges::for_each(
-                                elements,
-                                [&](ElementType& state)
-                                {
-                                    std::get<1>(state) = ~std::get<1>(
-                                      state);
-                                });
-                          });
+    std::ranges::for_each(
+      output_truth_table,
+      [&](std::vector<ElementType>& elements)
+      {
+          std::ranges::for_each(
+            elements,
+            [&](ElementType& state)
+            {
+                std::get<VFPGAObfuscatorLibrary::Bit>(state) = ~std::get<
+                  VFPGAObfuscatorLibrary::Bit>(state);
+            });
+      });
 }
 
 #endif
