@@ -62,8 +62,9 @@ VFPGA VFPGA::Deserializer::Deserialize(
       portsInit,
       [&](PortInit& portInit)
       {
-          std::get<0>(portInit) = deserializer.ReadVar<EncodedIndex>();
-          std::get<1>(portInit) = Bit {
+          std::get<PortIndex>(portInit) = deserializer
+                                            .ReadVar<PortIndex>();
+          std::get<Bit>(portInit) = Bit {
               deserializer.ReadVar<decltype(Bit::value)>()
           };
       });
@@ -74,8 +75,8 @@ VFPGA VFPGA::Deserializer::Deserialize(
       portsInit.end(),
       [&](const PortInit& portInit)
       {
-          vfpga.GetPort(std::get<0>(portInit))->state = std::get<1>(
-            portInit);
+          vfpga.GetPort(std::get<PortIndex>(portInit))->state = std::get<
+            Bit>(portInit);
       });
 
     return vfpga;

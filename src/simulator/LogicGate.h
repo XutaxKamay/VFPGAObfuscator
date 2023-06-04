@@ -77,6 +77,10 @@ namespace VFPGAObfuscatorSimulator
     class LogicGate
     {
       public:
+        template <typename T = Port*>
+        using ElementType_T = std::variant<T, VFPGAObfuscatorLibrary::Bit>;
+        using ElementType = ElementType_T<Port*>;
+
         class Deserializer
         {
           public:
@@ -87,13 +91,12 @@ namespace VFPGAObfuscatorSimulator
         class Serializer
         {
           public:
-            using ElementType = std::variant<
-              VFPGAObfuscatorLibrary::EncodedIndex,
-              VFPGAObfuscatorLibrary::Bit>;
-            using TruthTable = std::vector<std::vector<ElementType>>;
+            using Port        = VFPGAObfuscatorLibrary::EncodedIndex;
+            using ElementType = LogicGate::ElementType_T<Port>;
+            using TruthTable  = std::vector<std::vector<ElementType>>;
 
-            std::vector<VFPGAObfuscatorLibrary::EncodedIndex> input_ports;
-            std::vector<VFPGAObfuscatorLibrary::EncodedIndex> output_ports;
+            std::vector<Port> input_ports;
+            std::vector<Port> output_ports;
             TruthTable input_truth_table;
             TruthTable output_truth_table;
 
@@ -102,9 +105,7 @@ namespace VFPGAObfuscatorSimulator
         };
 
       public:
-        using ElementType = std::variant<Port*,
-                                         VFPGAObfuscatorLibrary::Bit>;
-        using TruthTable  = std::vector<std::vector<ElementType>>;
+        using TruthTable = std::vector<std::vector<ElementType>>;
 
         std::vector<Port*> input_ports;
         std::vector<Port*> output_ports;
@@ -144,8 +145,7 @@ constexpr std::vector<std::byte> VFPGAObfuscatorSimulator::LogicGate::
 {
     VFPGAObfuscatorLibrary::Serializer serializer;
 
-    const auto AddPort =
-      [&](const VFPGAObfuscatorLibrary::EncodedIndex& portIndex)
+    const auto AddPort = [&](const Port& portIndex)
     {
         serializer.AddVar(portIndex);
     };
@@ -162,7 +162,7 @@ constexpr std::vector<std::byte> VFPGAObfuscatorSimulator::LogicGate::
                 ///////////////////
                 /// It's a port ///
                 ///////////////////
-                serializer.AddVar(std::get<0>(element));
+                serializer.AddVar(std::get<Port>(element));
                 break;
             }
 
@@ -171,7 +171,8 @@ constexpr std::vector<std::byte> VFPGAObfuscatorSimulator::LogicGate::
                 //////////////////
                 /// It's a bit ///
                 //////////////////
-                serializer.AddVar(std::get<1>(element).value);
+                serializer.AddVar(
+                  std::get<VFPGAObfuscatorLibrary::Bit>(element).value);
                 break;
             }
 
@@ -187,8 +188,7 @@ constexpr std::vector<std::byte> VFPGAObfuscatorSimulator::LogicGate::
         }
     };
 
-    const auto AddPorts =
-      [&](const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>& ports)
+    const auto AddPorts = [&](const std::vector<Port>& ports)
     {
         serializer.AddVar<VFPGAObfuscatorLibrary::EncodedIndex>(
           ports.size());

@@ -113,7 +113,7 @@ constexpr T VFPGAObfuscatorLibrary::Deserializer::ReadVar(
               .template operator()<ReadStatus::NOT_SAME_TYPE>();
         }
 
-        value = T { &data[data_index], &data[data_index] + sizeOfData };
+        value = T { &data[data_index], &data[data_index + sizeOfData] };
 
         data_index += sizeOfData;
     }

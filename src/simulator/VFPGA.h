@@ -75,6 +75,7 @@ namespace VFPGAObfuscatorSimulator
     class VFPGA
     {
       public:
+        using PortIndex = LogicGate::Serializer::Port;
         using PortInit = std::tuple<VFPGAObfuscatorLibrary::EncodedIndex,
                                     VFPGAObfuscatorLibrary::Bit>;
 

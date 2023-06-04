@@ -19,8 +19,8 @@ LogicGate LogicGate::Deserializer::Deserialize(
 
         for (EncodedIndex index = 0; index < numberOfPorts; index++)
         {
-            const auto portIndex = deserializer
-                                     .ReadAndCheckStatus<EncodedIndex>();
+            const auto portIndex = deserializer.ReadAndCheckStatus<
+              Serializer::Port>();
 
             if (portIndex >= vfpga->NumberOfPorts())
             {
@@ -47,7 +47,7 @@ LogicGate LogicGate::Deserializer::Deserialize(
                 /// It's a port ///
                 ///////////////////
                 const auto portIndex = deserializer.ReadAndCheckStatus<
-                  EncodedIndex>();
+                  Serializer::Port>();
 
                 if (portIndex >= vfpga->NumberOfPorts())
                 {
@@ -65,7 +65,7 @@ LogicGate LogicGate::Deserializer::Deserialize(
                 /// It's a bit ///
                 //////////////////
                 element = Bit {
-                    deserializer.ReadAndCheckStatus<std::uint_fast8_t>()
+                    deserializer.ReadAndCheckStatus<decltype(Bit::value)>()
                 };
                 break;
             }
@@ -139,7 +139,7 @@ void LogicGate::Simulate()
                 ///////////////////
                 /// It's a port ///
                 ///////////////////
-                state = std::get<0>(element)->state;
+                state = std::get<Port*>(element)->state;
                 break;
             }
 
@@ -148,7 +148,7 @@ void LogicGate::Simulate()
                 //////////////////
                 /// It's a bit ///
                 //////////////////
-                state = std::get<1>(element);
+                state = std::get<Bit>(element);
                 break;
             }
 

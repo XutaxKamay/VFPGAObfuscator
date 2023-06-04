@@ -24,17 +24,18 @@ constexpr VFPGAObfuscatorLanguage::XNORLogicGate::XNORLogicGate(
     ///////////////////////////////
     /// Reverse all output bits ///
     ///////////////////////////////
-    std::ranges::for_each(output_truth_table,
-                          [&](std::vector<ElementType>& elements)
-                          {
-                              std::ranges::for_each(
-                                elements,
-                                [&](ElementType& state)
-                                {
-                                    std::get<1>(state).Set(
-                                      ~std::get<1>(state));
-                                });
-                          });
+    std::ranges::for_each(
+      output_truth_table,
+      [&](std::vector<ElementType>& elements)
+      {
+          std::ranges::for_each(
+            elements,
+            [&](ElementType& state)
+            {
+                std::get<VFPGAObfuscatorLibrary::Bit>(state) = ~std::get<
+                  VFPGAObfuscatorLibrary::Bit>(state);
+            });
+      });
 }
 
 #endif
