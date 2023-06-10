@@ -12,7 +12,7 @@ add_project_arguments([
     '-Wno-unknown-warning-option',
     '-Wno-unused-command-line-argument',
     '-Wno-c++2b-extension',
-    '-fconstexpr-steps=16777216',
+    '-fconstexpr-steps=4294967295',
     # '-fno-rtti',
     # '-fno-exceptions' # Goal would be to make it freestanding code
 ], language : 'cpp')

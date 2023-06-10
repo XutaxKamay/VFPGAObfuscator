@@ -21,16 +21,14 @@ namespace VFPGAObfuscatorLanguage
         };
 
       public:
-        constexpr BUFLogicGate(
-          VFPGAObfuscatorLibrary::EncodedIndex inputPort,
-          const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>&
-            outputPorts);
+        constexpr BUFLogicGate(const Port& inputPort,
+                               const std::vector<Port>& outputPorts);
     };
 };
 
 constexpr VFPGAObfuscatorLanguage::BUFLogicGate::BUFLogicGate(
-  VFPGAObfuscatorLibrary::EncodedIndex inputPort,
-  const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>& outputPorts)
+  const Port& inputPort,
+  const std::vector<Port>& outputPorts)
  : LogicGate {
        CreateStandardTruthTable<FirstOperation, Operation>({ inputPort },
                                                            outputPorts)

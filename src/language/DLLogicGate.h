@@ -12,17 +12,14 @@ namespace VFPGAObfuscatorLanguage
         /// First input port: Enable set   ///
         /// Second input port: Data to set ///
         //////////////////////////////////////
-        constexpr DLLogicGate(
-          const std::array<VFPGAObfuscatorLibrary::EncodedIndex, 2>&
-            inputPorts,
-          const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>&
-            outputPorts);
+        constexpr DLLogicGate(const std::array<Port, 2>& inputPorts,
+                              const std::vector<Port>& outputPorts);
     };
 };
 
 constexpr VFPGAObfuscatorLanguage::DLLogicGate::DLLogicGate(
-  const std::array<VFPGAObfuscatorLibrary::EncodedIndex, 2>& inputPorts,
-  const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>& outputPorts)
+  const std::array<Port, 2>& inputPorts,
+  const std::vector<Port>& outputPorts)
 {
     using namespace VFPGAObfuscatorLibrary;
 

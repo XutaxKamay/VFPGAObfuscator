@@ -1,3 +1,4 @@
+#include "ADDLogicGate.h"
 #include "ANDLogicGate.h"
 #include "BUFLogicGate.h"
 #include "ORLogicGate.h"
@@ -9,12 +10,12 @@
 using namespace VFPGAObfuscatorLibrary;
 using namespace VFPGAObfuscatorLanguage;
 
-int main()
+static void VFPGAExampleInHeader()
 {
     //////////////////////////////////////////////////////
     /// Let's copy the scheme inside the VFPGA example ///
     //////////////////////////////////////////////////////
-    enum Port : EncodedIndex
+    enum Port : VFPGAObfuscatorLanguage::LogicGate::Port
     {
         A_IN,
         B_IN,
@@ -112,6 +113,7 @@ int main()
 
     vfpga.Simulate();
 
+    std::cout << "Result:\n";
     std::cout << static_cast<int>(vfpga.GetPort(Port::A_OUT)->state)
               << static_cast<int>(vfpga.GetPort(Port::B_OUT)->state)
               << static_cast<int>(vfpga.GetPort(Port::C_OUT)->state)
@@ -119,6 +121,52 @@ int main()
               << static_cast<int>(vfpga.GetPort(Port::E_OUT)->state)
               << static_cast<int>(vfpga.GetPort(Port::F_OUT)->state)
               << '\n';
+}
+
+static void VFPGAAddIntegerTests()
+{
+    static constexpr auto integerBitSize = 2;
+
+    enum Port : VFPGAObfuscatorLanguage::LogicGate::Port
+    {
+        INTEGER_1      = 0,
+        INTEGER_2      = integerBitSize,
+        INTEGER_RESULT = INTEGER_2 + integerBitSize,
+        CARRY_BIT      = INTEGER_RESULT + integerBitSize,
+        ALL
+    };
+
+    struct GenerateVFPGA
+    {
+        constexpr auto operator()()
+        {
+            VFPGAObfuscatorSimulator::VFPGA::Serializer vfpgaSerializer {};
+
+            return vfpgaSerializer.Serialize<true>();
+        }
+    };
+
+    static constexpr auto vfpgaSerialized = CExpressionUtils::
+      VectorToArray<GenerateVFPGA>();
+
+    VFPGAObfuscatorSimulator::VFPGA::Deserializer vfpgaDeserializer;
+
+    auto vfpga = vfpgaDeserializer.Deserialize({ vfpgaSerialized.begin(),
+                                                 vfpgaSerialized.end() });
+
+    vfpga.PrepareStages();
+
+    std::cout << "Stages: " << vfpga.stages.size() << '\n';
+
+    vfpga.Simulate();
+
+    std::cout << "Result:\n";
+}
+
+int main()
+{
+    VFPGAExampleInHeader();
+    VFPGAAddIntegerTests();
 
     return 0;
 }

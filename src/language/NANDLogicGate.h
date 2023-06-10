@@ -8,17 +8,14 @@ namespace VFPGAObfuscatorLanguage
     class NANDLogicGate : public ANDLogicGate
     {
       public:
-        constexpr NANDLogicGate(
-          const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>&
-            inputPorts,
-          const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>&
-            outputPorts);
+        constexpr NANDLogicGate(const std::vector<Port>& inputPorts,
+                                const std::vector<Port>& outputPorts);
     };
 };
 
 constexpr VFPGAObfuscatorLanguage::NANDLogicGate::NANDLogicGate(
-  const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>& inputPorts,
-  const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>& outputPorts)
+  const std::vector<Port>& inputPorts,
+  const std::vector<Port>& outputPorts)
  : ANDLogicGate { inputPorts, outputPorts }
 {
     ///////////////////////////////

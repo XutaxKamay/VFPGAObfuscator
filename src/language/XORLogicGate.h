@@ -22,17 +22,14 @@ namespace VFPGAObfuscatorLanguage
         };
 
       public:
-        constexpr XORLogicGate(
-          const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>&
-            inputPorts,
-          const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>&
-            outputPorts);
+        constexpr XORLogicGate(const std::vector<Port>& inputPorts,
+                               const std::vector<Port>& outputPorts);
     };
 };
 
 constexpr VFPGAObfuscatorLanguage::XORLogicGate::XORLogicGate(
-  const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>& inputPorts,
-  const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>& outputPorts)
+  const std::vector<Port>& inputPorts,
+  const std::vector<Port>& outputPorts)
  : LogicGate {
        CreateStandardTruthTable<FirstOperation, Operation>(inputPorts,
                                                            outputPorts)

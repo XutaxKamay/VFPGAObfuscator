@@ -8,17 +8,14 @@ namespace VFPGAObfuscatorLanguage
     class NORLogicGate : public ORLogicGate
     {
       public:
-        constexpr NORLogicGate(
-          const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>&
-            inputPorts,
-          const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>&
-            outputPorts);
+        constexpr NORLogicGate(const std::vector<Port>& inputPorts,
+                               const std::vector<Port>& outputPorts);
     };
 };
 
 constexpr VFPGAObfuscatorLanguage::NORLogicGate::NORLogicGate(
-  const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>& inputPorts,
-  const std::vector<VFPGAObfuscatorLibrary::EncodedIndex>& outputPorts)
+  const std::vector<Port>& inputPorts,
+  const std::vector<Port>& outputPorts)
  : ORLogicGate { inputPorts, outputPorts }
 {
     ///////////////////////////////
