@@ -40,14 +40,14 @@ template <std::size_t REAL_SIZE_T>
 constexpr auto VFPGAObfuscatorLibrary::CExpressionUtils::
   TemporaryArray<VECTOR_ELEMENT_T, TMP_SIZE_T>::ToRealSizedArray() const
 {
-    std::array<VECTOR_ELEMENT_T, REAL_SIZE_T> real_sized_array {};
+    std::array<VECTOR_ELEMENT_T, REAL_SIZE_T> realSizedArray {};
 
     for (std::size_t i = 0; i < REAL_SIZE_T; i++)
     {
-        real_sized_array[i] = value[i];
+        realSizedArray[i] = value[i];
     }
 
-    return real_sized_array;
+    return realSizedArray;
 }
 
 template <typename VECTOR_ELEMENT_T, std::size_t TMP_SIZE_T>
